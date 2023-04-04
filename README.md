@@ -1,4 +1,8 @@
 # SCAnalyzer-Chataigne-Module
+
+![image](https://user-images.githubusercontent.com/121941293/229838656-b568b3cc-4eba-4d5a-80d6-d6c85fdb1974.png)
+
+
 Song analyzer, timecoded sequence creation. Actions/ Triggers execution based on segmenter/rhythm difference. 
 
 This is on early stage. Not to be used as it is whithout any Chataigne's script knowledge.
