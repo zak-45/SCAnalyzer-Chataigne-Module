@@ -10,3 +10,5 @@ Websocket , UDP and HTTP protocols are used, depend of the necessity
 
 It will also take care of the Spleeter module, and if required, actions/ triggers for only vocal part of the song will be generated.
 
+'Create Show' command will generate all actions/triggers/mapping with four clicks.
+
