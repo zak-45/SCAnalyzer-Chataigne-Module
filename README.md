@@ -16,3 +16,13 @@ It will also take care of the Spleeter module, and if required, actions/ trigger
 
 'Create Show' command will generate all actions/triggers/mapping with four clicks.
 
+
+Links :
+
+Chataigne : https://benjamin.kuperberg.fr/chataigne/fr
+
+Vamp Plugins : https://vamp-plugins.org/index.html  ---> Pack : https://vamp-plugins.org/pack.html
+
+Sonic Annotator : https://vamp-plugins.org/sonic-annotator/ --> binaries : https://code.soundsoftware.ac.uk/projects/sonic-annotator/files
+
+
