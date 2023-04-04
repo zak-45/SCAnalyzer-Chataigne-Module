@@ -1,0 +1,20 @@
+@prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
+@prefix vamp:     <http://purl.org/ontology/vamp/> .
+@prefix :         <#> .
+
+:transform a vamp:Transform ;
+    vamp:plugin <http://vamp-plugins.org/rdf/plugins/qm-vamp-plugins#qm-segmenter> ;
+    vamp:plugin_version """3""" ; 
+    vamp:parameter_binding [
+        vamp:parameter [ vamp:identifier "featureType" ] ;
+        vamp:value "featureType"^^xsd:float ;
+    ] ;
+    vamp:parameter_binding [
+        vamp:parameter [ vamp:identifier "nSegmentTypes" ] ;
+        vamp:value "nSegmentTypes"^^xsd:float ;
+    ] ;
+    vamp:parameter_binding [
+        vamp:parameter [ vamp:identifier "neighbourhoodLimit" ] ;
+        vamp:value "neighbourhoodLimit"^^xsd:float ;
+    ] ;
+    vamp:output <http://vamp-plugins.org/rdf/plugins/qm-vamp-plugins#qm-segmenter_output_segmentation> .

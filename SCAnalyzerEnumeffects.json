@@ -1,0 +1,50 @@
+[
+  {
+    "key": "A",
+    "value": "Power"
+  },
+  {
+    "key": "B",
+    "value": "Bands"
+  },
+  {
+    "key": "C",
+    "value": "Marching"
+  },
+  {
+    "key": "D",
+    "value": "BPM Strobe"
+  },
+  {
+    "key": "E",
+    "value": "Equalizer"
+  },
+  {
+    "key": "F",
+    "value": "Energy"
+  },
+  {
+    "key": "G",
+    "value": "Magnitude"
+  },
+  {
+    "key": "H",
+    "value": "Spectrum"
+  },
+  {
+    "key": "I",
+    "value": "Strobe"
+  },
+  {
+    "key": "J",
+    "value": "Blocks"
+  },
+  {
+    "key": "K",
+    "value": "Melt"
+  },
+  {
+    "key": "L",
+    "value": "Bar"
+  }
+]
