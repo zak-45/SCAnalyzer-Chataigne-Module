@@ -178,6 +178,74 @@ CAUTION: this will increase mapping time creation",
 	Used to regroup WLED by IP and store default/calculated values.",
 			}			
 		},
+		"LedFX Params":{
+			"type": "Container",
+			"description":"LedFX parameters",
+			"collapsed": true,
+			"Default virtual device name": {
+				"type": "String",
+				"description": "Enter default device name used for trigger consequences",
+				"default": "ledfxvirtualdevice"
+			},
+			"Default scene name": {
+				"type": "String",
+				"description": "Enter default scene name used for trigger consequences",
+				"default": "ledfxscene"
+			},			
+			"Associated scenes": {
+				"type": "Enum",
+				"description": "Scenes to use by segment from prefix A thru L e.g.'A = scene1, B = scene2 ,C ...' . Right click, set options to adapt",
+				"readOnly": false,
+				"options": {
+					"A":"scene1",
+					"B":"scene2",
+					"C":"scene3"
+				}
+			},			
+			"Associated effects": {
+				"type": "Enum",
+				"description": "Effect to use by segment from prefix A thru L e.g.'A = power, B = blocks ,C ...' . Right click, set options to adapt",
+				"readOnly": false,
+				"options": {
+					"A":"Power",
+					"B":"Bands",
+					"C":"Marching",
+					"D":"Energy",
+					"E":"Equalizer",
+					"F":"Melt",
+					"G":"Magnitude",
+					"H":"Spectrum",
+					"I":"Strobe",
+					"J":"Blocks",
+					"K":"BPM Strobe",
+					"L":"Bar"
+				}
+			},
+			"Load default": {
+				"type": "Trigger",
+				"description": "Load default effects association "
+			},			
+			"Use scenes": {
+				"type": "Boolean",
+				"description": "Checked, will create consequences using associated scenes instead effects ",
+				"default": false
+			},			
+			"Create actions": {
+				"type": "Boolean",
+				"description": "Checked, will create consequences using default device / associated effects or scenes activation",
+				"default": false
+			}
+		},
+		"Spleeter Params":{
+			"type": "Container",
+			"description":"Spleeter global parameters",
+			"collapsed": false,
+			"Create vocal": {
+				"type": "Boolean",
+				"description": "Checked, will create mapping for vocal part of the song.",
+				"default": false
+			}
+		},		
 		"Default Colors":{
 			"type": "Container",
 			"description":"Color parameters",
@@ -441,65 +509,7 @@ CAUTION: this will increase mapping time creation",
 				"max":200,
 				"default": -1
 			}
-		},		
-		"LedFX Params":{
-			"type": "Container",
-			"description":"LedFX parameters",
-			"collapsed": true,
-			"Default virtual device name": {
-				"type": "String",
-				"description": "Enter default device name used for trigger consequences",
-				"default": "ledfxvirtualdevice"
-			},
-			"Default scene name": {
-				"type": "String",
-				"description": "Enter default scene name used for trigger consequences",
-				"default": "ledfxscene"
-			},			
-			"Associated scenes": {
-				"type": "Enum",
-				"description": "Scenes to use by segment from prefix A thru L e.g.'A = scene1, B = scene2 ,C ...' . Right click, set options to adapt",
-				"readOnly": false,
-				"options": {
-					"A":"scene1",
-					"B":"scene2",
-					"C":"scene3"
-				}
-			},			
-			"Associated effects": {
-				"type": "Enum",
-				"description": "Effect to use by segment from prefix A thru L e.g.'A = power, B = blocks ,C ...' . Right click, set options to adapt",
-				"readOnly": false,
-				"options": {
-					"A":"Power",
-					"B":"Bands",
-					"C":"Marching",
-					"D":"Energy",
-					"E":"Equalizer",
-					"F":"Melt",
-					"G":"Magnitude",
-					"H":"Spectrum",
-					"I":"Strobe",
-					"J":"Blocks",
-					"K":"BPM Strobe",
-					"L":"Bar"
-				}
-			},
-			"Load default": {
-				"type": "Trigger",
-				"description": "Load default effects association "
-			},			
-			"Use scenes": {
-				"type": "Boolean",
-				"description": "Checked, will create consequences using associated scenes instead effects ",
-				"default": false
-			},			
-			"Create actions": {
-				"type": "Boolean",
-				"description": "Checked, will create consequences using default device / associated effects or scenes activation",
-				"default": false
-			}
-		}		
+		}
 	},
 	"values": {	
 	},

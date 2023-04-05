@@ -71,6 +71,7 @@ script.setExecutionTimeout(300);
 // Module test
 var WLEDexist = "";
 var LedFXexist = "";
+var Spleeterexist = "";
 
 // Create a show
 var keepJson = false;
@@ -102,7 +103,7 @@ function init()
 	var SCAexist = root.modules.getItemWithName("SCAnalyzer");	
 	LedFXexist = root.modules.getItemWithName("LedFX");
 	WLEDexist = root.modules.getItemWithName("WLED");
-
+	Spleeterexist = root.modules.getItemWithName("Spleeter");
 
 	if (SCexist.name == "soundCard" || SCAexist.name == "sCAnalyzer")
 	{	
@@ -158,6 +159,20 @@ function init()
 		script.log("No module WLED");
 		wledcontainer.setCollapsed(true);
 	} 	
+
+	var spleetercontainer = local.parameters.getChild("Spleeter Params");
+	if (Spleeterexist.name == "spleeter")
+	{
+		script.log("Module Spleeter present");
+		spleetercontainer.setCollapsed(false);
+		
+	} else {
+			
+		script.log("No module Spleeter");
+		spleetercontainer.setCollapsed(true);
+	} 	
+
+
 	
 	// test sequence
 	var SQexist = root.sequences.getItemWithName("Sequence");
@@ -315,6 +330,10 @@ function moduleParameterChanged (param)
 		} else if (param.name == "resetEffects") {
 			
 			resetEffects();
+			
+		} else if (param.name == "resetPalettes") {
+			
+			resetPalettes();
 		}
 	}
 }
@@ -2078,6 +2097,24 @@ function resetEffects ()
 	local.parameters.defaultEffects.effectK.set(-1);
 	local.parameters.defaultEffects.effectL.set(-1);
 }
+
+// Default Palettes
+function resetPalettes ()
+{
+	local.parameters.defaultPalettes.paletteA.set(-1);
+	local.parameters.defaultPalettes.paletteB.set(-1);
+	local.parameters.defaultPalettes.paletteC.set(-1);
+	local.parameters.defaultPalettes.paletteD.set(-1);
+	local.parameters.defaultPalettes.paletteE.set(-1);
+	local.parameters.defaultPalettes.paletteF.set(-1);
+	local.parameters.defaultPalettes.paletteG.set(-1);
+	local.parameters.defaultPalettes.paletteH.set(-1);
+	local.parameters.defaultPalettes.paletteI.set(-1);
+	local.parameters.defaultPalettes.paletteJ.set(-1);
+	local.parameters.defaultPalettes.paletteK.set(-1);
+	local.parameters.defaultPalettes.paletteL.set(-1);
+}
+
 
 // retreive temp location
 function AnalyzerTMP ()
