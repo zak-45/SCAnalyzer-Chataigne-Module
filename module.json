@@ -521,7 +521,7 @@ CAUTION: this will increase mapping time creation",
 		"QM Segmenter":
 		{
 			"menu":"Analyzer",
-			"callback":"SegAnalyzer",
+			"callback":"segAnalyzer",
 			"parameters":{
 				"sequence":{
 					"type":"Target",
@@ -569,7 +569,7 @@ Result will create new sequence."
 		"BBC Rhythm Difference":
 		{
 			"menu":"Analyzer",
-			"callback":"RhythmAnalyzer",
+			"callback":"rhythmAnalyzer",
 			"parameters":{
 				"sequence":{
 					"type":"Target",
@@ -629,7 +629,7 @@ Result will create new sequence."
 		"CalcColorEffect":
 		{
 			"menu":"Utility",
-			"callback":"CalcColorEffect",
+			"callback":"calcColorEffect",
 			"parameters":{
 				"sequence":{
 					"type":"Target",
@@ -691,7 +691,7 @@ Result will be stored on the existing sequence",
 		"Create Show":
 		{
 			"menu":"Utility",
-			"callback":"CreateShow",
+			"callback":"createShow",
 			"parameters":{
 				"File name":{
 					"type":"File",
@@ -703,7 +703,7 @@ Result will create new sequence / triggers / mappings depend of parameters."
 		"Play all sequences" :
 		{
 			"menu":"Utility",
-			"callback":"AnalyzerRunshow",
+			"callback":"analyzerRunshow",
 			"parameters":{
 				"play":{
 					"type":"Boolean",
@@ -715,7 +715,7 @@ Result will create new sequence / triggers / mappings depend of parameters."
 		"Reset all sequences" :
 		{
 			"menu":"Utility",
-			"callback":"AnalyzerResetshow"
+			"callback":"analyzerResetshow"
 		} 
 	}
 }
