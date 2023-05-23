@@ -30,7 +30,7 @@ var nSegmentTypes = "";
 var neighbourhoodLimit = "";
 //rhythm
 var shouldProcessRhy = false;
-var rhyAnalyzerisRunning = false;
+var rhythmAnalyzerIsRunning = false;
 var SubBands = "";
 var Threshold = "";
 var MovingAvgWindowLength = "";
@@ -70,6 +70,7 @@ var useScenes = false;
 
 // WLED test
 var wledAuto = false;
+var bkpWLEDValue = "";
 
 // for playing all sequences in sequential way
 var deltaTime = 0;
@@ -87,14 +88,21 @@ var isInit = true;
 script.setExecutionTimeout(300);
 
 // Module test
-var wledExist = "";
-var ledfxExist = "";
-var spleeterExist = "";
+var wledExist = null;
+var ledfxExist = null;
+var spleeterExist = null;
 
 // Create a show
 var keepJson = false;
 var newAudio = "";
 var moreInfo = "";
+var spleeterIsRunning = false;
+var createShowStep2 = false;
+var createShowStep3 = false;
+var createShowStep4 = false;
+var createShowStep5 = false;
+var spleeterOccurrence = 0;
+var spleeterMaxOccurrences = 240;
   
 //We create necessary entries in modules & sequences. We need OS / Sound Card  and  Sequence with Trigger / Audio.
 function init()
@@ -188,9 +196,7 @@ function init()
 			
 		script.log("No module Spleeter");
 		spleetercontainer.setCollapsed(true);
-	} 	
-
-
+	}
 	
 	// test sequence
 	var SQexist = root.sequences.getItemWithName("Sequence");
@@ -208,8 +214,7 @@ function init()
 	
 	// set rate 1 second
 	var rate = 1;
-	script.setUpdateRate(rate);
-	
+	script.setUpdateRate(rate);	
 }
 
 // Triggered once by second (rate = 1), sequence start from index 0, when one sequence reach end time, we switch to index +1
@@ -226,18 +231,44 @@ function update (deltaTime)
 	}
 	
 	// start long pocess on it's own thread to run in blocking mode but not block the main UI
-	if(shouldProcessSeg)
+	if (shouldProcessSeg)
 	{
 		shouldProcessSeg = false;
 		runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neighbourhoodLimit);
 	}
 
 	// start long pocess on it's own thread to run in blocking mode but not block the main UI
-	if(shouldProcessRhy)
+	if (shouldProcessRhy)
 	{
 		shouldProcessRhy = false;
 		runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvgWindowLength, OnsetPeackWindowLength, MinBPM, MaxBPM);
 	}
+
+	if (spleeterIsRunning) 
+	{
+		checkSpleeter();
+	}
+	
+	if (createShowStep2) 
+	{
+		checkStep1();
+		
+	} else if (createShowStep3)	{
+		
+		checkStep2();
+		
+	} else if (createShowStep4) {
+		
+		checkStep3();
+		
+	} else if (createShowStep5) {
+		
+		checkStep4();
+		
+	} else if (createShowLast)  {
+		
+		checkLast();
+	}	
 
 	// Play all enabled sequences
 	if (lastsequence < numberToPlay) 
@@ -385,9 +416,12 @@ function moduleValueChanged (value)
 // check to see if something to do
 function segAnalyzer (insequence, intargetFile, infeatureType, innSegmentTypes, inneighbourhoodLimit)
 {
+	segAnalyzerIsRunning = true;
+
 	if (insequence == "" && intargetFile == "" )
 	{
 		script.log("Nothing to do !!");
+		segAnalyzerIsRunning = false;
 		
 	} else {
 	
@@ -396,6 +430,8 @@ function segAnalyzer (insequence, intargetFile, infeatureType, innSegmentTypes, 
 	featureType = infeatureType;
 	nSegmentTypes = innSegmentTypes;
 	neighbourhoodLimit = inneighbourhoodLimit;
+	
+	util.showMessageBox("Sonic Analyzer ! QM-SEGMENTER ", "This could take a while ...."+moreInfo, "info", "Got it");
 	
 	shouldProcessSeg = true;
 		
@@ -462,8 +498,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 			return;
 		}
 		
-		util.showMessageBox("Sonic Analyzer ! QM-SEGMENTER ", "This could take a while ...."+moreInfo, "info", "Got it");
-		
+	
 		// if output file not set, we set it as audio clip file name 
 		if (SCAoutputFile == "")
 		{						
@@ -932,8 +967,6 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 			}
 		}
 		
-		segAnalyzerIsRunning = false;
-		
 	} else {
 		
 		script.log("Sonic exe not found");
@@ -941,14 +974,19 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 		util.showMessageBox("Sonic Analyzer !", "sonic-annotator not found", "warning", "OK");
 	
 	}
+	
+	segAnalyzerIsRunning = false;
 }
 
 // check to see if something to do
 function rhythmAnalyzer (insequence, intargetFile, inSubBands, inThreshold, inMovingAvgWindowLength, inOnsetPeackWindowLength, inMinBPM, inMaxBPM)
 {
+	rhythmAnalyzerIsRunning = true;
+	
 	if (insequence == "" && intargetFile == "" )
 	{
 		script.log('Nothing to do');
+		rhythmAnalyzerIsRunning = false;
 		
 	} else {
 	
@@ -960,6 +998,8 @@ function rhythmAnalyzer (insequence, intargetFile, inSubBands, inThreshold, inMo
 		OnsetPeackWindowLength = inOnsetPeackWindowLength;
 		MinBPM = inMinBPM;
 		MaxBPM = inMaxBPM;	
+		
+		util.showMessageBox("Sonic Analyzer ! BBC-RHYTHM ", "This could take a while ...." + moreInfo, "info", "Got it");
 
 		shouldProcessRhy = true;	
 	}
@@ -968,7 +1008,7 @@ function rhythmAnalyzer (insequence, intargetFile, inSubBands, inThreshold, inMo
 // Run Sonic: wait and read received data from Rhythm Difference / create Mapping for WLED
 function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvgWindowLength, OnsetPeackWindowLength, MinBPM, MaxBPM)
 {
-	rhyAnalyzerisRunning = true;
+	rhythmAnalyzerIsRunning = true;
 	
 	// Sonic executable
 	SCAnalyzerExeName = local.parameters.sonicParams.sonicAnnotatorLocation.getAbsolutePath();
@@ -1025,7 +1065,6 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 			return;
 		}
 		
-		util.showMessageBox("Sonic Analyzer ! BBC-RHYTHM ", "This could take a while ...."+moreInfo, "info", "Got it");
 		
 		// if output file not set, we set it as audio clip file name 
 		if (SCAoutputFile == "")
@@ -1218,7 +1257,6 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 		}
 		
 		script.log("Total number of points created : " + pointsnumber);
-		rhyAnalyzerisRunning = false;
 
 	} else {
 		
@@ -1227,6 +1265,8 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 		util.showMessageBox("Sonic Analyzer !", "sonic-annotator not found", "warning", "OK");
 	
 	}
+	
+	rhythmAnalyzerIsRunning = false;
 }
 
 // Create Colors / Effects Based on segmentation... could be used by Mappings.
@@ -2255,6 +2295,7 @@ function rhythmAnalyzerTransform (SubBands, Threshold, MovingAvgWindowLength, On
 
 
 // One click Create Show for a mp3 file
+// Step 1
 function createShow (targetFile)
 {
 	script.log("We create sequence for automatic show");
@@ -2268,21 +2309,27 @@ function createShow (targetFile)
 	moreInfo = "Step 1";	
 	keepJson = false;
 	
-	segAnalyzer("", targetFile, 1, 10, 4);
-	var wait = true;
-	for (;wait === true;)
+	segAnalyzer("", targetFile, 1, 10, 4);	
+	createShowStep2 = true;	
+}
+
+// check is step 1 is finished
+function checkStep1()
+{
+	if (segAnalyzerIsRunning)
 	{
-		if (segAnalyzerIsRunning) 
-		{
-			wait = true;
-			util.delayThread(1000);
-			
-		} else {
-			
-			wait = false;
-		}		
+		script.log('Seganalyzer is running');
+		return;
+		
+	} else {
+		
+		createShowStep2 = false;
+		showStep2();		
 	}
-	
+}
+
+function showStep2 ()
+{
 	// retreive the new Audio clip address to pass as parameter, this will create data on current sequence for next segmenter / rhythm.
 	var seqaddr = newAudio.getControlAddress();
 	
@@ -2292,29 +2339,36 @@ function createShow (targetFile)
 	var mappEffect = true;
 	var mapGroup = local.parameters.wledParams.associateGroup.get();
 	
-	script.log("Create sequences for : " + seqaddr);
+	script.log("Create sequence for : " + seqaddr);
 	
 	if (mapGroup != 0)
 	{
 		segAnalyzer(seqaddr, "", 1, 10, 4);	
-		var wait = true;
-		for (;wait === true;)
-		{
-			if (segAnalyzerIsRunning) 
-			{
-				wait = true;
-				util.delayThread(1000);
-				
-			} else {
-				
-				wait = false;
-			}		
-		}
 	}
+	
+	createShowStep3 = true;	
+}
 
+// check is step 2 is finished
+function checkStep2()
+{
+	if (segAnalyzerIsRunning)
+	{
+		script.log('Seganalyzer is running');
+		return;
+		
+	} else {
+		
+		createShowStep3 = false;
+		showStep3();		
+	}	
+}
 
+function showStep3 ()
+{
 	// RHYTHM part
 
+	var seqaddr = newAudio.getControlAddress();
 
 	// Third, execute Rhythm with default values, need to erase the output JSON file
 	moreInfo = "Step 3";	
@@ -2322,21 +2376,30 @@ function createShow (targetFile)
 	
 	script.log("Create mapping for : " + seqaddr);
 	
-	rhythmAnalyzer (seqaddr, "", 7, 1, 200, 6, 12, 300);
-	var wait = true;
-	for (;wait === true;)
-	{
-		if (rhythmAnalyzerIsRunning) 
-		{
-			wait = true;
-			util.delayThread(1000);
-			
-		} else {
-			
-			wait = false;
-		}		
-	}
+	rhythmAnalyzer (seqaddr, "", 7, 1, 200, 6, 12, 300);	
+	createShowStep4 = true;
+}
 
+// check is step 3 is finished
+function checkStep3()
+{
+	if (rhythmAnalyzerIsRunning)
+	{
+		script.log('RhythmAnalyzer is running');
+		return;
+		
+	} else {
+		
+		createShowStep4 = false;
+		showStep4();		
+	}	
+}
+
+
+function showStep4 ()
+{	
+	var seqaddr = newAudio.getControlAddress();
+	
 	// Fourth, create colors loop based on rhythm if requested
 	moreInfo = "Step 4";	
 	if (local.parameters.defaultColors.loopColors.get() == 1)
@@ -2346,30 +2409,43 @@ function createShow (targetFile)
 		var wledExist = root.modules.getItemWithName("WLED");			
 		if (wledExist.name == "wled")
 		{
-			var bkpValue = local.parameters.wledParams.createWLEDActions.get();
+			bkpWLEDValue = local.parameters.wledParams.createWLEDActions.get();
 			local.parameters.wledParams.createWLEDActions.set(0);						
 		}
 		
 		rhythmAnalyzer (seqaddr, "", 7, 1, 200, 6, 12, 300);
-		for (;wait === true;)
-		{
-			if (rhythmAnalyzerIsRunning) 
-			{
-				wait = true;
-				util.delayThread(1000);
-				
-			} else {
-				
-				wait = false;
-			}		
-		}
-				
+	}
+	
+	createShowStep5 = true;
+}
+
+
+// check is step 4 is finished
+function checkStep4()
+{
+	if (rhythmAnalyzerIsRunning)
+	{
+		script.log('RhythmAnalyzer is running');
+		return;
+		
+	} else {
+
+		var wledExist = root.modules.getItemWithName("WLED");		
 		// put back flag value
 		if (wledExist.name == "wled")
 		{
-			local.parameters.wledParams.createWLEDActions.set(bkpValue);
-		}
-	}
+			local.parameters.wledParams.createWLEDActions.set(bkpWLEDValue);
+		}		
+	}	
+
+	createShowStep5 = false;
+	showStep5();
+}
+
+
+function showStep5 ()
+{
+	var seqaddr = newAudio.getControlAddress();
 
 	// fifth, run spleeter separate for vocal
 	moreInfo = "Step 5";
@@ -2382,46 +2458,67 @@ function createShow (targetFile)
 		var cmd = spleeterExist.commandTester.setCommand("Spleeter","Spleeter","Separate");		
 		cmd.sequence.set(seqaddr+"/clips/audioClip/filePath");
 		spleeterExist.commandTester.trigger.trigger();
-		
-		// retreive vocals part from the sequence and create mapping
-		var seqVocals = newAudio.getParent().getControlAddress() + "/vocals";
-		// wait spleeter finished
-		var wait = true;
-		for (;wait === true;)
-		{
-			if (seqVocals.name == "undefined")
-			{
-				util.delayThread(1000);
-				seqVocals = newAudio.getParent().getControlAddress() + "/vocals";
-				wait = true;
-				
-			} else {
-				
-				wait = false;
-				
-			}			
-		}
-		
-		// run mapping for vocals
-		rhythmAnalyzer (seqVocals, "", 7, 1, 200, 6, 12, 300);
-		for (;wait === true;)
-		{
-			if (rhythmAnalyzerIsRunning) 
-			{
-				wait = true;
-				util.delayThread(1000);
-				
-			} else {
-				
-				wait = false;
-			}		
-		}		
-	}
 
-	// Last, reset test
+		spleeterIsRunning = true;
+		
+	} else {
+		
+		showLast();
+	}
+}
+
+function checkSpleeter()
+{
+	var newSequence = newAudio.getParent();
+	var vocalExist = newSequence.getChild('vocals');
+	if (vocalExist.name == "undefined" && spleeterOccurrence < spleeterMaxOccurrences)
+	{
+		script.log('spleeter is running');
+		spleeterOccurrence = spleeterOccurrence + 1;
+		return;
+	}
+	
+	if (spleeterOccurrence >= spleeterMaxOccurrences) 
+	{
+		script.log('Max occurrence reached for spleeter testing');
+		
+	} else {
+		// retreive vocals part from the sequence and create mapping
+		var seqVocals = newAudio.getParent().getControlAddress() + "/vocals";		
+		rhythmAnalyzer (seqVocals, "", 7, 1, 200, 6, 12, 300);		
+	}
+	
+	spleeterOccurrence = 0;
+	spleeterIsRunning = false;
+	createShowLast = true;
+}
+
+
+// check if analyzer for spleeter is finished
+function checkLast()
+{
+	if (rhythmAnalyzerIsRunning)
+	{
+		script.log('RhythmAnalyzer is running');
+		return;
+		
+	} else {
+
+		createShowLast = false;
+		showLast();		
+	}	
+}
+
+
+function showLast()
+{
+	
+		// Last, reset test
 	moreInfo = "";
 	keepJson = false;
 	util.showMessageBox("Sonic Analyzer ! Show Maker ", "Finished", "info", "OK");
+
+	
 }
 
 
@@ -2458,7 +2555,10 @@ function createParamReferenceTo(refParam,toValue)
 	});
 }
 
+
 // used for value/expression testing .......
 function testScript(from)
 {
+	
+	
 }
