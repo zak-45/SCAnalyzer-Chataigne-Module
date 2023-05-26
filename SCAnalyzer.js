@@ -28,8 +28,9 @@ var segAnalyzerIsRunning = false;
 var featureType = "";
 var nSegmentTypes = "";
 var neighbourhoodLimit = "";
+
 //rhythm
-var shouldProcessRhy = false;
+var shouldProcessRhythm = false;
 var rhythmAnalyzerIsRunning = false;
 var SubBands = "";
 var Threshold = "";
@@ -213,12 +214,11 @@ function init()
 	}
 	
 	// set rate 1 second
-	var rate = 1;
-	script.setUpdateRate(rate);	
+	script.setUpdateRate(1);
 }
 
 // Triggered once by second (rate = 1), sequence start from index 0, when one sequence reach end time, we switch to index +1
-function update (deltaTime)
+function update ()
 {	
 
 	// Initialize once some Param
@@ -231,16 +231,16 @@ function update (deltaTime)
 	}
 	
 	// start long pocess on it's own thread to run in blocking mode but not block the main UI
-	if (shouldProcessSeg)
+	if ( shouldProcessSeg === true )
 	{
 		shouldProcessSeg = false;
 		runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neighbourhoodLimit);
 	}
 
 	// start long pocess on it's own thread to run in blocking mode but not block the main UI
-	if (shouldProcessRhy)
+	if (shouldProcessRhythm)
 	{
-		shouldProcessRhy = false;
+		shouldProcessRhythm = false;
 		runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvgWindowLength, OnsetPeackWindowLength, MinBPM, MaxBPM);
 	}
 
@@ -425,16 +425,15 @@ function segAnalyzer (insequence, intargetFile, infeatureType, innSegmentTypes, 
 		
 	} else {
 	
-	sequence = insequence;
-	targetFile = intargetFile;
-	featureType = infeatureType;
-	nSegmentTypes = innSegmentTypes;
-	neighbourhoodLimit = inneighbourhoodLimit;
-	
-	util.showMessageBox("Sonic Analyzer ! QM-SEGMENTER ", "This could take a while ...."+moreInfo, "info", "Got it");
-	
-	shouldProcessSeg = true;
+		sequence = insequence;
+		targetFile = intargetFile;
+		featureType = infeatureType;
+		nSegmentTypes = innSegmentTypes;
+		neighbourhoodLimit = inneighbourhoodLimit;
 		
+		util.showMessageBox("Sonic Analyzer ! QM-SEGMENTER ", "This could take a while ...."+moreInfo, "info", "Got it");
+		
+		shouldProcessSeg = true;		
 	}
 }
 
@@ -540,7 +539,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 		{
 			wledAuto = local.parameters.wledParams.createWLEDActions.get();						
 		}
-		
+
 		// create the container for result values
 		local.values.removeContainer("Vamp plugin");
 		var newContainer = local.values.addContainer("Vamp plugin");
@@ -560,17 +559,18 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 		
 		// create Triggers from the json result file 
 		var newLayersTrigger =  newSequence.layers.addItem('Trigger');
-		var prefix = "QM-";
+		var prefix = "QM";
 		if (mappEffect == 1)
 		{
-			prefix = "Calc-"+mapGroup;
+			prefix = "CALC"+mapGroup;
 		}
+		
 		newLayersTrigger.setName("Triggers : "+ prefix +SCAJSONContent.annotations[0].annotation_metadata.annotator.output_id);
 		newLayersTrigger.triggerWhenSeeking.set(false);
 		
 		for (var i = 0; i < SCAJSONContent.annotations.length; i += 1)
 		{
-			
+
 			// set annotations in values
 			var newannotationsContainer = newContainer.addContainer("annotations");		
 			newannotationsContainer.addStringParameter("tools","",SCAJSONContent.annotations[i].annotation_metadata.annotation_tools);
@@ -589,7 +589,8 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 			newparametersContainer.addStringParameter("featureType ","",SCAJSONContent.annotations[i].annotation_metadata.annotator.parameters.featureType);
 			newparametersContainer.addStringParameter("nSegmentTypes ","",SCAJSONContent.annotations[i].annotation_metadata.annotator.parameters.nSegmentTypes);
 			newparametersContainer.addStringParameter("neighbourhoodLimit ","",SCAJSONContent.annotations[i].annotation_metadata.annotator.parameters.neighbourhoodLimit);
-			
+
+
 			// set vamp plugin parameters in Trigger header (will not be saved)
 			var tparam1 = newLayersTrigger.addStringParameter("featureType ","",SCAJSONContent.annotations[i].annotation_metadata.annotator.parameters.featureType);
 			tparam1.setAttribute("readOnly", true);
@@ -600,7 +601,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 			var tparam3 = newLayersTrigger.addStringParameter("neighbourhoodLimit ","",SCAJSONContent.annotations[i].annotation_metadata.annotator.parameters.neighbourhoodLimit);
 			tparam3.setAttribute("readOnly", true);
 			tparam3.setAttribute("saveValueOnly", false);
-		
+
 			script.log("Occurence : "+i+" data length : "+SCAJSONContent.annotations[i].data.length);
 			
 			var newColor = [];
@@ -612,7 +613,8 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 			{
 
 				// no cue if create triggers for color/effect					
-				if (mappEffect != 1){
+				if (mappEffect != 1)
+				{
 					
 					// set Cue time /name if cue not already exist for this time
 					var cueExist = newSequence.cues.getItemWithName(j);
@@ -677,7 +679,8 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					}
 					
 				} else if (SCAJSONContent.annotations[i].data[j].label.contains("B")) {
-					//newTrigger.color.set([1,.30,1,1]);			
+					//newTrigger.color.set([1,.30,1,1]);
+					util.delayThreadMS(50);
 					newColor = local.parameters.defaultColors.segmentB.get();
 					newTrigger.color.set(newColor);						
 					newEffect = local.parameters.defaultEffects.effectB.get();
@@ -704,7 +707,8 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					
 				} else if (SCAJSONContent.annotations[i].data[j].label.contains("C")) {
 					
-					//newTrigger.color.set([1,.11,.81,1]);			
+					//newTrigger.color.set([1,.11,.81,1]);	
+					util.delayThreadMS(50);
 					newColor = local.parameters.defaultColors.segmentC.get();
 					newTrigger.color.set(newColor);						
 					newEffect = local.parameters.defaultEffects.effectC.get();
@@ -729,7 +733,8 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					}
 					
 				} else if (SCAJSONContent.annotations[i].data[j].label.contains("D")) {
-					//newTrigger.color.set([.1,.1,1,1]);			
+					//newTrigger.color.set([.1,.1,1,1]);
+					util.delayThreadMS(50);
 					newColor = local.parameters.defaultColors.segmentD.get();
 					newTrigger.color.set(newColor);						
 					newEffect = local.parameters.defaultEffects.effectD.get();
@@ -755,6 +760,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					
 				} else if (SCAJSONContent.annotations[i].data[j].label.contains("E")) {
 					//newTrigger.color.set([.1,.1,.1,1]);
+					util.delayThreadMS(50);
 					newColor = local.parameters.defaultColors.segmentE.get();
 					newTrigger.color.set(newColor);
 					newEffect = local.parameters.defaultEffects.effectE.get();
@@ -781,6 +787,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 				} else if (SCAJSONContent.annotations[i].data[j].label.contains("F")) {
 					
 					//newTrigger.color.set([.1,.01,.51,1]);
+					util.delayThreadMS(50);
 					newColor = local.parameters.defaultColors.segmentF.get();
 					newTrigger.color.set(newColor);						
 					newEffect = local.parameters.defaultEffects.effectF.get();
@@ -807,6 +814,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 				} else if (SCAJSONContent.annotations[i].data[j].label.contains("G")) {
 					
 					//newTrigger.color.set([1,.15,.51,1]);
+					util.delayThreadMS(50);
 					newColor = local.parameters.defaultColors.segmentG.get();
 					newTrigger.color.set(newColor);						
 					newEffect = local.parameters.defaultEffects.effectG.get();
@@ -833,6 +841,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 				} else if (SCAJSONContent.annotations[i].data[j].label.contains("H")) {
 					
 					//newTrigger.color.set([.1,.11,.61,1]);
+					util.delayThreadMS(50);
 					newColor = local.parameters.defaultColors.segmentH.get();
 					newTrigger.color.set(newColor);						
 					newEffect = local.parameters.defaultEffects.effectH.get();
@@ -859,6 +868,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 				} else if (SCAJSONContent.annotations[i].data[j].label.contains("I")) {
 					
 					//newTrigger.color.set([0,.81,0,1]);
+					util.delayThreadMS(50);
 					newColor = local.parameters.defaultColors.segmentI.get();
 					newTrigger.color.set(newColor);						
 					newEffect = local.parameters.defaultEffects.effectI.get();
@@ -885,6 +895,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 				} else if (SCAJSONContent.annotations[i].data[j].label.contains("J")) {
 					
 					//newTrigger.color.set([.51,0,.01,1]);
+					util.delayThreadMS(50);
 					newColor = local.parameters.defaultColors.segmentJ.get();
 					newTrigger.color.set(newColor);						
 					newEffect = local.parameters.defaultEffects.effectJ.get();
@@ -911,6 +922,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 				} else if (SCAJSONContent.annotations[i].data[j].label.contains("K")) {
 					
 					//newTrigger.color.set([.51,.10,.01,1]);
+					util.delayThreadMS(50);
 					newColor = local.parameters.defaultColors.segmentK.get();
 					newTrigger.color.set(newColor);						
 					newEffect = local.parameters.defaultEffects.effectK.get();
@@ -937,6 +949,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 				} else if (SCAJSONContent.annotations[i].data[j].label.contains("L")) {
 					
 					//newTrigger.color.set([.51,.20,.01,1]);
+					util.delayThreadMS(50);
 					newColor = local.parameters.defaultColors.segmentL.get();
 					newTrigger.color.set(newColor);						
 					newEffect = local.parameters.defaultEffects.effectL.get();
@@ -1001,7 +1014,7 @@ function rhythmAnalyzer (insequence, intargetFile, inSubBands, inThreshold, inMo
 		
 		util.showMessageBox("Sonic Analyzer ! BBC-RHYTHM ", "This could take a while ...." + moreInfo, "info", "Got it");
 
-		shouldProcessRhy = true;	
+		shouldProcessRhythm = true;	
 	}
 }
 
@@ -1395,17 +1408,20 @@ function analyzerWLEDInitConseq ()
 
 function analyzerWLEDConseq (newColor,newEffect,newPalette)
 {
+
 	var numberofactions = 0;
 	
 	// this will create the corresponding action (consequence) for WLED : color
 	if (newColor[3] == 1)
 	{
-		var conseq = newTrigger.consequences.addItem("Consequence");
-		conseq.setCommand("WLED","WLED","WLED Color");
+		var conseqColor = newTrigger.consequences.addItem("Consequence");
+		// we need to set delay between command creations to avoid Chataigne crash !!!!!!!!!!
+		util.delayThreadMS(50);
+		conseqColor.setCommand("WLED","WLED","WLED Color");
 		newTrigger.consequences.delay.set(local.parameters.audioParams.effectsDelay.get()/1000);
 		
-		var parcmd = conseq.getChild("command");
-		parcmd.wledcolor.set(newColor);
+		var parcmdColor = conseqColor.getChild("command");
+		parcmdColor.wledcolor.set(newColor);
 		numberofactions += 1;
 		
 		if (local.parameters.wledParams.allIP.get() == 1 && local.parameters.wledParams.associateGroup.get() != 0)
@@ -1418,6 +1434,8 @@ function analyzerWLEDConseq (newColor,newEffect,newPalette)
 	if (newEffect != -1)
 	{
 		var conseq = newTrigger.consequences.addItem("Consequence");
+		// we need to set delay between command creations to avoid Chataigne crash !!!!!!!!!!
+		util.delayThreadMS(50);		
 		conseq.setCommand("WLED","WLED","WLED Effect");
 		newTrigger.consequences.delay.set(local.parameters.audioParams.effectsDelay.get()/1000);
 		
@@ -1435,6 +1453,8 @@ function analyzerWLEDConseq (newColor,newEffect,newPalette)
 	if (newPalette != -1)
 	{
 		var conseq = newTrigger.consequences.addItem("Consequence");
+		// we need to set delay between command creations to avoid Chataigne crash !!!!!!!!!!
+		util.delayThreadMS(50);		
 		conseq.setCommand("WLED","WLED","WLED Palette");
 		newTrigger.consequences.delay.set(local.parameters.audioParams.effectsDelay.get()/1000);		
 
@@ -1673,7 +1693,7 @@ function createWLEDOutput()
 	//	
 }
 
-// create mapping output for color : can be used to change WLED color
+// create mapping output for color : can be used to change WLED color or whatelse
 function createColorMapping(groupName)
 {
 	// retreive group name from wledgroupxx
@@ -1806,7 +1826,6 @@ function wledCustomVariables(wledGroup)
 // create WS module for an IP address
 function createWS (wsip)
 {
-
 	if (wsip != "")
 	{
 		var ipname = wsip + "-" + "ws";
@@ -1828,8 +1847,7 @@ function createWS (wsip)
 		
 	} else {
 		
-		scrip.log("Nothing to do for blank IP");
-		
+		scrip.log("Nothing to do for blank IP");		
 	}
 }
 
@@ -1873,8 +1891,7 @@ function analyzerIPLoop(wledGroupName)
 				
 			} else {
 				
-				script.log("We bypass this one: "+loopipAdditionalIP[l].name);
-				
+				script.log("We bypass this one: "+loopipAdditionalIP[l].name);				
 			}
 		}
 	}
@@ -2313,7 +2330,7 @@ function createShow (targetFile)
 	createShowStep2 = true;	
 }
 
-// check is step 1 is finished
+// check if step 1 is finished
 function checkStep1()
 {
 	if (segAnalyzerIsRunning)
@@ -2419,7 +2436,6 @@ function showStep4 ()
 	createShowStep5 = true;
 }
 
-
 // check is step 4 is finished
 function checkStep4()
 {
@@ -2441,7 +2457,6 @@ function checkStep4()
 	createShowStep5 = false;
 	showStep5();
 }
-
 
 function showStep5 ()
 {
@@ -2512,15 +2527,11 @@ function checkLast()
 
 function showLast()
 {
-	
-		// Last, reset test
+	// Last, reset test
 	moreInfo = "";
 	keepJson = false;
-	util.showMessageBox("Sonic Analyzer ! Show Maker ", "Finished", "info", "OK");
-
-	
+	util.showMessageBox("Sonic Analyzer ! Show Maker ", "Finished", "info", "OK");	
 }
-
 
 // Reference parameter to value of , 'from' and 'to' need to be OSC addresses.
 function createParamReferenceTo(refParam,toValue)
@@ -2555,10 +2566,8 @@ function createParamReferenceTo(refParam,toValue)
 	});
 }
 
-
 // used for value/expression testing .......
 function testScript(from)
 {
-	
 	
 }
