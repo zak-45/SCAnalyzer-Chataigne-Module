@@ -82,7 +82,8 @@ CAUTION: this will increase mapping time creation",
 			},			
 			"Associate Group": {
 				"type": "Enum",
-				"description": "Choose group name to use for mapping output.",
+				"description": "Choose group name to use for mapping output, to store default values and calculated params.
+Group need to be set under wledGroup xx.",
 				"readOnly": false,
 				"options": {
 					"None":"0",
@@ -102,9 +103,14 @@ CAUTION: this will increase mapping time creation",
 			},
 			"Split": {
 				"type": "Boolean",
-				"description": "Checked, actions will be split thru all WLED IPs (IP from associated group)",
+				"description": "Checked, actions will be split thru all WLED IPs - modulo - (IPs from associated group)",
 				"default": false
 			},
+			"Sequential": {
+				"type": "Boolean",
+				"description": "Checked, actions will be split thru all WLED IPs - sequential - (IPs from associated group)",
+				"default": false
+			},			
 			"AllIP": {
 				"type": "Boolean",
 				"description": "Checked, actions will be created for all WLED IPs (IP from associated group)",
@@ -688,6 +694,18 @@ Result will be stored on the existing sequence",
 				}
 			}
 		},
+		"Re/Generate IP List":
+		{
+			"menu":"Utility",
+			"callback":"GenerateIPList",
+			"parameters":{
+				"Group Name":{
+					"type":"String",
+					"description": "Provide Custom Variables Groupe name for IP list generation.
+This will populate the enum param with the IPs found on group variables (IPxx) "
+				}
+			}
+		},		
 		"Create Show":
 		{
 			"menu":"Utility",

@@ -231,7 +231,7 @@ function update ()
 	}
 	
 	// start long pocess on it's own thread to run in blocking mode but not block the main UI
-	if ( shouldProcessSeg === true )
+	if (shouldProcessSeg)
 	{
 		shouldProcessSeg = false;
 		runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neighbourhoodLimit);
@@ -398,12 +398,26 @@ function moduleParameterChanged (param)
 			deActivateColors();
 			
 		} else if (param.name == "resetEffects") {
-			
+			 
 			resetEffects();
 			
 		} else if (param.name == "resetPalettes") {
 			
 			resetPalettes();
+			
+		} else if (param.name == "split") {
+			
+			if (local.parameters.wledParams.sequential.get() == 1) 
+			{
+				local.parameters.wledParams.sequential.set(0);
+			}
+			
+		} else if (param.name == "sequential") {
+
+			if (local.parameters.wledParams.split.get() == 1) 
+			{
+				local.parameters.wledParams.split.set(0);
+			}		
 		}
 	}
 }
@@ -431,7 +445,7 @@ function segAnalyzer (insequence, intargetFile, infeatureType, innSegmentTypes, 
 		nSegmentTypes = innSegmentTypes;
 		neighbourhoodLimit = inneighbourhoodLimit;
 		
-		util.showMessageBox("Sonic Analyzer ! QM-SEGMENTER ", "This could take a while ...."+moreInfo, "info", "Got it");
+		util.showMessageBox("Sonic Analyzer ! QM-SEGMENTER ", "This could take a while ...." + moreInfo, "info", "Got it");
 		
 		shouldProcessSeg = true;		
 	}
@@ -565,7 +579,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 			prefix = "CALC"+mapGroup;
 		}
 		
-		newLayersTrigger.setName("Triggers : "+ prefix +SCAJSONContent.annotations[0].annotation_metadata.annotator.output_id);
+		newLayersTrigger.setName("Triggers : " + prefix + SCAJSONContent.annotations[0].annotation_metadata.annotator.output_id);
 		newLayersTrigger.triggerWhenSeeking.set(false);
 		
 		for (var i = 0; i < SCAJSONContent.annotations.length; i += 1)
@@ -1015,6 +1029,8 @@ function rhythmAnalyzer (insequence, intargetFile, inSubBands, inThreshold, inMo
 		util.showMessageBox("Sonic Analyzer ! BBC-RHYTHM ", "This could take a while ...." + moreInfo, "info", "Got it");
 
 		shouldProcessRhythm = true;	
+		
+		// runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvgWindowLength, OnsetPeackWindowLength, MinBPM, MaxBPM);
 	}
 }
 
@@ -1044,7 +1060,7 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 		} else {
 			
 			script.log("Using default parameters for the plugin, if you want to customize, select a transform");
-			SCAnalyzerOptions = "-d "+SCAvampPluginName+" "+SCAoutputOptions+' "'+SCAoutputFile+'" ';				
+			SCAnalyzerOptions = " -d "+SCAvampPluginName+" "+SCAoutputOptions+' "'+SCAoutputFile+'" ';				
 			
 		}
 
@@ -1074,7 +1090,7 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 			
 		} else {
 			
-			script.logError("Something wrong on rhythmAnalyzer....");
+			script.logError("Something wrong with rhythmAnalyzer....");
 			return;
 		}
 		
@@ -1125,7 +1141,7 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 		// create Mapping from the json result file 
 		var newLayersMapping =  newSequence.layers.addItem('Mapping');
 		newLayersMapping.automation.range.set(0,7);
-		newLayersMapping.setName("Mapping: BBC-"+ SCAJSONContent.annotations[0].annotation_metadata.annotator.output_id);
+		// newLayersMapping.setName("Mapping: BBC" + SCAJSONContent.annotations[0].annotation_metadata.annotator.output_id);
 		
 		// set flag for wled auto actions creation
 		var wledExist = root.modules.getItemWithName("WLED");			
@@ -1189,7 +1205,7 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 			if (local.parameters.defaultColors.loopColors.get() == 1)
 			{
 				// root.modules.sCAnalyzer.parameters.wledParams.associateGroup
-				newLayersMapping.setName("MapColWLED: "+ groupName);
+				// newLayersMapping.setName("MapColWLED: "+ groupName);
 				// group need to exist
 				if (groupName != 0  && groupExist.name != "undefined") 
 				{
@@ -1201,27 +1217,8 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 				
 				}
 
-			}				
-			// For WLED
-			if (wledAuto)
-			{
-				// root.modules.sCAnalyzer.parameters.wledParams.associateGroup
-				var split = local.parameters.wledParams.split.get();
-				var ps = local.parameters.wledParams.preset.get();
-				newLayersMapping.setName("MapWLED: "+ groupName);
+			}	
 
-				if (groupName != 0  && groupExist.name != "undefined")
-				{
-					
-					analyzerWLEDMapping(groupName, split, ps);
-					
-				} else {
-					
-					script.log("Group not set for  :" + groupName);
-					
-				}
-			}
-			
 			// main mapping points loop creation (keys)
 			for (var j = 0; j < SCAJSONContent.annotations[i].data.length; j += 1)
 			{
@@ -1267,14 +1264,34 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 					}						
 				}					
 			}
+
+			// For WLED
+			if (wledAuto)
+			{
+				// root.modules.sCAnalyzer.parameters.wledParams.associateGroup
+				var split = local.parameters.wledParams.split.get();
+				var sequential = local.parameters.wledParams.sequential.get();
+				var ps = local.parameters.wledParams.preset.get();
+				// newLayersMapping.setName("MapWLED: " + groupName);
+
+				if (groupName != 0  && groupExist.name != "undefined")
+				{
+					
+					analyzerWLEDMapping(groupName, split, sequential, ps);
+					
+				} else {
+					
+					script.log("Group not set for  :" + groupName);
+					
+				}
+			}		
 		}
 		
 		script.log("Total number of points created : " + pointsnumber);
 
 	} else {
 		
-		script.log("Sonic annotator app not found");
-		
+		script.log("Sonic annotator app not found");		
 		util.showMessageBox("Sonic Analyzer !", "sonic-annotator not found", "warning", "OK");
 	
 	}
@@ -1287,14 +1304,13 @@ function calcColorEffect (sequence, mapGroup, featureType, nSegmentTypes, neighb
 {
 	script.log("We create colors/effects based on Segmenter");
 
-	// file is nul, we use only sequence Param
+	// file is null, we use only sequence Param
 	var targetFile = "";
 	var mappEffect = true;
-	segAnalyzer(sequence, targetFile, featureType, nSegmentTypes, neighbourhoodLimit);
-	
+	segAnalyzer(sequence, targetFile, featureType, nSegmentTypes, neighbourhoodLimit);	
 }
 
-// this will create the corresponding LedFX actions (scene activation) for triggers depending on the segment name
+// this will create the corresponding LedFX actions (scene / effect activation) for triggers depending on the segment name
 function analyzerLedFXConseq (segmentName)
 {
 	var conseq = newTrigger.consequences.addItem("Consequence");
@@ -1325,14 +1341,13 @@ function analyzerLedFXConseq (segmentName)
 // For one specific mapGroup , this will create the corresponding action (consequence) for triggers depending on the segment name: can be used by Mapping
 function analyzerMapConseq (segmentName)
 {
-	
 	var numberofactions = 0;
 	
 	if (mapGroup != 0)
 	{
 		// check if custom variables exist for this group 
 		// retreive groupe name 
-		var wledGroupNamevar = local.parameters.getChild("wledParams/"+mapGroup);
+		var wledGroupNamevar = local.parameters.getChild("wledParams/" + mapGroup);
 		var wledGroupName = wledGroupNamevar.get();
 		
 	} else {
@@ -1353,7 +1368,7 @@ function analyzerMapConseq (segmentName)
 			conseq.setCommand("generic","","Set Parameter Value");
 			
 			var parcmd = conseq.getChild("command");
-			parcmd.target.set("customVariables/"+ wledGroupName + "/calcWLEDParams/maincolor");
+			parcmd.target.set("customVariables/"+ wledGroupName + "/calculatedParams/maincolor");
 			parcmd.component.set("All");
 			parcmd.operator.set("Equals");
 			var parcmdvalue = parcmd.getChild("value");
@@ -1371,7 +1386,7 @@ function analyzerMapConseq (segmentName)
 			conseq.setCommand("generic","","Set Parameter Value");
 			
 			var parcmd = conseq.getChild("command");
-			parcmd.target.set("customVariables/"+ wledGroupName + "/calcWLEDParams/effectNumber");
+			parcmd.target.set("customVariables/"+ wledGroupName + "/calculatedParams/effectNumber");
 			parcmd.component.set("All");
 			parcmd.operator.set("Equals");
 			var parcmdvalue = parcmd.getChild("value");
@@ -1394,7 +1409,6 @@ function analyzerMapConseq (segmentName)
 	}
 }
 
-
 // this will create the corresponding action (consequence) for WLED : initial when ledfxAuto is true 
 function analyzerWLEDInitConseq ()
 {
@@ -1408,7 +1422,6 @@ function analyzerWLEDInitConseq ()
 
 function analyzerWLEDConseq (newColor,newEffect,newPalette)
 {
-
 	var numberofactions = 0;
 	
 	// this will create the corresponding action (consequence) for WLED : color
@@ -1477,7 +1490,7 @@ function analyzerWLEDConseq (newColor,newEffect,newPalette)
 }
  
 // Mapping from WLED
-function analyzerWLEDMapping (groupName, split, ps)
+function analyzerWLEDMapping (groupName, split, sequential, ps)
 {
 	
 	var grp = local.parameters.getChild("wledParams/"+ groupName);		
@@ -1490,14 +1503,13 @@ function analyzerWLEDMapping (groupName, split, ps)
 	{
 		// retreive variables
 		var additionalIP = mapin.variables.getItems();
-		script.log(additionalIP.length);
 		
 		if (additionalIP)
 		{
-			script.log("WLED -- Number of additional IP address : "+additionalIP.length);
+			script.log("WLED -- Number of additional IP address : " + additionalIP.length);
 			var portNumber = root.modules.wledsync.parameters.output.remotePort.get();
 			
-			if (split == 1)
+			if (split == 1 || sequential == 1)
 			{
 				createWLEDMapping();
 				
@@ -1538,7 +1550,7 @@ function analyzerWLEDMapping (groupName, split, ps)
 }
 
 function createWLEDMapping()
-{
+{	
 	// add delay to filters
 	var testdelay = local.parameters.audioParams.effectsDelay.get()/1000;
 	if (testdelay != 0) 
@@ -1558,7 +1570,6 @@ function createWLEDMapping()
 		mapoutmath.filterParams.operation.set("Multiply");
 		mapoutmath.filterParams.value.set(50);		
 	}
-		
 
 	if (split == 1)
 	{
@@ -1616,71 +1627,135 @@ function createWLEDMapping()
 		
 		createWLEDOutput();
 		
-	} else {
+	} else if (sequential == 1) {
 
+		// create output
+		var mapout = newLayersMapping.mapping.outputs.addItem();
+		mapout.setCommand("SCAnalyzer","SCAnalyzer","Script callback");
+		util.delayThreadMS(250);
+		var parcmd = mapout.getChild("command");
+		// set script callback name
+		parcmd.callback.set("analyzerIPSequentialLoop");
+		
+		// create arguments 
+		var argmapout = parcmd.getChild("Arguments");
+		var varargmapout = argmapout.addItem("String");
+
+		// by default, linkType is active for argument, this will remove it --> linkType : 0 , change the name to 'GroupName' and set value to group name
+		varargmapout.loadJSONData({
+			"parameters": [
+				{
+					"value": mapin.name,
+					"controlAddress": "/#1"
+				}
+			],
+			"niceName": "GroupName",
+			"type": "String",
+			"param": {
+				"value": mapin.name,
+				"controlAddress": mapout.getControlAddress() + "/command/arguments/groupName/#1"
+			},
+			"paramLinks": {
+				"linkType": 0
+			}
+		});
+
+		// create ws 
+		if (testWS == 1)
+		{
+			for (n = 0; n < additionalIP.length; n++) 
+			{ 
+				if (additionalIP[n].name.contains("ip"))
+				{				
+					var wsipname = additionalIP[n].name;
+					
+					var wsnewIP = additionalIP[n].getChild(wsipname);
+					var wsaddIP = wsnewIP.get();
+					
+					if (wsaddIP != "0.0.0.0" && wsaddIP != "")
+					{
+						createWS(wsaddIP);
+					}
+					
+				}
+			}
+		}
+		
 		createWLEDOutput();
 
+	} else {
+		
+		createWLEDOutput();		
 	}
 }
 
 // create WLED command for Mapping
 function createWLEDOutput()
-{
+{		
 	// test WS
 	var protocolws = local.parameters.wledParams.useWebSocket.get();
 	var preset = local.parameters.wledParams.preset.get();
 	
 	// create output
-	var mapout = newLayersMapping.mapping.outputs.addItem("mappingOutput");
-	mapout.setName(groupName);
-	mapout.setCommand("WLED","WLED","WLED Main");
-	var parcmd = mapout.getChild("command");
+	var mapoutw = newLayersMapping.mapping.outputs.addItem("mappingOutput");
+	mapoutw.setName(groupName);
+	mapoutw.setCommand("WLED","WLED","WLED Main");
+
+	var parcmdw = mapoutw.getChild("command");
 	
 	// set params from Group
-	parcmd.wledIP.set(addIP);
+	parcmdw.wledIP.set(addIP);
+	
 	// Create Param Ref for IP
 	if (split == 1)
 	{
-		var refParam = parcmd.wledIP.getControlAddress();
-		var toValue = mapin.calcWLEDParams.ip.getControlAddress();
+		var refParam = parcmdw.wledIP.getControlAddress();
+		var toValue = mapin.calculatedParams.ip.getControlAddress();
+		createParamReferenceTo(refParam,toValue);
+		
+	} else if (sequential == 1)
+	{
+		var refParam = parcmdw.wledIP.getControlAddress();
+		var toValue = mapin.calculatedParams.ipList.getControlAddress();
 		createParamReferenceTo(refParam,toValue);		
 	}
+	
 	//
-	parcmd.live.set(false);
-	parcmd.on.set(true);
+	parcmdw.live.set(false);
+	parcmdw.on.set(true);
 	if (protocolws == 1)
 	{
-		parcmd.udp.set(false);
+		parcmdw.udp.set(false);
 		
 	} else {
 		
-		parcmd.udp.set(true);
+		parcmdw.udp.set(true);
 	}
-	parcmd.uDPPort.set(mapin.defaultWLEDParams.uDPPort.get());	
-	parcmd.wledcolor.set(mapin.defaultWLEDParams.wledcolor.get());
+	parcmdw.uDPPort.set(mapin.defaultWLEDParams.uDPPort.get());	
+	parcmdw.wledcolor.set(mapin.defaultWLEDParams.wledcolor.get());
 	// Create Param Ref for Color
 	if (local.parameters.defaultColors.loopColors.get() == 1)		
 	{
-		var refParam = parcmd.wledcolor.getControlAddress();
-		var toValue = mapin.calcWLEDParams.mapcolor.getControlAddress();
+		var refParam = parcmdw.wledcolor.getControlAddress();
+		var toValue = mapin.calculatedParams.mapcolor.getControlAddress();
 		createParamReferenceTo(refParam,toValue);
 	}
 	//
-	parcmd.bgcolor.set(mapin.defaultWLEDParams.bgcolor.get());
-	parcmd.brightness.set(mapin.defaultWLEDParams.brightness.get());
-	parcmd.wledeffect.set(mapin.defaultWLEDParams.wledeffect.get());	
-	parcmd.fxspeed.set(mapin.defaultWLEDParams.fxspeed.get());
-	parcmd.fxintensity.set(mapin.defaultWLEDParams.fxintensity.get());
-	parcmd.palette.set(mapin.defaultWLEDParams.palette.get());	
-	parcmd.wledgroup.set(mapin.name);
-	parcmd.wledgroup.setAttribute("readOnly",false);
-	parcmd.wledws.set(protocolws);
-	parcmd.wledws.setAttribute("readOnly",false);
-	parcmd.wledps.set(preset);
-	parcmd.wledps.setAttribute("readOnly",false);
+	parcmdw.bgcolor.set(mapin.defaultWLEDParams.bgcolor.get());
+	parcmdw.brightness.set(mapin.defaultWLEDParams.brightness.get());
+	parcmdw.wledeffect.set(mapin.defaultWLEDParams.wledeffect.get());	
+	parcmdw.fxspeed.set(mapin.defaultWLEDParams.fxspeed.get());
+	parcmdw.fxintensity.set(mapin.defaultWLEDParams.fxintensity.get());
+	parcmdw.palette.set(mapin.defaultWLEDParams.palette.get());	
+	parcmdw.wledgroup.set(mapin.name);
+	parcmdw.wledgroup.setAttribute("readOnly",false);
+	parcmdw.wledws.set(protocolws);
+	parcmdw.wledws.setAttribute("readOnly",false);
+	parcmdw.wledps.set(preset);
+	parcmdw.wledps.setAttribute("readOnly",false);
 
 	// set the link active for brightness
-	var brightControl = parcmd.brightness.getControlAddress();
+	var brightControl = parcmdw.brightness.getControlAddress();
 	var brightObj = root.getChild(brightControl).getParent();
 	brightObj.loadJSONData({
 		"paramLinks": {
@@ -1693,7 +1768,7 @@ function createWLEDOutput()
 	//	
 }
 
-// create mapping output for color : can be used to change WLED color or whatelse
+// create mapping output for color : can be used to change WLED color or something else
 function createColorMapping(groupName)
 {
 	// retreive group name from wledgroupxx
@@ -1750,7 +1825,7 @@ function wledCustomVariables(wledGroup)
 	script.log("Custom group creation for : " + wledGroup);
 
 	// retreive groupe name 
-	var wledGroupNamevar = local.parameters.getChild("wledParams/"+wledGroup);
+	var wledGroupNamevar = local.parameters.getChild("wledParams/" + wledGroup);
 	var wledGroupName = wledGroupNamevar.get();
 	var groupExist = root.customVariables.getItemWithName(wledGroupName);
 
@@ -1793,15 +1868,18 @@ function wledCustomVariables(wledGroup)
 			newpalette.setAttribute("saveValueOnly",false);									
 
 			// create  WLED Container for calcul of IP/color/effect/index/mapcolor: used by script or link
-			var newtmpwledContainer = newGroup.addContainer("Calc WLED Params");
+			var newtmpwledContainer = newGroup.addContainer("Calculated Params");
 
 			newGroupIP = newtmpwledContainer.addStringParameter("IP","IP to use for Effect. calculated by script","0.0.0.0");
 			newGroupIP.setAttribute("readOnly",true);
 			newGroupIP.setAttribute("saveValueOnly",false);
+			newGroupIPList = newtmpwledContainer.addEnumParameter("IP List","IP List to use for Effect. From first to last with loop. Populated from variables IPxx","0.0.0.0");
+			newGroupIPList.setAttribute("readOnly",true);
+			newGroupIPList.setAttribute("saveValueOnly",false);			
 			newGroupindex = newtmpwledContainer.addIntParameter("Index","Number of iteration. calculated by script",0);
 			newGroupindex.setAttribute("readOnly",true);
 			newGroupindex.setAttribute("saveValueOnly",false);	
-			newGroupcolor = newtmpwledContainer.addColorParameter("maincolor","WLED Color",[1,1,1]);
+			newGroupcolor = newtmpwledContainer.addColorParameter("maincolor","Main device Color",[1,1,1]);
 			newGroupcolor.setAttribute("readOnly",true);
 			newGroupcolor.setAttribute("saveValueOnly",false);				
 			newGroupeffect = newtmpwledContainer.addIntParameter("Effect number","Effect index.",0);
@@ -1852,14 +1930,14 @@ function createWS (wsip)
 }
 
 
-// Read all IP from custom variable group and loop from 1 ...n (set the value into root.customVariables.(wledGroupName).parameters.ip/index)
+// Read all IP from custom variable group and loop from 1 ...n modulo (set the value into root.customVariables.(wledGroupName).parameters.ip/index)
 function analyzerIPLoop(wledGroupName)
 {
 	//script.log("Groupe Name : " + wledGroupName);
 	
 	var loopip = root.customVariables.getItemWithName(wledGroupName);
 	var loopipAdditionalIP = loopip.variables.getItems();
-	var loopIndex = loopip.calcWLEDParams.index.get() + 1;
+	var loopIndex = loopip.calculatedParams.index.get() + 1;
 	
 	if (loopipAdditionalIP)
 	{
@@ -1879,8 +1957,8 @@ function analyzerIPLoop(wledGroupName)
 				
 					if (numtest == 0)
 					{
-						loopip.calcWLEDParams.ip.set(loopipAddIP);
-						loopip.calcWLEDParams.index.set(loopIndex);
+						loopip.calculatedParams.ip.set(loopipAddIP);
+						loopip.calculatedParams.index.set(loopIndex);
 						break;
 					}					
 					
@@ -1908,8 +1986,8 @@ function analyzerColorLoop(wledGroupName)
 	
 	if (loopgrp.name != "undefined")
 	{
-		var loopIndex = loopgrp.calcWLEDParams.colorIndex.get() + 1;
-		loopgrp.calcWLEDParams.colorIndex.set(loopIndex);
+		var loopIndex = loopgrp.calculatedParams.colorIndex.get() + 1;
+		loopgrp.calculatedParams.colorIndex.set(loopIndex);
 		
 		for ( var l = 12; l > 0; l--) 
 		{ 
@@ -1921,7 +1999,7 @@ function analyzerColorLoop(wledGroupName)
 					var numtest = loopIndex % (l);				
 					if (numtest == 0)
 					{
-						loopgrp.calcWLEDParams.mapcolor.set(loopColor);
+						loopgrp.calculatedParams.mapcolor.set(loopColor);
 						break;
 					}
 				}
@@ -1932,7 +2010,7 @@ function analyzerColorLoop(wledGroupName)
 					var numtest = loopIndex % (l);				
 					if (numtest == 0)
 					{
-						loopgrp.calcWLEDParams.mapcolor.set(loopColor);
+						loopgrp.calculatedParams.mapcolor.set(loopColor);
 						break;
 					}
 				}
@@ -1943,7 +2021,7 @@ function analyzerColorLoop(wledGroupName)
 					var numtest = loopIndex % (l);				
 					if (numtest == 0)
 					{
-						loopgrp.calcWLEDParams.mapcolor.set(loopColor);
+						loopgrp.calculatedParams.mapcolor.set(loopColor);
 						break;
 					}
 				}
@@ -1954,7 +2032,7 @@ function analyzerColorLoop(wledGroupName)
 					var numtest = loopIndex % (l);				
 					if (numtest == 0)
 					{
-						loopgrp.calcWLEDParams.mapcolor.set(loopColor);
+						loopgrp.calculatedParams.mapcolor.set(loopColor);
 						break;
 					}
 				}
@@ -1965,7 +2043,7 @@ function analyzerColorLoop(wledGroupName)
 					var numtest = loopIndex % (l);				
 					if (numtest == 0)
 					{
-						loopgrp.calcWLEDParams.mapcolor.set(loopColor);
+						loopgrp.calculatedParams.mapcolor.set(loopColor);
 						break;
 					}
 				}
@@ -1976,7 +2054,7 @@ function analyzerColorLoop(wledGroupName)
 					var numtest = loopIndex % (l);				
 					if (numtest == 0)
 					{
-						loopgrp.calcWLEDParams.mapcolor.set(loopColor);
+						loopgrp.calculatedParams.mapcolor.set(loopColor);
 						break;
 					}
 				}
@@ -1987,7 +2065,7 @@ function analyzerColorLoop(wledGroupName)
 					var numtest = loopIndex % (l);				
 					if (numtest == 0)
 					{
-						loopgrp.calcWLEDParams.mapcolor.set(loopColor);
+						loopgrp.calculatedParams.mapcolor.set(loopColor);
 						break;
 					}
 				}
@@ -1998,7 +2076,7 @@ function analyzerColorLoop(wledGroupName)
 					var numtest = loopIndex % (l);				
 					if (numtest == 0)
 					{
-						loopgrp.calcWLEDParams.mapcolor.set(loopColor);
+						loopgrp.calculatedParams.mapcolor.set(loopColor);
 						break;
 					}
 				}
@@ -2009,7 +2087,7 @@ function analyzerColorLoop(wledGroupName)
 					var numtest = loopIndex % (l);				
 					if (numtest == 0)
 					{
-						loopgrp.calcWLEDParams.mapcolor.set(loopColor);
+						loopgrp.calculatedParams.mapcolor.set(loopColor);
 						break;
 					}
 				}
@@ -2020,7 +2098,7 @@ function analyzerColorLoop(wledGroupName)
 					var numtest = loopIndex % (l);				
 					if (numtest == 0)
 					{
-						loopgrp.calcWLEDParams.mapcolor.set(loopColor);
+						loopgrp.calculatedParams.mapcolor.set(loopColor);
 						break;
 					}
 				}
@@ -2031,7 +2109,7 @@ function analyzerColorLoop(wledGroupName)
 					var numtest = loopIndex % (l);				
 					if (numtest == 0)
 					{
-						loopgrp.calcWLEDParams.mapcolor.set(loopColor);
+						loopgrp.calculatedParams.mapcolor.set(loopColor);
 						break;
 					}
 				}
@@ -2042,7 +2120,7 @@ function analyzerColorLoop(wledGroupName)
 					var numtest = loopIndex % (l);				
 					if (numtest == 0)
 					{
-						loopgrp.calcWLEDParams.mapcolor.set(loopColor);
+						loopgrp.calculatedParams.mapcolor.set(loopColor);
 						break;
 					}
 				}
@@ -2107,13 +2185,13 @@ function analyzerResetIndex ()
 	{
 	
 		var customGroup = root.customVariables.getItemAt(j);
-		if (customGroup.calcWLEDParams.index.name != "undefined")
+		if (customGroup.calculatedParams.index.name != "undefined")
 		{
-			customGroup.calcWLEDParams.index.set(0);			
+			customGroup.calculatedParams.index.set(0);			
 		}
-		if (customGroup.calcWLEDParams.colorIndex.name != "undefined")
+		if (customGroup.calculatedParams.colorIndex.name != "undefined")
 		{
-			customGroup.calcWLEDParams.colorIndex.set(0);
+			customGroup.calculatedParams.colorIndex.set(0);
 		}
 	}	
 }
@@ -2412,7 +2490,6 @@ function checkStep3()
 	}	
 }
 
-
 function showStep4 ()
 {	
 	var seqaddr = newAudio.getControlAddress();
@@ -2489,7 +2566,7 @@ function checkSpleeter()
 	if (vocalExist.name == "undefined" && spleeterOccurrence < spleeterMaxOccurrences)
 	{
 		script.log('spleeter is running');
-		spleeterOccurrence = spleeterOccurrence + 1;
+		spleeterOccurrence += 1;
 		return;
 	}
 	
@@ -2508,7 +2585,6 @@ function checkSpleeter()
 	createShowLast = true;
 }
 
-
 // check if analyzer for spleeter is finished
 function checkLast()
 {
@@ -2523,7 +2599,6 @@ function checkLast()
 		showLast();		
 	}	
 }
-
 
 function showLast()
 {
@@ -2565,6 +2640,75 @@ function createParamReferenceTo(refParam,toValue)
 		]
 	});
 }
+
+// populate enum param from Custom variables group IP
+function GenerateIPList(group)
+{
+	script.log("Generate enum param for Custom variables Group : " + group);
+
+	//script.log("Groupe Name : " + wledGroupName);
+	
+	var loopip = root.customVariables.getItemWithName(group);
+	
+	if (loopip.name != "undefined")
+	{
+		
+		var loopipAdditionalIP = loopip.variables.getItems();
+		
+		loopip.calculatedParams.ipList.removeOptions();
+		
+		var j = 0;	
+		if (loopipAdditionalIP)
+		{
+			for ( var l = 0; l < loopipAdditionalIP.length; l++ ) 
+			{ 
+				if (loopipAdditionalIP[l].name.contains("ip"))
+				{				
+					var loopipIPName = loopipAdditionalIP[l].name;
+					
+					var loopipNewIP = loopipAdditionalIP[l].getChild(loopipIPName);
+					var loopipAddIP = loopipNewIP.get();
+					
+					if (loopipAddIP != "0.0.0.0" && loopipAddIP != "")
+					{
+						
+						 loopip.calculatedParams.ipList.addOption(j, loopipAddIP);
+						 j = j + 1;
+						
+					} else {
+					
+						script.log("We bypass this one: "+loopipAdditionalIP[l].name);
+					}
+					
+				} else {
+					
+					script.log("We bypass this one: "+loopipAdditionalIP[l].name);				
+				}
+			}
+		}
+		
+	} else {
+		
+		script.logError("Group do not exist");
+	}
+}
+
+// Read all IPs from custom variables group and loop from 1 ...n  (set the value into root.customVariables.(wledGroupName).parameters.ip/index)
+function analyzerIPSequentialLoop(wledGroupName)
+{
+	//script.log("Groupe Name : " + wledGroupName);
+	
+	var loopip = root.customVariables.getItemWithName(wledGroupName);
+	if (loopip.name != "undefined")
+	{
+		loopip.calculatedParams.ipList.setNext(true);
+		
+	} else {
+		
+		script.log('Group does not exist !!');
+	}	
+}
+
 
 // used for value/expression testing .......
 function testScript(from)
