@@ -1011,6 +1011,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 	}
 	
 	segAnalyzerIsRunning = false;
+	mappEffect = false;
 }
 
 // check to see if something to do
