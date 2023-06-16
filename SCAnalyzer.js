@@ -2671,14 +2671,14 @@ function analyzerIPSequentialLoop(wledGroupName)
 {
 	//script.log("Groupe Name : " + wledGroupName);
 	
-	var loopip = root.customVariables.getItemWithName(wledGroupName);
-	if (loopip.name != "undefined")
+	var loopip = root.customVariables.getItemWithName(wledGroupName);	
+	if (loopip.name != "undefined" && loopip.calculatedParams.ipList.getAllOptions().length != 0)
 	{
 		loopip.calculatedParams.ipList.setNext(true);
 		
 	} else {
 		
-		script.log('Group does not exist !!');
+		script.log('Group does not exist or no IP !!');
 	}	
 }
 
