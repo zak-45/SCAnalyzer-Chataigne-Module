@@ -627,21 +627,21 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 			
 			// retreive groupName if necessary
 		
-			var WledGroupName = "NotSet";			
+			var wledGroupName = "NotSet";			
 
 			if (mapGroup != 0)
 			{
 				// check if custom variables exist for this group 
 				// retreive groupe name 
-				var WledGroupNamevar = local.parameters.getChild("groupParams/" + mapGroup);
-				var WledGroupName = WledGroupNamevar.get();
+				var wledGroupNamevar = local.parameters.getChild("groupParams/" + mapGroup);
+				var wledGroupName = wledGroupNamevar.get();
 				
-				if (WledGroupName == "")
+				if (wledGroupName == "")
 				{
-					WledGroupName = "NotSet";
+					wledGroupName = "NotSet";
 				}
 			}
-			var groupExist = root.customVariables.getItemWithName(WledGroupName);
+			var groupExist = root.customVariables.getItemWithName(wledGroupName);
 		
 			
 			// main Triggers / cues loop 
@@ -694,7 +694,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					
 					if (mappEffect == 1 && groupExist.name != "undefined")
 					{
-						analyzerMapConseq("A", WledGroupName);
+						analyzerMapConseq("A", wledGroupName);
 						
 					} else {
 						// Create init consequences put WLED on live mode if requested
@@ -726,7 +726,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					
 					if (mappEffect == 1 && groupExist.name != "undefined")
 					{
-						analyzerMapConseq("B", WledGroupName);
+						analyzerMapConseq("B", wledGroupName);
 						
 					} else {
 
@@ -753,7 +753,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					
 					if (mappEffect == 1 && groupExist.name != "undefined")
 					{
-						analyzerMapConseq("C", WledGroupName);
+						analyzerMapConseq("C", wledGroupName);
 						
 					} else {
 
@@ -778,7 +778,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					
 					if (mappEffect == 1 && groupExist.name != "undefined")
 					{
-						analyzerMapConseq("D", WledGroupName);
+						analyzerMapConseq("D", wledGroupName);
 						
 					} else {
 
@@ -803,7 +803,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 
 					if (mappEffect == 1 && groupExist.name != "undefined")
 					{
-						analyzerMapConseq("E", WledGroupName);
+						analyzerMapConseq("E", wledGroupName);
 						
 					} else {
 
@@ -828,7 +828,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					
 					if (mappEffect == 1 && groupExist.name != "undefined")
 					{
-						analyzerMapConseq("F", WledGroupName);
+						analyzerMapConseq("F", wledGroupName);
 						
 					} else {
 
@@ -853,7 +853,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					
 					if (mappEffect == 1 && groupExist.name != "undefined")
 					{
-						analyzerMapConseq("G", WledGroupName);
+						analyzerMapConseq("G", wledGroupName);
 						
 					} else {
 
@@ -878,7 +878,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					
 					if (mappEffect == 1 && groupExist.name != "undefined")
 					{
-						analyzerMapConseq("H", WledGroupName);
+						analyzerMapConseq("H", wledGroupName);
 						
 					} else {
 
@@ -903,7 +903,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 							
 					if (mappEffect == 1 && groupExist.name != "undefined")
 					{
-						analyzerMapConseq("I", WledGroupName);
+						analyzerMapConseq("I", wledGroupName);
 						
 					} else {
 
@@ -928,7 +928,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					
 					if (mappEffect == 1 && groupExist.name != "undefined")
 					{
-						analyzerMapConseq("J", WledGroupName);
+						analyzerMapConseq("J", wledGroupName);
 						
 					} else {
 
@@ -953,7 +953,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					
 					if (mappEffect == 1 && groupExist.name != "undefined")
 					{
-						analyzerMapConseq("K", WledGroupName);
+						analyzerMapConseq("K", wledGroupName);
 						
 					} else {
 
@@ -978,7 +978,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					
 					if (mappEffect == 1 && groupExist.name != "undefined")
 					{
-						analyzerMapConseq("L", WledGroupName);
+						analyzerMapConseq("L", wledGroupName);
 						
 					} else {
 
@@ -1185,17 +1185,17 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 			
 			var pointsnumber = 0;
 			var groupName = local.parameters.groupParams.associateGroup.get();
-			var WledGroupNamevar = local.parameters.getChild("groupParams/"+groupName);
-			if (WledGroupNamevar.name != "undefined")
+			var wledGroupNamevar = local.parameters.getChild("groupParams/"+groupName);
+			if (wledGroupNamevar.name != "undefined")
 			{
-				var WledGroupName = WledGroupNamevar.get();
+				var wledGroupName = wledGroupNamevar.get();
 				
 			} else {
 				
-				var WledGroupName = "NotSet";
+				var wledGroupName = "NotSet";
 				
 			}
-			var groupExist = root.customVariables.getItemWithName(WledGroupName);
+			var groupExist = root.customVariables.getItemWithName(wledGroupName);
 
 			// main mapping points loop creation (keys)
 			for (var j = 0; j < SCAJSONContent.annotations[i].data.length; j += 1)
@@ -1348,7 +1348,7 @@ function analyzerLedFXConseq (segmentName)
 }
 
 // For one specific mapGroup , this will create the corresponding action (consequence) for triggers depending on the segment name: can be used by Mapping
-function analyzerMapConseq (segmentName, WledGroupName)
+function analyzerMapConseq (segmentName, wledGroupName)
 {
 	script.log('analyzerMapConseq');
 	var numberofactions = 0;
@@ -1362,7 +1362,7 @@ function analyzerMapConseq (segmentName, WledGroupName)
 		newTrigger.consequences.delay.set(local.parameters.audioParams.effectsDelay.get()/1000);
 		conseq.setCommand("generic","","Set Parameter Value");			
 		var parcmd = conseq.getChild("command");
-		parcmd.target.set("customVariables/"+ WledGroupName + "/calculatedParams/maincolor");
+		parcmd.target.set("customVariables/"+ wledGroupName + "/calculatedParams/maincolor");
 		parcmd.component.set("All");
 		parcmd.operator.set("Equals");
 		var parcmdvalue = parcmd.getChild("value");
@@ -1381,7 +1381,7 @@ function analyzerMapConseq (segmentName, WledGroupName)
 		newTrigger.consequences.delay.set(local.parameters.audioParams.effectsDelay.get()/1000);
 		conseq.setCommand("generic","","Set Parameter Value");			
 		var parcmd = conseq.getChild("command");
-		parcmd.target.set("customVariables/"+ WledGroupName + "/calculatedParams/effectNumber");
+		parcmd.target.set("customVariables/"+ wledGroupName + "/calculatedParams/effectNumber");
 		parcmd.component.set("All");
 		parcmd.operator.set("Equals");
 		var parcmdvalue = parcmd.getChild("value");
@@ -1797,18 +1797,18 @@ function createCustomVariables(scGroup)
 	script.log("Custom group creation for : " + scGroup);
 
 	// retreive groupe name 
-	var WledGroupNamevar = local.parameters.getChild("groupParams/" + scGroup);
-	var WledGroupName = WledGroupNamevar.get();
-	var groupExist = root.customVariables.getItemWithName(WledGroupName);
+	var wledGroupNamevar = local.parameters.getChild("groupParams/" + scGroup);
+	var wledGroupName = wledGroupNamevar.get();
+	var groupExist = root.customVariables.getItemWithName(wledGroupName);
 
-	if (WledGroupName != "")
+	if (wledGroupName != "")
 	{
 		if (groupExist.name == "undefined")
 		{
 			// create variable group
-			var newGroup = root.customVariables.addItem(WledGroupName);
+			var newGroup = root.customVariables.addItem(wledGroupName);
 			util.delayThreadMS(50);
-			newGroup.setName(WledGroupName);
+			newGroup.setName(wledGroupName);
 
 			// add Wled Variables
 			var newIP = newGroup.variables.addItem("String Parameter");
@@ -1912,11 +1912,11 @@ function createWS (wsip)
 
 
 // Read all IP from custom variables group, select modulo index value from xx(max 12) to 1 
-function analyzerIPModuloLoop(WledGroupName)
+function analyzerIPModuloLoop(wledGroupName)
 {
-	//script.log("Groupe Name : " + WledGroupName);
+	//script.log("Groupe Name : " + wledGroupName);
 	
-	var loopip = root.customVariables.getItemWithName(WledGroupName);
+	var loopip = root.customVariables.getItemWithName(wledGroupName);
 	var loopipAdditionalIP = loopip.variables.getItems();
 	var loopIndex = loopip.calculatedParams.index.get() + 1;
 	
@@ -1956,14 +1956,14 @@ function analyzerIPModuloLoop(WledGroupName)
 	}
 }
 
-// Read all active Default Colors  and set the value into root.customVariables.(WledGroupName).parameters.mapcolor depend on index
+// Read all active Default Colors  and set the value into root.customVariables.(wledGroupName).parameters.mapcolor depend on index
 // used as script callback in mapping output
-function analyzerColorLoop(WledGroupName)
+function analyzerColorLoop(wledGroupName)
 {
-	//script.log("Groupe Name for Color Loop : " + WledGroupName);
+	//script.log("Groupe Name for Color Loop : " + wledGroupName);
 	
 	var loopColor = [];
-	var loopgrp = root.customVariables.getItemWithName(WledGroupName);
+	var loopgrp = root.customVariables.getItemWithName(wledGroupName);
 	
 	if (loopgrp.name != "undefined")
 	{
@@ -2667,11 +2667,11 @@ function generateIPList(group)
 }
 
 // Read all IPs from custom variables group and loop from 1 ...n - sequential 
-function analyzerIPSequentialLoop(WledGroupName)
+function analyzerIPSequentialLoop(wledGroupName)
 {
-	//script.log("Groupe Name : " + WledGroupName);
+	//script.log("Groupe Name : " + wledGroupName);
 	
-	var loopip = root.customVariables.getItemWithName(WledGroupName);
+	var loopip = root.customVariables.getItemWithName(wledGroupName);
 	if (loopip.name != "undefined")
 	{
 		loopip.calculatedParams.ipList.setNext(true);
