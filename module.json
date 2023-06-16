@@ -103,12 +103,12 @@ Group need to be set under wledGroup xx.",
 			},
 			"Split": {
 				"type": "Boolean",
-				"description": "Checked, actions will be split thru all WLED IPs - modulo - (IPs from associated group and only for Mappings)",
+				"description": "Checked, actions will be split thru all IPs - modulo - (IPs from associated group and only for Mappings)",
 				"default": false
 			},
 			"Sequential": {
 				"type": "Boolean",
-				"description": "Checked, actions will be split thru all WLED IPs - sequential - (IPs from associated group and only for Mappings)",
+				"description": "Checked, actions will be split thru all IPs - sequential - (IPs from associated group and only for Mappings)",
 				"default": false
 			},			
 			"AllIP": {
