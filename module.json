@@ -54,26 +54,10 @@
 	Need to be specified when want to change default values, use the one provided in module folder (nc3)"				
 			}			
 		},
-		"WLED Params":{
+		"Group Params":{
 			"type": "Container",
-			"description":"WLED parameters",
+			"description":"Group parameters",
 			"collapsed": true,
-			"WLED Live": {
-				"type": "Boolean",
-				"description": "Checked, will put all WLED devices on live mode (not used when UDP)",
-				"default": false
-			},
-			"Create WLED actions": {
-				"type": "Boolean",
-				"description": "Checked, will create consequences using associated colors/effects/palettes for Segmenter(http).
-And Mapping outputs by using Groups for RhythmAnalyzer(udp/ws).",
-				"default": false
-			},
-			"Use WebSocket": {
-				"type": "Boolean",
-				"description": "Checked, will create WS connection for all WLED IP if necessary",
-				"default": false
-			},
 			"Reset Mapping Max value": {
 				"type": "Boolean",
 				"description": "Checked, will create zero point before/after max point values.
@@ -83,22 +67,22 @@ CAUTION: this will increase mapping time creation x3",
 			"Associate Group": {
 				"type": "Enum",
 				"description": "Choose group name to use for mapping output, to store default values and calculated params.
-Group need to be set under wledGroup xx.",
+Group need to be set under scGroup xx.",
 				"readOnly": false,
 				"options": {
 					"None":"0",
-					"01":"wledGroup01",
-					"02":"wledGroup02",
-					"03":"wledGroup03",
-					"04":"wledGroup04",
-					"05":"wledGroup05",
-					"06":"wledGroup06",
-					"07":"wledGroup07",
-					"08":"wledGroup08",
-					"09":"wledGroup09",
-					"10":"wledGroup10",
-					"11":"wledGroup11",
-					"12":"wledGroup12"
+					"01":"scGroup01",
+					"02":"scGroup02",
+					"03":"scGroup03",
+					"04":"scGroup04",
+					"05":"scGroup05",
+					"06":"scGroup06",
+					"07":"scGroup07",
+					"08":"scGroup08",
+					"09":"scGroup09",
+					"10":"scGroup10",
+					"11":"scGroup11",
+					"12":"scGroup12"
 				}
 			},
 			"Split": {
@@ -111,6 +95,81 @@ Group need to be set under wledGroup xx.",
 				"description": "Checked, actions will be split thru all IPs - sequential - (IPs from associated group and only for Mappings)",
 				"default": false
 			},			
+			"ScGroup 01": {
+				"type": "String",
+				"description": "Create custom  variables group name. 
+	Used to regroup IP and store default/calculated values.",
+			},
+			"ScGroup 02": {
+				"type": "String",
+				"description": "Create custom  variables group name. 
+	Used to regroup IP and store default/calculated values.",
+			},
+			"ScGroup 03": {
+				"type": "String",
+				"description": "Create custom  variables group name. 
+	Used to regroup IP and store default/calculated values.",
+			},
+			"ScGroup 04": {
+				"type": "String",
+				"description": "Create custom  variables group name. 
+	Used to regroup IP and store default/calculated values.",
+			},
+			"ScGroup 05": {
+				"type": "String",
+				"description": "Create custom  variables group name. 
+	Used to regroup IP and store default/calculated values.",
+			},
+			"ScGroup 06": {
+				"type": "String",
+				"description": "Create custom  variables group name. 
+	Used to regroup WLED by IP and store default/calculated values.",
+			},
+			"ScGroup 07": {
+				"type": "String",
+				"description": "Create custom  variables group name. 
+	Used to regroup IP and store default/calculated values.",
+			},
+			"ScGroup 08": {
+				"type": "String",
+				"description": "Create custom  variables group name. 
+	Used to regroup IP and store default/calculated values.",
+			},
+			"ScGroup 09": {
+				"type": "String",
+				"description": "Create custom  variables group name. 
+	Used to regroup IP and store default/calculated values.",
+			},			
+			"ScGroup 10": {
+				"type": "String",
+				"description": "Create custom  variables group name. 
+	Used to regroup IP and store default/calculated values.",
+			},			
+			"ScGroup 11": {
+				"type": "String",
+				"description": "Create custom  variables group name. 
+	Used to regroup IP and store default/calculated values.",
+			},			
+			"ScGroup 12": {
+				"type": "String",
+				"description": "Create custom  variables group name. 
+	Used to regroup IP and store default/calculated values.",
+			}			
+		},
+		"WLED Params":{
+			"type": "Container",
+			"description":"WLED parameters",
+			"collapsed": true,
+			"WLED Live": {
+				"type": "Boolean",
+				"description": "Checked, will put all WLED devices on live mode (not used when UDP)",
+				"default": false
+			},
+			"Use WebSocket": {
+				"type": "Boolean",
+				"description": "Checked, will create WS connection for all WLED IP if necessary",
+				"default": false
+			},
 			"AllIP": {
 				"type": "Boolean",
 				"description": "Checked, actions will be created for all WLED IPs (IP from associated group)",
@@ -123,65 +182,11 @@ Group need to be set under wledGroup xx.",
 				"min":0,
 				"max":255
 			},
-			"wledGroup 01": {
-				"type": "String",
-				"description": "Create custom  variables group name. 
-	Used to regroup WLED by IP and store default/calculated values.",
-			},
-			"wledGroup 02": {
-				"type": "String",
-				"description": "Create custom  variables group name. 
-	Used to regroup WLED by IP and store default/calculated values.",
-			},
-			"wledGroup 03": {
-				"type": "String",
-				"description": "Create custom  variables group name. 
-	Used to regroup WLED by IP and store default/calculated values.",
-			},
-			"wledGroup 04": {
-				"type": "String",
-				"description": "Create custom  variables group name. 
-	Used to regroup WLED by IP and store default/calculated values.",
-			},
-			"wledGroup 05": {
-				"type": "String",
-				"description": "Create custom  variables group name. 
-	Used to regroup WLED by IP and store default/calculated values.",
-			},
-			"wledGroup 06": {
-				"type": "String",
-				"description": "Create custom  variables group name. 
-	Used to regroup WLED by IP and store default/calculated values.",
-			},
-			"wledGroup 07": {
-				"type": "String",
-				"description": "Create custom  variables group name. 
-	Used to regroup WLED by IP and store default/calculated values.",
-			},
-			"wledGroup 08": {
-				"type": "String",
-				"description": "Create custom  variables group name. 
-	Used to regroup WLED by IP and store default/calculated values.",
-			},
-			"wledGroup 09": {
-				"type": "String",
-				"description": "Create custom  variables group name. 
-	Used to regroup WLED by IP and store default/calculated values.",
-			},			
-			"wledGroup 10": {
-				"type": "String",
-				"description": "Create custom  variables group name. 
-	Used to regroup WLED by IP and store default/calculated values.",
-			},			
-			"wledGroup 11": {
-				"type": "String",
-				"description": "Create custom  variables group name. 
-	Used to regroup WLED by IP and store default/calculated values.",
-			},			
-			"wledGroup 12": {
-				"type": "String",
-				"description": "Create custom  variables group name. 
-	Used to regroup WLED by IP and store default/calculated values.",
+			"Create WLED actions": {
+				"type": "Boolean",
+				"description": "Checked, will create consequences using associated colors/effects/palettes for Segmenter(http).
+And Mapping outputs by using Groups for RhythmAnalyzer(udp/ws).",
+				"default": false
 			}			
 		},
 		"LedFX Params":{
