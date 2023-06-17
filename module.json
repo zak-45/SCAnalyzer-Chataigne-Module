@@ -64,7 +64,7 @@
 CAUTION: this will increase mapping time creation x3",
 				"default": false
 			},			
-			"Associate Group": {
+			"Link To Group Number": {
 				"type": "Enum",
 				"description": "Choose group name to use for mapping output, to store default values and calculated params.
 Group need to be set under scGroup xx.",
@@ -655,18 +655,18 @@ Result will be stored on the existing sequence",
 					"description": "WLED group Name ",
 					"readOnly": false,
 					"options": {
-						"01":"wledGroup01",
-						"02":"wledGroup02",
-						"03":"wledGroup03",
-						"04":"wledGroup04",
-						"05":"wledGroup05",
-						"06":"wledGroup06",
-						"07":"wledGroup07",
-						"08":"wledGroup08",
-						"09":"wledGroup09",
-						"10":"wledGroup10",
-						"11":"wledGroup11",
-						"12":"wledGroup12"
+						"01":"scGroup01",
+						"02":"scGroup02",
+						"03":"scGroup03",
+						"04":"scGroup04",
+						"05":"scGroup05",
+						"06":"scGroup06",
+						"07":"scGroup07",
+						"08":"scGroup08",
+						"09":"scGroup09",
+						"10":"scGroup10",
+						"11":"scGroup11",
+						"12":"scGroup12"
 					}
 				},				
 				"featureType":{
