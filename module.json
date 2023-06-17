@@ -650,9 +650,9 @@ Result will create new sequence."
 Result will be stored on the existing sequence",
 					"allowedTypes":["File"]
 				},
-				"Associated WLED Group": {
+				"Associated Group": {
 					"type": "Enum",
-					"description": "WLED group Name ",
+					"description": "scGroup Number ",
 					"readOnly": false,
 					"options": {
 						"01":"scGroup01",

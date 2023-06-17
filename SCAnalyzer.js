@@ -641,6 +641,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					groupName = "NotSet";
 				}
 			}
+			groupName = groupName.replace(" ","");
 			var groupExist = root.customVariables.getItemWithName(groupName);
 		
 			
@@ -1198,6 +1199,8 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 				var groupName = "NotSet";
 				
 			}
+			
+			groupName = groupName.replace(" ","");
 
 			// main mapping points loop creation (keys)
 			for (var j = 0; j < SCAJSONContent.annotations[i].data.length; j += 1)
@@ -1279,7 +1282,7 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 
 			if (groupName != "NotSet")				
 			{
-				newLayersMapping.setName("MapIPCV: " + groupscName);
+				newLayersMapping.setName("MapCV: " + groupscName);
 				createIPMappings(groupscName);
 				
 				if (local.parameters.wledParams.createWLEDActions.get() == 1 && wledExist.name != "undefined")
@@ -1480,10 +1483,10 @@ function analyzerWLEDConseq (newColor,newEffect,newPalette)
 }
  
 // Mapping for WLED
-function analyzerWLEDMapping (groupName, split, sequential, ps)
+function analyzerWLEDMapping (groupscName, split, sequential, ps)
 {
 	
-	var scGroup = local.parameters.getChild("groupParams/"+ groupName);		
+	var scGroup = local.parameters.getChild("groupParams/"+ groupscName);		
 	var cvGroup = root.customVariables.getItemWithName(scGroup.get());
 	var testWS = local.parameters.wledParams.useWebSocket.get();
 
@@ -1661,9 +1664,9 @@ function createWLEDMapping()
 }
 
 // Mappings output for IPs: modulo or sequential linked to scGroupxx
-function createIPMappings (groupName)
+function createIPMappings (groupscName)
 {	
-	var grp = local.parameters.getChild("groupParams/"+ groupName);		
+	var grp = local.parameters.getChild("groupParams/"+ groupscName);		
 	var cvGroup = root.customVariables.getItemWithName(grp.get());
 
 	if (split == 1)
@@ -1742,10 +1745,10 @@ function createIPMappings (groupName)
 }
 
 // create mapping output for color : can be used to change WLED color or something else
-function createColorMapping(groupName)
+function createColorMapping(groupscName)
 {
 	// retreive group name from scGroupxx
-	var grp = local.parameters.getChild("groupParams/"+ groupName);		
+	var grp = local.parameters.getChild("groupParams/"+ groupscName);		
 	var cvGroup = root.customVariables.getItemWithName(grp.get());
 
 	// add delay to filters
@@ -1804,6 +1807,7 @@ function createCustomVariables(scGroup)
 	// retreive groupe name 
 	var groupNamevar = local.parameters.getChild("groupParams/" + scGroup);
 	var groupName = groupNamevar.get();
+	groupName = groupName.replace(" ","");
 	var groupExist = root.customVariables.getItemWithName(groupName);
 
 	if (groupName != "")
