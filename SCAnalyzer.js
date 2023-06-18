@@ -28,7 +28,7 @@ var segAnalyzerIsRunning = false;
 var featureType = "";
 var nSegmentTypes = 0;
 var neighbourhoodLimit = 0;
-var mappEffect = false;
+var creColEffect = false;
 var linkToGroupNumber = 0;
 
 //rhythm
@@ -234,7 +234,23 @@ function update ()
 		script.log('Initialize');
 		// load saved Enum
 		analyzerLoadenum();
+		// set folder for nc3 files
+		if (local.parameters.sonicParams.transformFile.get() == "qmsegmenter.nc3")
+		{
+			local.parameters.sonicParams.transformFile.set(homeDIR + "/Chataigne/Modules/SCAnalyzer/"+ "qmsegmenter.nc3");
+		}
+		if (local.parameters.sonicParams.rhythmTransformFile.get() == "bbcrhythm.nc3")
+		{
+			local.parameters.sonicParams.rhythmTransformFile.set(homeDIR + "/Chataigne/Modules/SCAnalyzer/"+ "bbcrhythm.nc3");
+		}
+		// set sonic annotator folder
+		if (local.parameters.sonicParams.sonicAnnotatorLocation.get() == "sonic-annotator.exe")
+		{
+			local.parameters.sonicParams.sonicAnnotatorLocation.set(homeDIR + "/Chataigne/xtra/vamp-plugins/x64/sonic-annotator-1.5-win64/" + "sonic-annotator.exe");
+		}		
+
 		isInit = false;
+		
 	}
 	
 	// start long pocess on it's own thread to run in blocking mode but not block the main UI
@@ -476,7 +492,13 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 		// plugin name
 		SCAvampPluginName = "vamp:qm-vamp-plugins:qm-segmenter:segmentation";
 		// result output file
-		SCAoutputFile = local.parameters.sonicParams.outputFile.getAbsolutePath();
+		SCAoutputFile = local.parameters.sonicParams.outputFile.getAbsolutePath();		
+		// if output file not set, we set it as audio clip file name under tmp folder
+		if (SCAoutputFile == "")
+		{						
+			SCAoutputFile =  tempDIR + "/SCAnalyzer_" + getFilename(targetFile).replace(".mp3", "").replace(".wav", "") + ".json";
+		}
+		
 		// check to see if transform file is necessary
 		if ((featureType != 1 || nSegmentTypes != 10 || neighbourhoodLimit != 4) && (origTransform != ""))
 		{
@@ -522,13 +544,6 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 			
 			script.logError("Something wrong with segAnalyzer....");
 			return;
-		}
-		
-	
-		// if output file not set, we set it as audio clip file name 
-		if (SCAoutputFile == "")
-		{						
-			SCAoutputFile =  targetFile.replace(".mp3", "").replace(".wav", "") + ".json";
 		}
 		
 		// Run only if necessary
@@ -589,7 +604,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 		util.delayThreadMS(50);
 		var prefix = "QM";
 
-		if (mappEffect == 1)
+		if (creColEffect === true)
 		{
 			prefix = "CALC" + linkToGroupNumber;
 		}
@@ -650,7 +665,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 			{
 
 				// no cue if create triggers for color/effect					
-				if (mappEffect != 1)
+				if (creColEffect === false)
 				{
 					
 					// set Cue time /name if cue not already exist for this time
@@ -693,9 +708,9 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					newEffect = local.parameters.defaultEffects.effectA.get();
 					newPalette = local.parameters.defaultPalettes.paletteA.get();
 					
-					if (mappEffect == 1 && groupExist.name != "undefined")
+					if (creColEffect === true && groupExist.name != "undefined")
 					{
-						analyzerMapConseq("A", groupName);
+						analyzerCreConseq("A", groupName);
 						
 					} else {
 						// Create init consequences put WLED on live mode if requested
@@ -725,9 +740,9 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					newEffect = local.parameters.defaultEffects.effectB.get();
 					newPalette = local.parameters.defaultPalettes.paletteB.get();						
 					
-					if (mappEffect == 1 && groupExist.name != "undefined")
+					if (creColEffect === true && groupExist.name != "undefined")
 					{
-						analyzerMapConseq("B", groupName);
+						analyzerCreConseq("B", groupName);
 						
 					} else {
 
@@ -752,9 +767,9 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					newEffect = local.parameters.defaultEffects.effectC.get();
 					newPalette = local.parameters.defaultPalettes.paletteC.get();						
 					
-					if (mappEffect == 1 && groupExist.name != "undefined")
+					if (creColEffect === true && groupExist.name != "undefined")
 					{
-						analyzerMapConseq("C", groupName);
+						analyzerCreConseq("C", groupName);
 						
 					} else {
 
@@ -777,9 +792,9 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					newEffect = local.parameters.defaultEffects.effectD.get();
 					newPalette = local.parameters.defaultPalettes.paletteD.get();						
 					
-					if (mappEffect == 1 && groupExist.name != "undefined")
+					if (creColEffect === true && groupExist.name != "undefined")
 					{
-						analyzerMapConseq("D", groupName);
+						analyzerCreConseq("D", groupName);
 						
 					} else {
 
@@ -802,9 +817,9 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					newEffect = local.parameters.defaultEffects.effectE.get();
 					newPalette = local.parameters.defaultPalettes.paletteE.get();						
 
-					if (mappEffect == 1 && groupExist.name != "undefined")
+					if (creColEffect === true && groupExist.name != "undefined")
 					{
-						analyzerMapConseq("E", groupName);
+						analyzerCreConseq("E", groupName);
 						
 					} else {
 
@@ -827,9 +842,9 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					newEffect = local.parameters.defaultEffects.effectF.get();
 					newPalette = local.parameters.defaultPalettes.paletteF.get();
 					
-					if (mappEffect == 1 && groupExist.name != "undefined")
+					if (creColEffect === true && groupExist.name != "undefined")
 					{
-						analyzerMapConseq("F", groupName);
+						analyzerCreConseq("F", groupName);
 						
 					} else {
 
@@ -852,9 +867,9 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					newEffect = local.parameters.defaultEffects.effectG.get();
 					newPalette = local.parameters.defaultPalettes.paletteG.get();
 					
-					if (mappEffect == 1 && groupExist.name != "undefined")
+					if (creColEffect === true && groupExist.name != "undefined")
 					{
-						analyzerMapConseq("G", groupName);
+						analyzerCreConseq("G", groupName);
 						
 					} else {
 
@@ -877,9 +892,9 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					newEffect = local.parameters.defaultEffects.effectH.get();
 					newPalette = local.parameters.defaultPalettes.paletteH.get();						
 					
-					if (mappEffect == 1 && groupExist.name != "undefined")
+					if (creColEffect === true && groupExist.name != "undefined")
 					{
-						analyzerMapConseq("H", groupName);
+						analyzerCreConseq("H", groupName);
 						
 					} else {
 
@@ -902,9 +917,9 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					newEffect = local.parameters.defaultEffects.effectI.get();
 					newPalette = local.parameters.defaultPalettes.paletteI.get();						
 							
-					if (mappEffect == 1 && groupExist.name != "undefined")
+					if (creColEffect === true && groupExist.name != "undefined")
 					{
-						analyzerMapConseq("I", groupName);
+						analyzerCreConseq("I", groupName);
 						
 					} else {
 
@@ -927,9 +942,9 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					newEffect = local.parameters.defaultEffects.effectJ.get();
 					newPalette = local.parameters.defaultPalettes.paletteJ.get();						
 					
-					if (mappEffect == 1 && groupExist.name != "undefined")
+					if (creColEffect === true && groupExist.name != "undefined")
 					{
-						analyzerMapConseq("J", groupName);
+						analyzerCreConseq("J", groupName);
 						
 					} else {
 
@@ -952,9 +967,9 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					newEffect = local.parameters.defaultEffects.effectK.get();
 					newPalette = local.parameters.defaultPalettes.paletteK.get();						
 					
-					if (mappEffect == 1 && groupExist.name != "undefined")
+					if (creColEffect === true && groupExist.name != "undefined")
 					{
-						analyzerMapConseq("K", groupName);
+						analyzerCreConseq("K", groupName);
 						
 					} else {
 
@@ -977,9 +992,9 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					newEffect = local.parameters.defaultEffects.effectL.get();
 					newPalette = local.parameters.defaultPalettes.paletteL.get();						
 					
-					if (mappEffect == 1 && groupExist.name != "undefined")
+					if (creColEffect === true && groupExist.name != "undefined")
 					{
-						analyzerMapConseq("L", groupName);
+						analyzerCreConseq("L", groupName);
 						
 					} else {
 
@@ -1010,7 +1025,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 	}
 	
 	segAnalyzerIsRunning = false;
-	mappEffect = false;
+	creColEffect = false;
 }
 
 // check to see if something to do
@@ -1056,6 +1071,12 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 		SCAvampPluginName = "vamp:bbc-vamp-plugins:bbc-rhythm:diff";			
 		// result output file
 		SCAoutputFile = local.parameters.sonicParams.outputFile.getAbsolutePath();
+		// if output file not set, we set it as audio clip file name under tmp folder
+		if (SCAoutputFile == "")
+		{						
+			SCAoutputFile =  tempDIR + "/SCAnalyzer_" + getFilename(targetFile).replace(".mp3", "").replace(".wav", "") + ".json";
+		}
+		
 		// check to see if transform file is necessary
 		if ((SubBands != 7 || Threshold != 1 || MovingAvgWindowLength != 200 || OnsetPeackWindowLength != 6 || MinBPM != 12 || MaxBPM != 300) && (origTransform != ""))
 		{
@@ -1101,13 +1122,6 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 			
 			script.logError("Something wrong with rhythmAnalyzer....");
 			return;
-		}
-		
-		
-		// if output file not set, we set it as audio clip file name 
-		if (SCAoutputFile == "")
-		{						
-			SCAoutputFile =  targetFile.replace(".mp3", "").replace(".wav", "") + ".json";
 		}
 		
 		if (keepJson === false)
@@ -1217,7 +1231,7 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 				else if (SCAJSONContent.annotations[i].data[j].value != 0)
 				{
 					// test to see if need to create zero value before and after (this increase time x3)
-					var createmin = local.parameters.groupParams.resetMappingMaxValue.get();
+					var createmin = local.parameters.mappingParams.resetMappingMaxValue.get();
 					
 					if (SCAJSONContent.annotations[i].data[j-1].value == 0) 							
 					{
@@ -1275,9 +1289,8 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 			// For WLED or others
 			// root.modules.sCAnalyzer.parameters.groupParams.linkToGroupNumber
 			wledExist = root.modules.getItemWithName("WLED");
-			var split = local.parameters.groupParams.split.get();
-			var sequential = local.parameters.groupParams.sequential.get();
-			var ps = local.parameters.wledParams.preset.get();
+			var split = local.parameters.mappingParams.split.get();
+			var sequential = local.parameters.mappingParams.sequential.get();
 			newLayersMapping.setName("MapGroup: " + groupscName);
 
 			if (groupName != "NotSet")				
@@ -1288,7 +1301,7 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 				if (local.parameters.wledParams.createWLEDActions.get() == 1 && wledExist.name != "undefined")
 				{
 					newLayersMapping.setName("MapWLED: " + groupscName);					
-					analyzerWLEDMapping(groupscName, split, sequential, ps);
+					analyzerWLEDMapping(groupscName, split, sequential);
 				}
 				
 			} else {
@@ -1317,7 +1330,7 @@ function calcColorEffect (insequence, inmapGroup, infeatureType, innSegmentTypes
 
 	// file is null, we use only sequence Param
 	targetFile = "";
-	mappEffect = true;
+	creColEffect = true;
 	linkToGroupNumber = inmapGroup;
 	
 	segAnalyzer(insequence, targetFile, infeatureType, innSegmentTypes, inneighbourhoodLimit);	
@@ -1328,7 +1341,7 @@ function analyzerLedFXConseq (segmentName)
 {
 	var conseq = newTrigger.consequences.addItem("Consequence");
 	util.delayThreadMS(50);
-	newTrigger.consequences.delay.set(local.parameters.audioParams.effectsDelay.get()/1000);	
+	newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);	
 
 	if (useScenes)
 	{
@@ -1353,8 +1366,9 @@ function analyzerLedFXConseq (segmentName)
 }
 
 // For one specific GroupName , this will create the corresponding action (consequence) for triggers depending on the segment name
-// values stored to CV group : : can be used by Mapping
-function analyzerMapConseq (segmentName, groupName)
+// based on segmentation
+// values effect and color stored to CV group : can be used by Mapping/states etc ...
+function analyzerCreConseq (segmentName, groupName)
 {
 	var numberofactions = 0;
 
@@ -1363,7 +1377,7 @@ function analyzerMapConseq (segmentName, groupName)
 		// COLOR
 		var conseq = newTrigger.consequences.addItem("Consequence");
 		util.delayThreadMS(50);			
-		newTrigger.consequences.delay.set(local.parameters.audioParams.effectsDelay.get()/1000);
+		newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);
 		conseq.setCommand("generic","","Set Parameter Value");
 		conseq.setName("CVColor");
 		var parcmd = conseq.getChild("command");
@@ -1376,13 +1390,13 @@ function analyzerMapConseq (segmentName, groupName)
 		numberofactions += 1;
 		
 	}
-	
+
 	if (newEffect != -1)
 	{
 		// EFFECT
 		var conseq = newTrigger.consequences.addItem("Consequence");
 		util.delayThreadMS(50);			
-		newTrigger.consequences.delay.set(local.parameters.audioParams.effectsDelay.get()/1000);
+		newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);
 		conseq.setCommand("generic","","Set Parameter Value");
 		conseq.setName("CVEffect");
 		var parcmd = conseq.getChild("command");
@@ -1426,7 +1440,7 @@ function analyzerWLEDConseq (newColor,newEffect,newPalette)
 		var conseqColor = newTrigger.consequences.addItem("Consequence");
 		util.delayThreadMS(50);
 		conseqColor.setCommand("WLED","WLED","WLED Color");
-		newTrigger.consequences.delay.set(local.parameters.audioParams.effectsDelay.get()/1000);
+		newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);
 		
 		var parcmdColor = conseqColor.getChild("command");
 		parcmdColor.wledcolor.set(newColor);
@@ -1444,7 +1458,7 @@ function analyzerWLEDConseq (newColor,newEffect,newPalette)
 		var conseq = newTrigger.consequences.addItem("Consequence");
 		util.delayThreadMS(50);		
 		conseq.setCommand("WLED","WLED","WLED Effect");
-		newTrigger.consequences.delay.set(local.parameters.audioParams.effectsDelay.get()/1000);
+		newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);
 		
 		var parcmd = conseq.getChild("command");
 		parcmd.wledeffect.set(newEffect);	
@@ -1462,7 +1476,7 @@ function analyzerWLEDConseq (newColor,newEffect,newPalette)
 		var conseq = newTrigger.consequences.addItem("Consequence");
 		util.delayThreadMS(50);		
 		conseq.setCommand("WLED","WLED","WLED Palette");
-		newTrigger.consequences.delay.set(local.parameters.audioParams.effectsDelay.get()/1000);		
+		newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);		
 
 		var parcmd = conseq.getChild("command");
 		parcmd.palette.set(newPalette);	
@@ -1483,7 +1497,7 @@ function analyzerWLEDConseq (newColor,newEffect,newPalette)
 }
  
 // Mapping for WLED
-function analyzerWLEDMapping (groupscName, split, sequential, ps)
+function analyzerWLEDMapping (groupscName, split, sequential)
 {
 	
 	var scGroup = local.parameters.getChild("groupParams/"+ groupscName);		
@@ -1562,7 +1576,7 @@ function createWLEDMapping()
 	}
 
 	// add delay to filters
-	var testdelay = local.parameters.audioParams.effectsDelay.get()/1000;
+	var testdelay = local.parameters.audioParams.globalDelay.get()/1000;
 	if (testdelay != 0) 
 	{
 		var timeDelay = newLayersMapping.mapping.filters.getItemWithName("Delay");
@@ -1752,7 +1766,7 @@ function createColorMapping(groupscName)
 	var cvGroup = root.customVariables.getItemWithName(grp.get());
 
 	// add delay to filters
-	var testdelay = local.parameters.audioParams.effectsDelay.get()/1000;
+	var testdelay = local.parameters.audioParams.globalDelay.get()/1000;
 	if (testdelay != 0) 
 	{
 		var timeDelay = newLayersMapping.mapping.filters.getItemWithName("Delay");
@@ -2415,7 +2429,7 @@ function showStep2 ()
 	// Second, create colors/effects from existing JSON output file 
 	moreInfo = "Step 2";	
 	keepJson = true;
-	mappEffect = true;
+	creColEffect = true;
 	linkToGroupNumber = local.parameters.groupParams.linkToGroupNumber.get();
 	
 	script.log("Create sequence for : " + seqaddr);
@@ -2684,9 +2698,19 @@ function analyzerIPSequentialLoop(groupName)
 	}	
 }
 
+// retreive file name from absolute path
+function getFilename(songname)
+{
+	var splitcount = songname.split("/");
+	var filename = splitcount[splitcount.length-1];
+
+return filename		
+}
+
 
 // used for value/expression testing .......
 function testScript(from)
 {
-	
+	linkToGroupNumber = local.parameters.groupParams.linkToGroupNumber.get();
+	script.log(linkToGroupNumber);
 }

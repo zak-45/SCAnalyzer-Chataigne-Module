@@ -16,7 +16,7 @@
 			"type": "Container",
 			"description":"Audio global parameters",
 			"collapsed": false,
-			"Effects Delay": {
+			"Global Delay": {
 				"type": "Integer",
 				"description": "Time to delay consequences/outputs, in ms (max 640). To be used mainly in case of BT audio delay",
 				"default": 0,
@@ -35,7 +35,7 @@
 			"Sonic annotator location": { 
 				"type": "File", 
 				"description": "Select the Sonic annotator application used",
-				"default":"D:/sonic-annotator-1.5-win64/sonic-annotator.exe"
+				"default":"sonic-annotator.exe"
 			},
 			"Output File": { 
 				"type": "File", 
@@ -45,11 +45,13 @@
 			},
 			"Transform file":{
 				"type":"File",
+				"default": "qmsegmenter.nc3",
 				"description": "Sonic annotator transform file name for Segmenter. 
 	Need to be specified when want to change default values, use the one provided in module folder (nc3)"				
-			},
+			},				
 			"Rhythm Transform file":{
 				"type":"File",
+				"default": "bbcrhythm.nc3",
 				"description": "Sonic annotator transform file name for Rhythm Difference. 
 	Need to be specified when want to change default values, use the one provided in module folder (nc3)"				
 			}			
@@ -58,12 +60,6 @@
 			"type": "Container",
 			"description":"Group parameters",
 			"collapsed": true,
-			"Reset Mapping Max value": {
-				"type": "Boolean",
-				"description": "Checked, will create zero point before/after max point values.
-CAUTION: this will increase mapping time creation x3",
-				"default": false
-			},			
 			"Link To Group Number": {
 				"type": "Enum",
 				"description": "Choose group name to use for mapping output, to store default values and calculated params.
@@ -85,16 +81,6 @@ Group need to be set under scGroup xx.",
 					"12":"scGroup12"
 				}
 			},
-			"Split": {
-				"type": "Boolean",
-				"description": "Checked, actions will be split thru all IPs - modulo - (IPs from associated group and only for Mappings)",
-				"default": false
-			},
-			"Sequential": {
-				"type": "Boolean",
-				"description": "Checked, actions will be split thru all IPs - sequential - (IPs from associated group and only for Mappings)",
-				"default": false
-			},			
 			"ScGroup 01": {
 				"type": "String",
 				"description": "Create custom  variables group name. 
@@ -156,6 +142,27 @@ Group need to be set under scGroup xx.",
 	Used to regroup IP and store default/calculated values.",
 			}			
 		},
+		"Mapping Params":{
+			"type": "Container",
+			"description":"Mapping parameters",
+			"collapsed": true,
+			"Reset Mapping Max value": {
+				"type": "Boolean",
+				"description": "Checked, will create zero point before/after max point values.
+CAUTION: this will increase mapping time creation x3",
+				"default": false
+			},			
+			"Split": {
+				"type": "Boolean",
+				"description": "Checked, actions will be split thru all IPs - modulo - (IPs from associated group and only for Mappings)",
+				"default": false
+			},
+			"Sequential": {
+				"type": "Boolean",
+				"description": "Checked, actions will be split thru all IPs - sequential - (IPs from associated group and only for Mappings)",
+				"default": false
+			}
+		},		
 		"WLED Params":{
 			"type": "Container",
 			"description":"WLED parameters",
@@ -177,7 +184,7 @@ Group need to be set under scGroup xx.",
 			},			
 			"Preset": {
 				"type": "Integer",
-				"description": "Enter preset/playlist number (need to be created in WLED device before and not used when UDP)",
+				"description": "Enter preset/playlist number to use in mapping (need to be created in WLED device before and bypassed when UDP)",
 				"default": 0,
 				"min":0,
 				"max":255
@@ -265,11 +272,11 @@ Scene must be defined with ledFX App",
 			"collapsed": true,
 			"Activate Colors": {
 				"type": "Trigger",
-				"description": "All colors affected. Colors consequences will be created. Will set Alpha to 255."
+				"description": "All colors activated. Colors consequences will be created. Will set Alpha to 255."
 			},
 			"DeActivate Colors": {
 				"type": "Trigger",
-				"description": "All colors bypassed. Will set Alpha to 204 (need to be <> of 255). "
+				"description": "All colors bypassed. Will set Alpha to 191 (need to be <> of 255). "
 			},
 			"Loop Colors": {
 				"type": "Boolean",
@@ -343,90 +350,90 @@ Scene must be defined with ledFX App",
 			"collapsed": true,
 			"Reset Effects": {
 				"type": "Trigger",
-				"description": "Put all effects to -1"
+				"description": "Put all effects to -1 (bypass)"
 			},				
 			"effect A": {
 				"type": "Integer",
 				"description": "Effect index for segment A",
 				"min":-1,
-				"max":200,
+				"max":256,
 				"default": -1
 			},
 			"effect B": {
 				"type": "Integer",
 				"description": "Effect index for segment B",
 				"min":-1,
-				"max":200,
+				"max":256,
 				"default": -1
 			},
 			"effect C": {
 				"type": "Integer",
 				"description": "Effect index for segment C",
 				"min":-1,
-				"max":200,
+				"max":256,
 				"default": -1
 			},
 			"effect D": {
 				"type": "Integer",
 				"description": "Effect index for segment D",
 				"min":-1,
-				"max":200,
+				"max":256,
 				"default": -1
 			},
 			"effect E": {
 				"type": "Integer",
 				"description": "Effect index for segment E",
 				"min":-1,
-				"max":200,
+				"max":256,
 				"default": -1
 			},
 			"effect F": {
 				"type": "Integer",
 				"description": "Effect index for segment F",
 				"min":-1,
-				"max":200,
+				"max":256,
 				"default": -1
 			},
 			"effect G": {
 				"type": "Integer",
 				"description": "Effect index for segment G",
 				"min":-1,
-				"max":200,
+				"max":256,
 				"default": -1
 			},
 			"effect H": {
 				"type": "Integer",
 				"description": "Effect index for segment H",
 				"min":-1,
-				"max":200,
+				"max":256,
 				"default": -1
 			},
 			"effect I": {
 				"type": "Integer",
 				"description": "Effect index for segment I",
 				"min":-1,
-				"max":200,
+				"max":256,
 				"default": -1
 			},
 			"effect J": {
 				"type": "Integer",
 				"description": "Effect index for segment J",
 				"min":-1,
-				"max":200,
+				"max":256,
 				"default": -1
 			},
 			"effect K": {
 				"type": "Integer",
 				"description": "Effect index for segment K",
 				"min":-1,
-				"max":200,
+				"max":256,
 				"default": -1
 			},
 			"effect L": {
 				"type": "Integer",
 				"description": "Effect index for segment L",
 				"min":-1,
-				"max":200,
+				"max":256,
 				"default": -1
 			}
 		},
@@ -436,90 +443,90 @@ Scene must be defined with ledFX App",
 			"collapsed": true,
 			"Reset Palettes": {
 				"type": "Trigger",
-				"description": "Put all palettes to -1"
+				"description": "Put all palettes to -1 (bypass)"
 			},				
 			"palette A": {
 				"type": "Integer",
 				"description": "Palette index for segment A",
 				"min":-1,
-				"max":200,
+				"max":256,
 				"default": -1
 			},
 			"palette B": {
 				"type": "Integer",
 				"description": "Palette index for segment B",
 				"min":-1,
-				"max":200,
+				"max":256,
 				"default": -1
 			},
 			"palette C": {
 				"type": "Integer",
 				"description": "Palette index for segment C",
 				"min":-1,
-				"max":200,
+				"max":256,
 				"default": -1
 			},
 			"palette D": {
 				"type": "Integer",
 				"description": "Palette index for segment D",
 				"min":-1,
-				"max":200,
+				"max":256,
 				"default": -1
 			},
 			"palette E": {
 				"type": "Integer",
 				"description": "Palette index for segment E",
 				"min":-1,
-				"max":200,
+				"max":256,
 				"default": -1
 			},
 			"palette F": {
 				"type": "Integer",
 				"description": "Palette index for segment F",
 				"min":-1,
-				"max":200,
+				"max":256,
 				"default": -1
 			},
 			"palette G": {
 				"type": "Integer",
 				"description": "Palette index for segment G",
 				"min":-1,
-				"max":200,
+				"max":256,
 				"default": -1
 			},
 			"palette H": {
 				"type": "Integer",
 				"description": "Palette index for segment H",
 				"min":-1,
-				"max":200,
+				"max":256,
 				"default": -1
 			},
 			"palette I": {
 				"type": "Integer",
 				"description": "Palette index for segment I",
 				"min":-1,
-				"max":200,
+				"max":256,
 				"default": -1
 			},
 			"palette J": {
 				"type": "Integer",
 				"description": "Palette index for segment J",
 				"min":-1,
-				"max":200,
+				"max":256,
 				"default": -1
 			},
 			"palette K": {
 				"type": "Integer",
 				"description": "Palette index for segment K",
 				"min":-1,
-				"max":200,
+				"max":256,
 				"default": -1
 			},
 			"palette L": {
 				"type": "Integer",
 				"description": "Palette index for segment L",
 				"min":-1,
-				"max":200,
+				"max":256,
 				"default": -1
 			}
 		}
