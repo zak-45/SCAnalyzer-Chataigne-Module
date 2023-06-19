@@ -13,7 +13,9 @@ Can create corresponding actions for LedFX / WLEd if required.
 Automatic show creation feature.
 Play all sequences from start to end.
 Delay effects max 500 ms. To help in case of BT speakers.
-Easing set to Hold for the created keys
+Create mapping for vocal part of a song.
+Send WLED audio sync from mapping.
+Easing set to Hold for the created keys.
 
 */
 
@@ -234,6 +236,8 @@ function update ()
 		script.log('Initialize');
 		// load saved Enum
 		analyzerLoadenum();
+		// generate WLEDAudioSync enum list
+		generateAudioSyncList();
 		// set folder for nc3 files
 		if (local.parameters.sonicParams.transformFile.get() == "qmsegmenter.nc3")
 		{
@@ -445,7 +449,16 @@ function moduleParameterChanged (param)
 			if (local.parameters.mappingParams.split.get() == 1) 
 			{
 				local.parameters.mappingParams.split.set(0);
-			}		
+			}
+			
+		} else if (param.name == "replayFile") {
+			
+			generateAudioSyncList();
+			
+		} else if (param.name == "effectNumber") {
+			
+			generateAudioSyncList();
+			
 		}
 	}
 }
@@ -1463,13 +1476,13 @@ function analyzerWLEDConseq (newColor,newEffect,newPalette)
 	// this will create the corresponding action (consequence) for WLED : effect
 	if (newEffect != -1)
 	{
-		var conseq = newTrigger.consequences.addItem("Consequence");
+		var conseqe = newTrigger.consequences.addItem("Consequence");
 		util.delayThreadMS(10);		
-		conseq.setCommand("WLED","WLED","WLED Effect");
+		conseqe.setCommand("WLED","WLED","WLED Effect");
 		newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);
 		
-		var parcmd = conseq.getChild("command");
-		parcmd.wledeffect.set(newEffect);	
+		var parcmde = conseqe.getChild("command");
+		parcmde.wledeffect.set(newEffect);	
 		numberofactions += 1;
 		
 		if (local.parameters.wledParams.allIP.get() == 1 && local.parameters.groupParams.linkToGroupNumber.get() != 0)
@@ -1481,13 +1494,13 @@ function analyzerWLEDConseq (newColor,newEffect,newPalette)
 	// this will create the corresponding action (consequence) for WLED : palette
 	if (newPalette != -1)
 	{
-		var conseq = newTrigger.consequences.addItem("Consequence");
+		var conseqp = newTrigger.consequences.addItem("Consequence");
 		util.delayThreadMS(10);		
-		conseq.setCommand("WLED","WLED","WLED Palette");
+		conseqp.setCommand("WLED","WLED","WLED Palette");
 		newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);		
 
-		var parcmd = conseq.getChild("command");
-		parcmd.palette.set(newPalette);	
+		var parcmdp = conseqp.getChild("command");
+		parcmdp.palette.set(newPalette);	
 		numberofactions += 1;
 		
 		if (local.parameters.wledParams.allIP.get() == 1 && local.parameters.groupParams.linkToGroupNumber.get() != 0)
@@ -1543,45 +1556,44 @@ function analyzerWLEDallIPLoop (groupName, action)
 							
 							if (action == "c")
 							{
-								var conseqColor = newTrigger.consequences.addItem("Consequence");
+								var conseqColors = newTrigger.consequences.addItem("Consequence");
 								util.delayThreadMS(10);
-								conseqColor.setCommand("WLED","WLED","WLED Color");
+								conseqColors.setCommand("WLED","WLED","WLED Color");
 								newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);
 								
-								var parcmdColor = conseqColor.getChild("command");
-								parcmdColor.wledcolor.set(newColor);
-								parcmdColor.wledIP.set(addIP);
+								var parcmdColors = conseqColors.getChild("command");
+								parcmdColors.wledcolor.set(newColor);
+								parcmdColors.wledIP.set(addIP);
 								numberofactions += 1;
 								
 							} else if (action == "e") {
 							
-								var conseq = newTrigger.consequences.addItem("Consequence");
+								var conseqEffect = newTrigger.consequences.addItem("Consequence");
 								util.delayThreadMS(10);		
-								conseq.setCommand("WLED","WLED","WLED Effect");
+								conseqEffect.setCommand("WLED","WLED","WLED Effect");
 								newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);
 								
-								var parcmd = conseq.getChild("command");
-								parcmd.wledeffect.set(newEffect);
-								parcmd.wledIP.set(addIP);								
+								var parcmdEffect = conseqEffect.getChild("command");
+								parcmdEffect.wledeffect.set(newEffect);
+								parcmdEffect.wledIP.set(addIP);								
 								numberofactions += 1;							
 							
 							} else if (action == "p") {
 								
-								var conseq = newTrigger.consequences.addItem("Consequence");
+								var conseqPallete = newTrigger.consequences.addItem("Consequence");
 								util.delayThreadMS(10);		
-								conseq.setCommand("WLED","WLED","WLED Palette");
+								conseqPallete.setCommand("WLED","WLED","WLED Palette");
 								newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);		
 
-								var parcmd = conseq.getChild("command");
-								parcmd.palette.set(newPalette);	
-								parcmd.wledIP.set(addIP);
+								var parcmdPalette = conseqPallete.getChild("command");
+								parcmdPalette.palette.set(newPalette);	
+								parcmdPalette.wledIP.set(addIP);
 								numberofactions += 1;										
 							
 							} else {
 								
 								script.log("unknown action");								
-							}
-							
+							}							
 											
 						} else {
 						
@@ -2789,6 +2801,23 @@ function generateIPList(group)
 	} else {
 		
 		script.logError("Group does not exist");
+	}
+}
+
+
+function generateAudioSyncList()
+{
+	script.log('Generate WLEDAudioSync modules list');
+	
+	local.parameters.wLEDAudioSyncParams.moduleName.removeOptions();
+	var moduleNumbers = root.modules.getItems();
+
+	for ( var i = 0; i < moduleNumbers.length ; i++)		
+	{	
+		if ( moduleNumbers[i].getType().contains("WLEDAudioSync"))
+		{
+			local.parameters.wLEDAudioSyncParams.moduleName.addOption(moduleNumbers[i].name,moduleNumbers[i].name);
+		}
 	}
 }
 

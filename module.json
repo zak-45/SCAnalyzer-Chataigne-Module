@@ -174,7 +174,7 @@ CAUTION: this will increase mapping time creation x3",
 			},
 			"Use WebSocket": {
 				"type": "Boolean",
-				"description": "Checked, will create WS connection for all WLED IP if necessary",
+				"description": "Checked, will create WS connection for all WLED IP if necessary (only for mapping output)",
 				"default": false
 			},
 			"AllIP": {
@@ -264,6 +264,30 @@ Scene must be defined with ledFX App",
 				"type": "Boolean",
 				"description": "Checked, will create mapping for vocal part of the song.",
 				"default": false
+			}
+		},
+		"WLEDAudioSync Params":{
+			"type": "Container",
+			"description":"WLEDaudioSync global parameters",
+			"collapsed": true,
+			"Replay File": {
+				"type": "File",
+				"description": "Select file name for replay",
+			},
+			"Effect Number": {
+				"type": "Integer",
+				"description": "Select effect number to set WLED device",
+				"default": 156,
+				"min":0,
+				"max":256
+			},
+			"Module name": {
+				"type": "Enum",
+				"description": "Select WLEDAudioSync module name to use",
+				"readOnly": false,
+				"options": {
+					"wLEDAudioSync": "wLEDAudioSync"
+				}				
 			}
 		},		
 		"Default Colors":{
@@ -719,6 +743,12 @@ Result will be stored on the existing sequence",
 This will populate the enum param with the IPs found on group variables (IPxx) "
 				}
 			}
+		},
+		"Re/Generate AudioSync Module List":
+		{
+			"menu":"Utility",
+			"callback":"generateAudioSyncList"
+			
 		},		
 		"Create Show":
 		{
