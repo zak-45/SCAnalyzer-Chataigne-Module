@@ -1180,7 +1180,7 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 		var newLayersMapping =  newSequence.layers.addItem('Mapping');
 		util.delayThreadMS(10);
 		newLayersMapping.automation.range.set(0,7);
-		newLayersMapping.setName("Mapping: BBC" + SCAJSONContent.annotations[0].annotation_metadata.annotator.output_id);
+		newLayersMapping.setName("BBC");
 		
 		// set flag for wled auto actions creation
 		var wledExist = root.modules.getItemWithName("WLED");			
@@ -1294,9 +1294,9 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 			if (local.parameters.defaultColors.loopColors.get() == 1)
 			{
 				// root.modules.sCAnalyzer.parameters.groupParams.linkToGroupNumber
-				newLayersMapping.setName("MapColCV: "+ groupscName);
+				newLayersMapping.setName(newLayersMapping.name +"_COLOR");
 				// group need to exist
-				if (groupName != "NotSet") 
+				if (linkToGroupNumber != 0) 
 				{
 					createColorMapping(groupscName);
 					
@@ -1312,16 +1312,14 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 			wledExist = root.modules.getItemWithName("WLED");
 			var split = local.parameters.mappingParams.split.get();
 			var sequential = local.parameters.mappingParams.sequential.get();
-			newLayersMapping.setName("MapGroup: " + groupscName);
 
-			if (groupName != "NotSet")				
-			{
-				newLayersMapping.setName("MapCV: " + groupscName);
+			if (linkToGroupNumber != 0)				
+			{				
 				createIPMappings(groupscName);
 				
 				if (local.parameters.wledParams.createWLEDActions.get() == 1 && wledExist.name != "undefined")
 				{
-					newLayersMapping.setName("MapWLED: " + groupscName);					
+					newLayersMapping.setName(newLayersMapping.name+"_WLED");					
 					analyzerWLEDMapping(groupscName, split, sequential);
 				}
 				
@@ -1331,6 +1329,16 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 				
 			}			
 		}
+			// For WLEDAudioSync
+			var audioReplayFile = local.parameters.wLEDAudioSyncParams.replayFile.get();
+			var moduleName = local.parameters.wLEDAudioSyncParams.moduleName.get();
+			var duration = local.parameters.wLEDAudioSyncParams.duration.get();
+			
+			if (audioReplayFile != "" && moduleName != "")
+			{
+				newLayersMapping.setName(newLayersMapping.name+"_SYNC");
+				createWLEDAudioSyncMapping();
+			}	
 		
 		script.log("Total number of points created : " + pointsnumber);
 
@@ -1343,6 +1351,12 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 	
 	rhythmAnalyzerIsRunning = false;
 }
+
+/*
+
+Segmenter
+
+*/
 
 // Create Colors / Effects Based on segmentation... could be used on Mappings to reference value from Groupxx
 // Called from 'command/utility/calcColorEffect'.
@@ -1403,7 +1417,7 @@ function analyzerCreConseq (segmentName, groupName)
 		conseq.setCommand("generic","","Set Parameter Value");
 		conseq.setName("CVColor");
 		var parcmd = conseq.getChild("command");
-		parcmd.target.set("customVariables/"+ groupName + "/calculatedParams/maincolor");
+		parcmd.target.set("customVariables/"+ groupName + "/calculatedParams/segcolor");
 		parcmd.component.set("All");
 		parcmd.operator.set("Equals");
 		var parcmdvalue = parcmd.getChild("value");
@@ -1611,6 +1625,12 @@ function analyzerWLEDallIPLoop (groupName, action)
 		}
 	}
 }
+
+/*
+
+Mapping
+
+*/
  
 // Mapping for WLED
 function analyzerWLEDMapping (groupscName, split, sequential)
@@ -1801,6 +1821,7 @@ function createIPMappings (groupscName)
 
 	if (split == 1)
 	{
+		newLayersMapping.setName(newLayersMapping.name+"_IP");
 		// create output
 		var mapout = newLayersMapping.mapping.outputs.addItem();
 		util.delayThreadMS(10);
@@ -1835,6 +1856,8 @@ function createIPMappings (groupscName)
 		});
 		
 	} else if (sequential == 1) {
+		
+		newLayersMapping.setName(newLayersMapping.name+"_IP");
 		
 		// generate IP list
 		generateIPList(cvGroup.name);
@@ -1875,6 +1898,7 @@ function createIPMappings (groupscName)
 }
 
 // create mapping output for color : can be used to change WLED color or something else
+// store value in CV Group
 function createColorMapping(groupscName)
 {
 	// retreive group name from scGroupxx
@@ -1929,7 +1953,39 @@ function createColorMapping(groupscName)
 	});
 }
 
-// create custom variables group
+// Mapping for WLEDAudioSync
+function createWLEDAudioSyncMapping()
+{
+	var WLEDAudioExist = root.modules.getItemWithName(moduleName);
+	
+	if (WLEDAudioExist.name != "undefined")
+	{
+		// create output
+		var mapoutwas = newLayersMapping.mapping.outputs.addItem("mappingOutput");
+		util.delayThreadMS(10);
+		mapoutwas.setName(moduleName);
+		mapoutwas.setCommand(WLEDAudioExist.niceName,"Replay","Snapshot");
+
+		var parcmdwas = mapoutwas.getChild("command");
+		
+		// set params 
+		parcmdwas.fileName.set(audioReplayFile);
+		parcmdwas.duration.set(duration);
+		
+	} else {
+	
+		script.log('Module WLEDAudioSync removed ..: ' + moduleName);
+	}
+}
+
+/*
+
+Util
+
+*/
+
+
+// Create custom variables group
 function createCustomVariables(scGroup)
 {
 	script.log("Custom group creation for : " + scGroup);
@@ -1998,7 +2054,7 @@ function createCustomVariables(scGroup)
 			newGroupindex = newtmpwledContainer.addIntParameter("Index","Number of iteration. calculated by script",0);
 			newGroupindex.setAttribute("readOnly",true);
 			newGroupindex.setAttribute("saveValueOnly",false);	
-			newGroupcolor = newtmpwledContainer.addColorParameter("maincolor","Main device Color",[1,1,1]);
+			newGroupcolor = newtmpwledContainer.addColorParameter("Segcolor","Segmenter Color",[1,1,1]);
 			newGroupcolor.setAttribute("readOnly",true);
 			newGroupcolor.setAttribute("saveValueOnly",false);				
 			newGroupeffect = newtmpwledContainer.addIntParameter("Effect number","Effect index.",0);
@@ -2811,6 +2867,8 @@ function generateAudioSyncList()
 	script.log('Generate WLEDAudioSync modules list');
 	
 	local.parameters.wLEDAudioSyncParams.moduleName.removeOptions();
+	util.delayThreadMS(100);
+	
 	var moduleNumbers = root.modules.getItems();
 
 	for ( var i = 0; i < moduleNumbers.length ; i++)		
