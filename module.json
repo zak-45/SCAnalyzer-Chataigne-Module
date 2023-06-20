@@ -272,14 +272,15 @@ Scene must be defined with ledFX App",
 			"collapsed": true,
 			"Replay File": {
 				"type": "File",
-				"description": "Select file name for replay",
+				"description": "Select file name for replay.
+If file name is set, this will create output/action for mapping",
 			},
-			"Effect Number": {
+			"Duration": {
 				"type": "Integer",
-				"description": "Select effect number to set WLED device",
-				"default": 156,
-				"min":0,
-				"max":256
+				"description": "How many time replay will send data, max 1500 ms",
+				"default": 1,
+				"min":1,
+				"max":1500
 			},
 			"Module name": {
 				"type": "Enum",

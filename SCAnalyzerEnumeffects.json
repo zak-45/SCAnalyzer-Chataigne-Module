@@ -1,21 +1,5 @@
 [
   {
-    "key": "B",
-    "value": "Bands"
-  },
-  {
-    "key": "C",
-    "value": "Marching"
-  },
-  {
-    "key": "D",
-    "value": "BPM Strobe"
-  },
-  {
-    "key": "E",
-    "value": "Equalizer"
-  },
-  {
     "key": "F",
     "value": "Energy"
   },

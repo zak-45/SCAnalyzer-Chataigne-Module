@@ -455,7 +455,7 @@ function moduleParameterChanged (param)
 			
 			generateAudioSyncList();
 			
-		} else if (param.name == "effectNumber") {
+		} else if (param.name == "duration") {
 			
 			generateAudioSyncList();
 			
@@ -1345,6 +1345,7 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 }
 
 // Create Colors / Effects Based on segmentation... could be used on Mappings to reference value from Groupxx
+// Called from 'command/utility/calcColorEffect'.
 function calcColorEffect (insequence, inmapGroup, infeatureType, innSegmentTypes, inneighbourhoodLimit)
 {
 	script.log("We create colors/effects based on Segmenter");
@@ -2804,7 +2805,7 @@ function generateIPList(group)
 	}
 }
 
-
+// Populate enum param
 function generateAudioSyncList()
 {
 	script.log('Generate WLEDAudioSync modules list');
