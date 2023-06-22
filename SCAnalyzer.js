@@ -77,6 +77,9 @@ var pathTransform = "";
 var ledfxAuto = false;
 // Ledfx Scene test
 var useScenes = false;
+var writeLedFXFileScenes = true;
+//
+var writeLedFXFileEffects = true;
 
 // WLED test
 var wledAuto = false;
@@ -90,6 +93,8 @@ var playseq = root.sequences.getItemAt(0);
 
 // Enum param file : used to store Enum parameters modified / changed by end user
 var enumFile = "SCAnalyzerEnumeffects.json";
+// Enum param file : used to store Enum parameters modified / changed by end user
+var enumScenesFile = "SCAnalyzerEnumscenes.json";
 
 // to made some logic only once at init
 var isInit = true;
@@ -236,6 +241,7 @@ function update ()
 		script.log('Initialize');
 		// load saved Enum
 		analyzerLoadenum();
+		analyzerLoadenumScenes();		
 		// generate WLEDAudioSync enum list
 		generateAudioSyncList();
 		// set folder for nc3 files
@@ -411,7 +417,17 @@ function moduleParameterChanged (param)
 			
 		} else if (param.name == "associatedEffects") {
 			
-			util.writeFile(enumFile,local.parameters.ledFXParams.associatedEffects.getAllOptions(),true);	
+			if (writeLedFXFileEffects == true)
+			{
+				util.writeFile(homeDIR + "/Chataigne/Modules/SCAnalyzer/"+enumFile,local.parameters.ledFXParams.associatedEffects.getAllOptions(),true);					
+			}
+			
+		} else if (param.name == "associatedScenes") {
+			
+			if (writeLedFXFileScenes == true)
+			{
+				util.writeFile(homeDIR + "/Chataigne/Modules/SCAnalyzer/"+enumScenesFile,local.parameters.ledFXParams.associatedScenes.getAllOptions(),true);					
+			}
 			
 		} else if (param.name == "loadDefault")	{
 			
@@ -2376,18 +2392,38 @@ function analyzerResetIndex ()
 // load ledFX enum param from file
 function analyzerLoadenum ()
 {
+	writeLedFXFileEffects = false;
 	local.parameters.ledFXParams.associatedEffects.removeOptions();
 	
-	var datafile = util.readFile(enumFile,true);
+	var datafile = util.readFile(homeDIR + "/Chataigne/Modules/SCAnalyzer/"+enumFile,true);
 	for (var i = 0; i < datafile.length; i +=1 )
 	{
 		local.parameters.ledFXParams.associatedEffects.addOption(datafile[i].key,datafile[i].value);		
 	}
+	
+	writeLedFXFileEffects = true;
+}
+
+// load ledFX enum Scenes param from file
+function analyzerLoadenumScenes ()
+{
+	writeLedFXFileScenes = false;
+	local.parameters.ledFXParams.associatedScenes.removeOptions();
+	
+	var datafile = util.readFile(homeDIR + "/Chataigne/Modules/SCAnalyzer/"+enumScenesFile,true);
+	for (var i = 0; i < datafile.length; i +=1 )
+	{
+		local.parameters.ledFXParams.associatedScenes.addOption(datafile[i].key,datafile[i].value);		
+	}
+	
+	writeLedFXFileScenes = true;
 }
 
 // load default effects for ledFX
 function analyzerLoaddefault()
 {
+	writeLedFXFileEffects = false;
+	
 	var defaulteffects = [
 				'A:Power',
 				'B:Bands',
@@ -2410,7 +2446,9 @@ function analyzerLoaddefault()
 		var key = defaulteffects[i].split(":")[0];
 		var value = defaulteffects[i].split(":")[1];
 		local.parameters.ledFXParams.associatedEffects.addOption(key,value);		
-	}	
+	}
+	
+	writeLedFXFileEffects = true;
 }
 
 // Default colors
@@ -2883,10 +2921,10 @@ function generateAudioSyncList()
 // Read all IPs from custom variables group and loop from 1 ...n - sequential 
 function analyzerIPSequentialLoop(groupName)
 {	
-	var loopip = root.customVariables.getItemWithName(groupName);
-	if (loopip.name != "undefined" && loopip.calculatedParams.ipList.getAllOptions().length != 0)
+	var loopipseq = root.customVariables.getItemWithName(groupName);
+	if (loopipseq.name != "undefined" && loopipseq.calculatedParams.ipList.getAllOptions().length != 0)
 	{
-		loopip.calculatedParams.ipList.setNext(true);
+		loopipseq.calculatedParams.ipList.setNext(true);
 		
 	} else {
 		
