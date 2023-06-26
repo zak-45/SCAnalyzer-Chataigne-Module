@@ -28,6 +28,10 @@
 			"type": "Container",
 			"description":"Sonic annotator global parameters",
 			"collapsed": false,
+			"Run Sonic Visualiser": {
+				"type": "Trigger",
+				"description": "Launch Sonic Visualiser application"
+			},			
 			"Sonic Annotator Info": {
 				"type": "Trigger",
 				"description": "Click to see documentation"
@@ -40,7 +44,7 @@
 			"Output File": { 
 				"type": "File", 
 				"description": "Sonic annotator output Json file name. 
-	This one will store the analyzer output and will be read to create corresponding Triggers.
+	This one will store the analyzer output and will be read to create corresponding Triggers/outputs.
 	If left blank, will be created with same name as audio file name under tmp location."
 			},
 			"Transform file":{
@@ -289,7 +293,13 @@ If file name is set, this will create output/action for mapping",
 				"options": {
 					"wLEDAudioSync": "wLEDAudioSync"
 				}				
-			}
+			},
+			"All Modules": {
+				"type": "Boolean",
+				"description": "Check to create output for all WLEDAudioSync modules",
+				"readOnly": false,
+				"default": false
+			}			
 		},		
 		"Default Colors":{
 			"type": "Container",
@@ -305,7 +315,7 @@ If file name is set, this will create output/action for mapping",
 			},
 			"Loop Colors": {
 				"type": "Boolean",
-				"description": "Checked, will create Mapping for colors loop (WLED group need to be set).",
+				"description": "Checked, will create Mapping for colors loop (Link to group need to be set).",
 				"default": false
 			},			
 			"segment A": {

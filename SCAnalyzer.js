@@ -19,6 +19,9 @@ Easing set to Hold for the created keys.
 
 */
 
+// Sonic Visualiser : to be adapted by OS
+var sonicVisu = "C:/Program Files/Sonic Visualiser/Sonic Visualiser.exe";
+
 // Main module parameters 
 
 var sequence = "";
@@ -56,7 +59,7 @@ var SCAtransform = "";
 var SCAvampPluginName = "";
 
 // writer option with overwrite
-var SCAoutputOptions = "-w jams --jams-force --jams-one-file";
+var SCAoutputOptions = "-w jams --jams-force --jams-one-file ";
 
 // Final options
 var SCAnalyzerOptions = "-d "+SCAvampPluginName+" "+SCAoutputOptions+' "'+SCAoutputFile+'" ';
@@ -445,6 +448,15 @@ function moduleParameterChanged (param)
 			
 			deActivateColors();
 			
+		} else if (param.name == "loopColors") {
+			if (param.get() == 1)
+			{
+				if (local.parameters.groupParams.linkToGroupNumber.get() == "0")
+				{
+					util.showMessageBox("SCAnalyzer","Link to an existing group need to be set","warning", "Ok");
+				}				
+			}
+			
 		} else if (param.name == "resetEffects") {
 			 
 			resetEffects();
@@ -471,10 +483,17 @@ function moduleParameterChanged (param)
 			
 			generateAudioSyncList();
 			
+		} else if (param.name == "runSonicVisualiser") {
+			
+			//execute Sonic Visualiser
+			if (util.fileExists(sonicVisu))
+			{
+				var launchresult = root.modules.os.launchProcess(sonicVisu, false);				
+			}
+			
 		} else if (param.name == "duration") {
 			
-			generateAudioSyncList();
-			
+			generateAudioSyncList();			
 		}
 	}
 }
@@ -673,13 +692,16 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 			// retreive groupName if necessary
 		
 			var groupName = "NotSet";
-			linkToGroupNumber = local.parameters.groupParams.linkToGroupNumber.get();
+			if (creColEffect === false)
+			{
+				linkToGroupNumber = local.parameters.groupParams.linkToGroupNumber.get();				
+			}
 
-			if (linkToGroupNumber != 0)
+			if (linkToGroupNumber != 0 || creColEffect === true)
 			{
 				// check if custom variables exist for this group 
 				// retreive groupe name 
-				var groupNamevar = local.parameters.getChild("groupParams/" + linkToGroupNumber);
+				var groupNamevar = local.parameters.getChild("groupParams/" + linkToGroupNumber);				
 				var groupName = groupNamevar.get();
 				
 				if (groupName == "")
@@ -1229,11 +1251,20 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 					
 			script.log("Occurence : " + i + " data length : "+SCAJSONContent.annotations[i].data.length);
 			
-			var pointsnumber = 0;
+			// add delay to filters
+			var testdelay = local.parameters.audioParams.globalDelay.get()/1000;
+			if (testdelay != 0) 
+			{
+				var timeDelay = newLayersMapping.mapping.filters.getItemWithName("Delay");
+				if (timeDelay.name == "undefined"){
+					// create Delay
+					var mapoutdelay = newLayersMapping.mapping.filters.addItem("Delay");
+					util.delayThreadMS(10);
+					mapoutdelay.filterParams.delay.set(testdelay);
+				}		
+			}			
 
-
-			// retreive groupName if necessary
-		
+			// retreive groupName if necessary		
 			var groupName = "NotSet";
 			linkToGroupNumber = local.parameters.groupParams.linkToGroupNumber.get();
 			var groupscName = linkToGroupNumber;
@@ -1252,8 +1283,63 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 			}
 			
 			groupName = groupName.replace(" ","").toLowerCase();
+			
+			// Create mapping output (action)
+			//
+			// For Colors Loop
+			if (local.parameters.defaultColors.loopColors.get() == 1)
+			{
+				// root.modules.sCAnalyzer.parameters.groupParams.linkToGroupNumber
+				newLayersMapping.setName(newLayersMapping.name +"_COLOR");
+				// group need to exist
+				if (linkToGroupNumber != 0) 
+				{
+					createColorMapping(groupscName);
+					
+				} else { 
+				
+					script.log("Group not set for  :" + groupscName);
+				
+				}
 
+			}
+			// For WLED or others
+			// root.modules.sCAnalyzer.parameters.groupParams.linkToGroupNumber
+			wledExist = root.modules.getItemWithName("WLED");
+			var split = local.parameters.mappingParams.split.get();
+			var sequential = local.parameters.mappingParams.sequential.get();
+
+			if (linkToGroupNumber != 0)				
+			{				
+				createIPMappings(groupscName);
+				
+				if (local.parameters.wledParams.createWLEDActions.get() == 1 && wledExist.name != "undefined")
+				{
+					newLayersMapping.setName(newLayersMapping.name+"_WLED");					
+					analyzerWLEDMapping(groupscName, split, sequential);
+				}
+				
+			} else {
+				
+				script.log("WLED Module does not exist or Group not set for  :" + groupscName);				
+			}
+
+			// For WLEDAudioSync
+			var audioReplayFile = local.parameters.wLEDAudioSyncParams.replayFile.get();
+			var moduleName = local.parameters.wLEDAudioSyncParams.moduleName.get();
+			var duration = local.parameters.wLEDAudioSyncParams.duration.get();
+			var allModules = local.parameters.wLEDAudioSyncParams.allModules.get();
+			
+			if (audioReplayFile != "" && moduleName != "")
+			{
+				newLayersMapping.setName(newLayersMapping.name+"_SYNC");
+				createWLEDAudioSyncMapping();
+			}			
+
+			//
 			// main mapping points loop creation (keys)
+			//
+			var pointsnumber = 0;			
 			for (var j = 0; j < SCAJSONContent.annotations[i].data.length; j += 1)
 			{
 				// create new point
@@ -1302,67 +1388,15 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 			}
 			// last key to zero
 			var newKey = newLayersMapping.automation.addKey(maxtime+.1,0);
-			newLayersMapping.automation.getKeyAtPosition(maxtime+.1).easingType.set("Hold");			
-
-			// Create mapping output (action)
-			//
-			// For Colors Loop
-			if (local.parameters.defaultColors.loopColors.get() == 1)
-			{
-				// root.modules.sCAnalyzer.parameters.groupParams.linkToGroupNumber
-				newLayersMapping.setName(newLayersMapping.name +"_COLOR");
-				// group need to exist
-				if (linkToGroupNumber != 0) 
-				{
-					createColorMapping(groupscName);
-					
-				} else { 
-				
-					script.log("Group not set for  :" + groupscName);
-				
-				}
-
-			}
-			// For WLED or others
-			// root.modules.sCAnalyzer.parameters.groupParams.linkToGroupNumber
-			wledExist = root.modules.getItemWithName("WLED");
-			var split = local.parameters.mappingParams.split.get();
-			var sequential = local.parameters.mappingParams.sequential.get();
-
-			if (linkToGroupNumber != 0)				
-			{				
-				createIPMappings(groupscName);
-				
-				if (local.parameters.wledParams.createWLEDActions.get() == 1 && wledExist.name != "undefined")
-				{
-					newLayersMapping.setName(newLayersMapping.name+"_WLED");					
-					analyzerWLEDMapping(groupscName, split, sequential);
-				}
-				
-			} else {
-				
-				script.log("WLED Module does not exist or Group not set for  :" + groupscName);
-				
-			}			
+			newLayersMapping.automation.getKeyAtPosition(maxtime+.1).easingType.set("Hold");
 		}
-			// For WLEDAudioSync
-			var audioReplayFile = local.parameters.wLEDAudioSyncParams.replayFile.get();
-			var moduleName = local.parameters.wLEDAudioSyncParams.moduleName.get();
-			var duration = local.parameters.wLEDAudioSyncParams.duration.get();
-			
-			if (audioReplayFile != "" && moduleName != "")
-			{
-				newLayersMapping.setName(newLayersMapping.name+"_SYNC");
-				createWLEDAudioSyncMapping();
-			}	
 		
 		script.log("Total number of points created : " + pointsnumber);
 
 	} else {
 		
 		script.log("Sonic annotator app not found");		
-		util.showMessageBox("Sonic Analyzer !", "sonic-annotator not found", "warning", "OK");
-	
+		util.showMessageBox("Sonic Analyzer !", "sonic-annotator not found", "warning", "OK");	
 	}
 	
 	rhythmAnalyzerIsRunning = false;
@@ -1388,37 +1422,8 @@ function calcColorEffect (insequence, inmapGroup, infeatureType, innSegmentTypes
 	segAnalyzer(insequence, targetFile, infeatureType, innSegmentTypes, inneighbourhoodLimit);	
 }
 
-// this will create the corresponding LedFX actions (scene / effect activation) for triggers depending on the segment name
-function analyzerLedFXConseq (segmentName)
-{
-	var conseq = newTrigger.consequences.addItem("Consequence");
-	util.delayThreadMS(10);
-	newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);	
-
-	if (useScenes)
-	{
-		conseq.setCommand("ledFX","LedFX-Scene","DeActivate ");
-	} else {
-		conseq.setCommand("ledFX","LedFX-Virtual","Apply Effect ");
-	}
-	var parcmd = conseq.getChild("command");
-	if (useScenes)
-	{
-		local.parameters.ledFXParams.associatedScenes.set(segmentName);
-		var myscene = local.parameters.ledFXParams.associatedScenes.get();
-		if (myscene == "") {			
-			myscene = local.parameters.ledFXParams.defaultSceneName.get();		
-		}
-		parcmd.scenename.set(myscene);
-	} else {
-		parcmd.devicename.set(local.parameters.ledFXParams.defaultVirtualDeviceName.get());
-		local.parameters.ledFXParams.associatedEffects.set(segmentName);
-		parcmd.effect.set(local.parameters.ledFXParams.associatedEffects.get());
-	}
-}
-
-// For one specific GroupName , this will create the corresponding action (consequence) for triggers depending on the segment name
-// based on segmentation
+// For one specific GroupName , this will create the corresponding action (consequence) for triggers
+// depending on the segment name & based on segmentation
 // values effect and color stored to CV group : can be used by Mapping/states etc ...
 function analyzerCreConseq (segmentName, groupName)
 {
@@ -1469,6 +1474,36 @@ function analyzerCreConseq (segmentName, groupName)
 
 }
 
+// this will create the corresponding LedFX actions (scene / effect activation) for triggers
+// depending on the segment name
+function analyzerLedFXConseq (segmentName)
+{
+	var conseq = newTrigger.consequences.addItem("Consequence");
+	util.delayThreadMS(10);
+	newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);	
+
+	if (useScenes)
+	{
+		conseq.setCommand("ledFX","LedFX-Scene","DeActivate ");
+	} else {
+		conseq.setCommand("ledFX","LedFX-Virtual","Apply Effect ");
+	}
+	var parcmd = conseq.getChild("command");
+	if (useScenes)
+	{
+		local.parameters.ledFXParams.associatedScenes.set(segmentName);
+		var myscene = local.parameters.ledFXParams.associatedScenes.get();
+		if (myscene == "") {			
+			myscene = local.parameters.ledFXParams.defaultSceneName.get();		
+		}
+		parcmd.scenename.set(myscene);
+	} else {
+		parcmd.devicename.set(local.parameters.ledFXParams.defaultVirtualDeviceName.get());
+		local.parameters.ledFXParams.associatedEffects.set(segmentName);
+		parcmd.effect.set(local.parameters.ledFXParams.associatedEffects.get());
+	}
+}
+
 // this will create the corresponding action (consequence) for WLED : initial when ledfxAuto is true.
 // if ledFX is true we assume that WLED need to be set to Live.
 function analyzerWLEDInitConseq ()
@@ -1482,6 +1517,7 @@ function analyzerWLEDInitConseq ()
 	parcmd.on.set(true);
 } 
 
+// this will create the corresponding action (consequence) for WLED 
 function analyzerWLEDConseq (newColor,newEffect,newPalette)
 {
 	var numberofactions = 0;
@@ -1547,7 +1583,8 @@ function analyzerWLEDConseq (newColor,newEffect,newPalette)
 	}
 
 }
- 
+
+// this will create the corresponding action (consequence) for All WLED  IP
 function analyzerWLEDallIPLoop (groupName, action)
 {
 	if (groupName == "undefined")
@@ -1669,14 +1706,14 @@ function analyzerWLEDMapping (groupscName, split, sequential)
 			//var portNumber = root.modules.wledsync.parameters.output.remotePort.get();
 			
 			// create WLED main cmd with calculated IP 
-			if (split == 1 || sequential == 1)
+			if (split == 1 || sequential == 1 || local.parameters.wledParams.allIP.get() == 0)
 			{
 				createWLEDMapping();
 				
 			} else {
 				
 				// create WLED main cmd for each IP in custom variables group
-				for (k = 0; k < additionalIP.length; k++) 
+				for ( var k = 0; k < additionalIP.length; k++) 
 				{
 					if (additionalIP[k].name.contains("ip"))
 					{				
@@ -1710,7 +1747,7 @@ function createWLEDMapping()
 	// create ws 
 	if (testWS == 1)
 	{
-		for (n = 0; n < additionalIP.length; n++) 
+		for (var n = 0; n < additionalIP.length; n++) 
 		{ 
 			if (additionalIP[n].name.contains("ip"))
 			{				
@@ -1727,18 +1764,6 @@ function createWLEDMapping()
 		}
 	}
 
-	// add delay to filters
-	var testdelay = local.parameters.audioParams.globalDelay.get()/1000;
-	if (testdelay != 0) 
-	{
-		var timeDelay = newLayersMapping.mapping.filters.getItemWithName("Delay");
-		if (timeDelay == undefined){
-			// create Delay
-			var mapoutdelay = newLayersMapping.mapping.filters.addItem("Delay");
-			util.delayThreadMS(10);
-			mapoutdelay.filterParams.delay.set(testdelay);
-		}		
-	}
 	// add math / multiply to filters
 	var mathTest = newLayersMapping.mapping.filters.getItemWithName("Math");
 	if (mathTest == undefined){
@@ -1921,19 +1946,6 @@ function createColorMapping(groupscName)
 	var grp = local.parameters.getChild("groupParams/"+ groupscName);		
 	var cvGroup = root.customVariables.getItemWithName(grp.get());
 
-	// add delay to filters
-	var testdelay = local.parameters.audioParams.globalDelay.get()/1000;
-	if (testdelay != 0) 
-	{
-		var timeDelay = newLayersMapping.mapping.filters.getItemWithName("Delay");
-		if (timeDelay == undefined){
-			// create Delay
-			var mapoutdelay = newLayersMapping.mapping.filters.addItem("Delay");
-			util.delayThreadMS(10);
-			mapoutdelay.filterParams.delay.set(testdelay);
-		}		
-	}
-	
 	// create output
 	var mapout = newLayersMapping.mapping.outputs.addItem();
 	util.delayThreadMS(10);
@@ -1972,25 +1984,61 @@ function createColorMapping(groupscName)
 // Mapping for WLEDAudioSync
 function createWLEDAudioSyncMapping()
 {
-	var WLEDAudioExist = root.modules.getItemWithName(moduleName);
+	// loop true all WLEDAudioSync modules if requested
 	
-	if (WLEDAudioExist.name != "undefined")
+	if (allModules == 1) 
 	{
-		// create output
-		var mapoutwas = newLayersMapping.mapping.outputs.addItem("mappingOutput");
-		util.delayThreadMS(10);
-		mapoutwas.setName(moduleName);
-		mapoutwas.setCommand(WLEDAudioExist.niceName,"Replay","Snapshot");
+		var moduleNumbers = root.modules.getItems();
 
-		var parcmdwas = mapoutwas.getChild("command");
-		
-		// set params 
-		parcmdwas.fileName.set(audioReplayFile);
-		parcmdwas.duration.set(duration);
-		
+		for ( var i = 0; i < moduleNumbers.length ; i++)		
+		{	
+			if ( moduleNumbers[i].getType().contains("WLEDAudioSync"))
+			{
+				var WLEDAudioExist = root.modules.getItemWithName(moduleNumbers[i].name);
+				
+				if (WLEDAudioExist.name != "undefined")
+				{
+					// create output
+					var mapoutwas = newLayersMapping.mapping.outputs.addItem("mappingOutput");
+					util.delayThreadMS(10);
+					mapoutwas.setName(WLEDAudioExist.name);
+					mapoutwas.setCommand(WLEDAudioExist.niceName,"Replay","Snapshot");
+
+					var parcmdwas = mapoutwas.getChild("command");
+					
+					// set params 
+					parcmdwas.fileName.set(audioReplayFile);
+					parcmdwas.duration.set(duration);
+					
+				} else {
+				
+					script.log('Module WLEDAudioSync removed ..: ' + WLEDAudioExist.name);
+				}
+			}
+		}
+
 	} else {
-	
-		script.log('Module WLEDAudioSync removed ..: ' + moduleName);
+		
+		var WLEDAudioExist = root.modules.getItemWithName(moduleName);
+		
+		if (WLEDAudioExist.name != "undefined")
+		{
+			// create output
+			var mapoutwas = newLayersMapping.mapping.outputs.addItem("mappingOutput");
+			util.delayThreadMS(10);
+			mapoutwas.setName(moduleName);
+			mapoutwas.setCommand(WLEDAudioExist.niceName,"Replay","Snapshot");
+
+			var parcmdwas = mapoutwas.getChild("command");
+			
+			// set params 
+			parcmdwas.fileName.set(audioReplayFile);
+			parcmdwas.duration.set(duration);
+			
+		} else {
+		
+			script.log('Module WLEDAudioSync removed ..: ' + moduleName);
+		}
 	}
 }
 
