@@ -243,7 +243,7 @@ function init()
 	}
 	
 	//
-	script.setUpdateRate(50);
+	script.setUpdateRate(1);
 }
 
 // Triggered once by second (rate = 1), sequence start from index 0, when one sequence reach end time, we switch to index +1
@@ -665,6 +665,31 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 		util.delayThreadMS(10);
 		var prefix = "QM";
 
+		// retreive groupName if necessary	
+		var groupName = "NotSet";
+		if (creColEffect === false)
+		{
+			linkToGroupNumber = local.parameters.groupParams.linkToGroupNumber.get();				
+		}
+
+		if (linkToGroupNumber != 0 || creColEffect === true)
+		{
+			// check if custom variables exist for this group 
+			// retreive groupe name 
+			var groupNamevar = local.parameters.getChild("groupParams/" + linkToGroupNumber);
+			if (groupNamevar.name != "undefined")
+			{
+				var groupName = groupNamevar.get();
+				
+				if (groupName == "")
+				{
+					groupName = "NotSet";
+				}
+			}
+		}
+		groupName = groupName.replace(" ","").toLowerCase();
+		var groupExist = root.customVariables.getItemWithName(groupName);
+
 		if (creColEffect === true)
 		{
 			prefix = "CALC" + linkToGroupNumber;
@@ -699,31 +724,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 			
 			var newColor = [];
 			var newEffect = 0;
-			var newPalette = 0;
-			
-			// retreive groupName if necessary
-		
-			var groupName = "NotSet";
-			if (creColEffect === false)
-			{
-				linkToGroupNumber = local.parameters.groupParams.linkToGroupNumber.get();				
-			}
-
-			if (linkToGroupNumber != 0 || creColEffect === true)
-			{
-				// check if custom variables exist for this group 
-				// retreive groupe name 
-				var groupNamevar = local.parameters.getChild("groupParams/" + linkToGroupNumber);				
-				var groupName = groupNamevar.get();
-				
-				if (groupName == "")
-				{
-					groupName = "NotSet";
-				}
-			}
-			groupName = groupName.replace(" ","").toLowerCase();
-			var groupExist = root.customVariables.getItemWithName(groupName);
-		
+			var newPalette = 0;		
 			
 			// main Triggers / cues loop 
 			for (var j = 0; j < SCAJSONContent.annotations[i].data.length; j += 1)
@@ -1238,6 +1239,43 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 		{
 			wledAuto = local.parameters.wledParams.createWLEDActions.get();						
 		}
+
+		// retreive groupName if necessary		
+		var groupName = "NotSet";
+		linkToGroupNumber = local.parameters.groupParams.linkToGroupNumber.get();
+		var groupscName = linkToGroupNumber;
+
+		if (linkToGroupNumber != 0)
+		{
+			// check if custom variables exist for this group 
+			// retreive groupe name 
+			var groupNamevar = local.parameters.getChild("groupParams/" + linkToGroupNumber);
+			
+			if (groupNamevar.name != "undefined")
+			{
+				var groupName = groupNamevar.get();
+							
+				if (groupName == "")
+				{
+					groupName = "NotSet";
+				}				
+			}
+		}
+		
+		groupName = groupName.replace(" ","").toLowerCase();
+		
+		// add delay to filters
+		var testdelay = local.parameters.audioParams.globalDelay.get()/1000;
+		if (testdelay != 0) 
+		{
+			var timeDelay = newLayersMapping.mapping.filters.getItemWithName("Delay");
+			if (timeDelay.name == "undefined"){
+				// create Delay
+				var mapoutdelay = newLayersMapping.mapping.filters.addItem("Delay");
+				util.delayThreadMS(10);
+				mapoutdelay.filterParams.delay.set(testdelay);
+			}		
+		}		
 		
 		for (var i = 0; i < SCAJSONContent.annotations.length; i += 1)
 		{
@@ -1262,40 +1300,7 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 			newparametersContainer.addStringParameter("neighbourhoodLimit ","",SCAJSONContent.annotations[i].annotation_metadata.annotator.parameters.neighbourhoodLimit);
 					
 			script.log("Occurence : " + i + " data length : "+SCAJSONContent.annotations[i].data.length);
-			
-			// add delay to filters
-			var testdelay = local.parameters.audioParams.globalDelay.get()/1000;
-			if (testdelay != 0) 
-			{
-				var timeDelay = newLayersMapping.mapping.filters.getItemWithName("Delay");
-				if (timeDelay.name == "undefined"){
-					// create Delay
-					var mapoutdelay = newLayersMapping.mapping.filters.addItem("Delay");
-					util.delayThreadMS(10);
-					mapoutdelay.filterParams.delay.set(testdelay);
-				}		
-			}			
-
-			// retreive groupName if necessary		
-			var groupName = "NotSet";
-			linkToGroupNumber = local.parameters.groupParams.linkToGroupNumber.get();
-			var groupscName = linkToGroupNumber;
-
-			if (linkToGroupNumber != 0)
-			{
-				// check if custom variables exist for this group 
-				// retreive groupe name 
-				var groupNamevar = local.parameters.getChild("groupParams/" + linkToGroupNumber);
-				var groupName = groupNamevar.get();
-							
-				if (groupName == "")
-				{
-					groupName = "NotSet";
-				}
-			}
-			
-			groupName = groupName.replace(" ","").toLowerCase();
-			
+						
 			// Create mapping output (action)
 			//
 			// For Colors Loop
@@ -1783,7 +1788,7 @@ function createWLEDMapping()
 		var mapoutmath = newLayersMapping.mapping.filters.addItem("Math");
 		util.delayThreadMS(10);
 		mapoutmath.filterParams.operation.set("Multiply");
-		mapoutmath.filterParams.value.set(50);		
+		mapoutmath.filterParams.value.set(1);		
 	}
 
 	var preset = local.parameters.wledParams.preset.get();
@@ -2201,7 +2206,7 @@ function analyzerRunshow (play)
 		
 		numberToPlay = 0;
 		script.log("Stop playing, release control");
-		script.setUpdateRate(50);
+		script.setUpdateRate(1);
 	}	
 }
 
@@ -2527,6 +2532,7 @@ function checkStep2()
 	} else {
 		
 		createShowStep3 = false;
+		creColEffect = false;
 		showStep3();		
 	}	
 }
@@ -2615,7 +2621,7 @@ function showStep5 ()
 	moreInfo = "Step 5";
 	keepJson = false;
 	
-	if (spleeterExist.name != "undefined")
+	if (spleeterExist.name != "undefined" && local.parameters.spleeterParams.createVocal.get() == 1)
 	{
 		script.log("Create vocals for : " + seqaddr);
 		var cmd = spleeterExist.commandTester.setCommand("Spleeter","Spleeter","Separate");		

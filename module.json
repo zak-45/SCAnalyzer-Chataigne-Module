@@ -263,12 +263,17 @@ Scene must be defined with ledFX App",
 		"Spleeter Params":{
 			"type": "Container",
 			"description":"Spleeter global parameters",
-			"collapsed": false,
+			"collapsed": true,
 			"Create vocal": {
 				"type": "Boolean",
 				"description": "Checked, will create mapping for vocal part of the song.",
 				"default": false
-			}
+			},
+			"Singing Face": {
+				"type": "Boolean",
+				"description": "Create mapping for simulated singing face based on WLED 2D & preset/playlist",
+				"default": false
+			}			
 		},
 		"WLEDAudioSync Params":{
 			"type": "Container",
