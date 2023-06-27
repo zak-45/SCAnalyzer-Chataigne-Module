@@ -109,6 +109,7 @@ script.setExecutionTimeout(300);
 var wledExist = null;
 var ledfxExist = null;
 var spleeterExist = null;
+var SCAnalyzerUtilExist = null;
 
 // Create a show
 var keepJson = false;
@@ -158,6 +159,17 @@ function init()
 	ledfxExist = root.modules.getItemWithName("LedFX");
 	wledExist = root.modules.getItemWithName("WLED");
 	spleeterExist = root.modules.getItemWithName("Spleeter");
+	SCAnalyzerUtilExist = root.modules.getItemWithName("SCAnalyzer_util");
+	
+	if (SCAnalyzerUtilExist.name == "sCAnalyzer_util")
+	{	
+		script.log("Module sCAnalyzer_util exist");
+		
+	} else {
+			
+		root.modules.addItem("SCAnalyzer_util");
+		util.delayThreadMS(10);		
+	}	
 
 	if (SCexist.name == "soundCard")
 	{	
@@ -231,7 +243,7 @@ function init()
 	}
 	
 	//
-	script.setUpdateRate(1);
+	script.setUpdateRate(50);
 }
 
 // Triggered once by second (rate = 1), sequence start from index 0, when one sequence reach end time, we switch to index +1
@@ -1866,7 +1878,7 @@ function createIPMappings (groupscName)
 		// create output
 		var mapout = newLayersMapping.mapping.outputs.addItem();
 		util.delayThreadMS(10);
-		mapout.setCommand("SCAnalyzer","SCAnalyzer","Script callback");
+		mapout.setCommand("SCAnalyzer_util","SCAnalyzer_util","Script callback");
 		mapout.setName("CVIPModulo");
 		var parcmd = mapout.getChild("command");
 		// set script callback name
@@ -1906,7 +1918,7 @@ function createIPMappings (groupscName)
 		// create output
 		var mapout = newLayersMapping.mapping.outputs.addItem();
 		util.delayThreadMS(10);
-		mapout.setCommand("SCAnalyzer","SCAnalyzer","Script callback");
+		mapout.setCommand("SCAnalyzer_util","SCAnalyzer_util","Script callback");
 		mapout.setName("CVIPSequential");
 		var parcmd = mapout.getChild("command");
 		// set script callback name
@@ -1949,7 +1961,7 @@ function createColorMapping(groupscName)
 	// create output
 	var mapout = newLayersMapping.mapping.outputs.addItem();
 	util.delayThreadMS(10);
-	mapout.setCommand("SCAnalyzer","SCAnalyzer","Script callback");
+	mapout.setCommand("SCAnalyzer_util","SCAnalyzer_util","Script callback");
 	mapout.setName("CVColors");
 	var parcmd = mapout.getChild("command");
 	// set script callback name
@@ -2169,207 +2181,6 @@ function createWS (wsip)
 	}
 }
 
-
-// Read all IP from custom variables group, select modulo index value from xx(max 12) to 1 
-function analyzerIPModuloLoop(groupName)
-{
-	var loopip = root.customVariables.getItemWithName(groupName);
-	var loopipAdditionalIP = loopip.variables.getItems();
-	var loopIndex = loopip.calculatedParams.index.get() + 1;
-	
-	if (loopipAdditionalIP)
-	{
-		for ( var l = (loopipAdditionalIP.length -1); l >= 0; l--) 
-		{ 
-	
-			if (loopipAdditionalIP[l].name.contains("ip"))
-			{				
-				var loopipIPName = loopipAdditionalIP[l].name;
-				
-				var loopipNewIP = loopipAdditionalIP[l].getChild(loopipIPName);
-				var loopipAddIP = loopipNewIP.get();
-				
-				if (loopipAddIP != "0.0.0.0" && loopipAddIP != "")
-				{
-					var numtest = loopIndex % (l + 1);
-				
-					if (numtest == 0)
-					{
-						loopip.calculatedParams.ip.set(loopipAddIP);
-						loopip.calculatedParams.index.set(loopIndex);
-						break;
-					}					
-					
-				} else {
-				
-					script.log("We bypass this one (value): "+loopipAdditionalIP[l].name);
-				}
-				
-			} else {
-				
-				script.log("We bypass this one (not ip name): "+loopipAdditionalIP[l].name);				
-			}
-		}
-		
-	} else {
-
-		script.log('Group does not exist or no IP !!');		
-	
-	}
-}
-
-// Read all active Default Colors  and set the value into root.customVariables.(groupName).parameters.mapcolor depend on index
-// used as script callback in mapping output
-function analyzerColorLoop(groupName)
-{	
-	var loopColor = [];
-	var loopgrp = root.customVariables.getItemWithName(groupName);
-	
-	if (loopgrp.name != "undefined")
-	{
-		var loopIndex = loopgrp.calculatedParams.colorIndex.get() + 1;
-		loopgrp.calculatedParams.colorIndex.set(loopIndex);
-		
-		for ( var l = 12; l > 0; l--) 
-		{ 
-			if ( l == 12 )
-			{
-				loopColor = local.parameters.defaultColors.segmentL.get();
-				if (loopColor[3] == 1)
-				{
-					var numtest = loopIndex % (l);				
-					if (numtest == 0)
-					{
-						loopgrp.calculatedParams.mapcolor.set(loopColor);
-						break;
-					}
-				}
-			} else if ( l == 11 ) {
-				loopColor = local.parameters.defaultColors.segmentK.get();
-				if (loopColor[3] == 1)
-				{
-					var numtest = loopIndex % (l);				
-					if (numtest == 0)
-					{
-						loopgrp.calculatedParams.mapcolor.set(loopColor);
-						break;
-					}
-				}
-			} else if ( l == 10 ) {
-				loopColor = local.parameters.defaultColors.segmentJ.get();
-				if (loopColor[3] == 1)
-				{
-					var numtest = loopIndex % (l);				
-					if (numtest == 0)
-					{
-						loopgrp.calculatedParams.mapcolor.set(loopColor);
-						break;
-					}
-				}
-			} else if ( l == 9 ) {
-				loopColor = local.parameters.defaultColors.segmentI.get();
-				if (loopColor[3] == 1)
-				{
-					var numtest = loopIndex % (l);				
-					if (numtest == 0)
-					{
-						loopgrp.calculatedParams.mapcolor.set(loopColor);
-						break;
-					}
-				}
-			} else if ( l == 8 ) {
-				loopColor = local.parameters.defaultColors.segmentH.get();
-				if (loopColor[3] == 1)
-				{
-					var numtest = loopIndex % (l);				
-					if (numtest == 0)
-					{
-						loopgrp.calculatedParams.mapcolor.set(loopColor);
-						break;
-					}
-				}
-			} else if ( l == 7 ) {
-				loopColor = local.parameters.defaultColors.segmentG.get();
-				if (loopColor[3] == 1)
-				{
-					var numtest = loopIndex % (l);				
-					if (numtest == 0)
-					{
-						loopgrp.calculatedParams.mapcolor.set(loopColor);
-						break;
-					}
-				}
-			} else if ( l == 6 ) {
-				loopColor = local.parameters.defaultColors.segmentF.get();
-				if (loopColor[3] == 1)
-				{
-					var numtest = loopIndex % (l);				
-					if (numtest == 0)
-					{
-						loopgrp.calculatedParams.mapcolor.set(loopColor);
-						break;
-					}
-				}
-			} else if ( l == 5 ) {
-				loopColor = local.parameters.defaultColors.segmentE.get();
-				if (loopColor[3] == 1)
-				{
-					var numtest = loopIndex % (l);				
-					if (numtest == 0)
-					{
-						loopgrp.calculatedParams.mapcolor.set(loopColor);
-						break;
-					}
-				}
-			} else if ( l == 4 ) {
-				loopColor = local.parameters.defaultColors.segmentD.get();
-				if (loopColor[3] == 1)
-				{
-					var numtest = loopIndex % (l);				
-					if (numtest == 0)
-					{
-						loopgrp.calculatedParams.mapcolor.set(loopColor);
-						break;
-					}
-				}
-			} else if ( l == 3 ) {
-				loopColor = local.parameters.defaultColors.segmentC.get();
-				if (loopColor[3] == 1)
-				{
-					var numtest = loopIndex % (l);				
-					if (numtest == 0)
-					{
-						loopgrp.calculatedParams.mapcolor.set(loopColor);
-						break;
-					}
-				}
-			} else if ( l == 2 ) {
-				loopColor = local.parameters.defaultColors.segmentB.get();
-				if (loopColor[3] == 1)
-				{
-					var numtest = loopIndex % (l);				
-					if (numtest == 0)
-					{
-						loopgrp.calculatedParams.mapcolor.set(loopColor);
-						break;
-					}
-				}
-			} else if ( l == 1 ) {
-				loopColor = local.parameters.defaultColors.segmentA.get();
-				if (loopColor[3] == 1)
-				{
-					var numtest = loopIndex % (l);				
-					if (numtest == 0)
-					{
-						loopgrp.calculatedParams.mapcolor.set(loopColor);
-						break;
-					}
-				}
-			} 
-		}
-	}
-}
-
 // Play all sequences in sequential order From index 0 to last sequence number
 function analyzerRunshow (play)  
 {
@@ -2390,7 +2201,7 @@ function analyzerRunshow (play)
 		
 		numberToPlay = 0;
 		script.log("Stop playing, release control");
-		script.setUpdateRate(1);
+		script.setUpdateRate(50);
 	}	
 }
 
@@ -2903,7 +2714,9 @@ function createParamReferenceTo(refParam,toValue)
 // populate enum param from Custom variables group IP
 function generateIPList(group)
 {
-	script.log("Generate enum param for Custom variables Group : " + group);
+	// script.log("Generate enum param for Custom variables Group : " + group);
+	var testip = true;
+	return;
 	
 	var loopip = root.customVariables.getItemWithName(group);
 	
@@ -2966,20 +2779,6 @@ function generateAudioSyncList()
 	}
 }
 
-// Read all IPs from custom variables group and loop from 1 ...n - sequential 
-function analyzerIPSequentialLoop(groupName)
-{	
-	var loopipseq = root.customVariables.getItemWithName(groupName);
-	if (loopipseq.name != "undefined" && loopipseq.calculatedParams.ipList.getAllOptions().length != 0)
-	{
-		loopipseq.calculatedParams.ipList.setNext(true);
-		
-	} else {
-		
-		script.log('Group does not exist or no IP !!');
-	}	
-}
-
 // retreive file name from absolute path
 function getFilename(songname)
 {
@@ -2988,7 +2787,6 @@ function getFilename(songname)
 
 return filename		
 }
-
 
 // used for value/expression testing .......
 function testScript(from)
