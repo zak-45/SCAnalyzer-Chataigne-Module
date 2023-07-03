@@ -721,6 +721,16 @@ Result will be stored on the existing sequence",
 						"11":"scGroup11",
 						"12":"scGroup12"
 					}
+				},
+				"Create Color":{
+					"type":"Boolean",
+					"description": "Checked will create consequence for Colors",
+					"default": true
+				},
+				"Create Effect":{
+					"type":"Boolean",
+					"description": "Checked will create consequence for Effect",
+					"default": true
 				},				
 				"featureType":{
 					"type":"Enum",

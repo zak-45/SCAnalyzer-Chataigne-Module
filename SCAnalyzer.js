@@ -26,8 +26,8 @@ var sonicVisu = "C:/Program Files/Sonic Visualiser/Sonic Visualiser.exe";
 
 var sequence = "";
 var targetFile = "";
-// segmenter
 
+// segmenter
 var shouldProcessSeg = false;
 var segAnalyzerIsRunning = false;
 var featureType = "";
@@ -320,7 +320,8 @@ function update ()
 		
 		checkLast();
 	}	
-
+	
+	// Sequence mngt
 	// Play all enabled sequences
 	if (lastsequence < numberToPlay) 
 	{
@@ -1357,7 +1358,7 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 				script.log("No group link defined" );
 			}
 			
-			if (linkToGroupNumber == 0 && local.parameters.wledParams.createWLEDActions.get() == 1)	
+			if (linkToGroupNumber == 0 && local.parameters.wledParams.createWLEDActions.get() == 1 && wledExist.name != "undefined")	
 			{
 				createWLEDMapping();
 			}
@@ -1465,13 +1466,15 @@ Segmenter
 
 // Create Colors / Effects Based on segmentation... could be used on Mappings to reference value from Groupxx
 // Called from 'command/utility/calcColorEffect'.
-function calcColorEffect (insequence, inmapGroup, infeatureType, innSegmentTypes, inneighbourhoodLimit)
+function calcColorEffect (insequence, inmapGroup, increateColor, increateEffect, infeatureType, innSegmentTypes, inneighbourhoodLimit)
 {
 	script.log("We create colors/effects based on Segmenter");
 
 	// file is null, we use only sequence Param
 	targetFile = "";
 	creColEffect = true;
+	var createColor = increateColor;
+	var createEffect = increateEffect;
 	linkToGroupNumber = inmapGroup;
 	
 	segAnalyzer(insequence, targetFile, infeatureType, innSegmentTypes, inneighbourhoodLimit);	
@@ -1484,7 +1487,7 @@ function analyzerCreConseq (segmentName, groupName)
 {
 	var numberofactions = 0;
 
-	if (newColor[3] == 1)
+	if (newColor[3] == 1 && createColor)
 	{
 		// COLOR
 		var conseq = newTrigger.consequences.addItem("Consequence");
@@ -1503,7 +1506,7 @@ function analyzerCreConseq (segmentName, groupName)
 		
 	}
 
-	if (newEffect != -1)
+	if (newEffect != -1 && createEffect)
 	{
 		// EFFECT
 		var conseq = newTrigger.consequences.addItem("Consequence");
@@ -2192,10 +2195,10 @@ function createCustomVariables(scGroup)
 			newGroupindex = newtmpwledContainer.addIntParameter("Index","Number of iteration. calculated by script",0);
 			newGroupindex.setAttribute("readOnly",true);
 			newGroupindex.setAttribute("saveValueOnly",false);	
-			newGroupcolor = newtmpwledContainer.addColorParameter("Segcolor","Segmenter Color",[1,1,1]);
+			newGroupcolor = newtmpwledContainer.addColorParameter("Segcolor","Segmenter Color, provide from calcColorEffect",[1,1,1]);
 			newGroupcolor.setAttribute("readOnly",true);
 			newGroupcolor.setAttribute("saveValueOnly",false);				
-			newGroupeffect = newtmpwledContainer.addIntParameter("Effect number","Effect index.",0);
+			newGroupeffect = newtmpwledContainer.addIntParameter("Effect number","Effect index, provide from calcColorEffect.",0);
 			newGroupeffect.setAttribute("readOnly",true);
 			newGroupeffect.setAttribute("saveValueOnly",false);
 			newGroupmapcolor = newtmpwledContainer.addColorParameter("Mapcolor","Mapping Color",[1,1,1]);
