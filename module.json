@@ -165,7 +165,13 @@ CAUTION: this will increase mapping time creation x3",
 				"type": "Boolean",
 				"description": "Checked, actions will be split thru all IPs - sequential - (IPs from associated group and only for Mappings)",
 				"default": false
-			}
+			},
+			"Map Effects": {
+				"type": "Boolean",
+				"description": "Checked, this will create a link to change WLED effect from the Segmenter calcColorEffect procedure.
+	WLED device must exist.",
+				"default": false
+			}			
 		},		
 		"WLED Params":{
 			"type": "Container",

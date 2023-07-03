@@ -86,7 +86,7 @@ var writeLedFXFileEffects = true;
 
 // WLED test
 var wledAuto = false;
-var bkpWLEDValue = "";
+// var bkpWLEDValue = "";
 
 // for playing all sequences in sequential way
 var deltaTime = 0;
@@ -115,6 +115,7 @@ var SCAnalyzerUtilExist = null;
 var keepJson = false;
 var newAudio = "";
 var moreInfo = "";
+var showCreation = false;
 var spleeterIsRunning = false;
 var createShowStep2 = false;
 var createShowStep3 = false;
@@ -159,17 +160,6 @@ function init()
 	ledfxExist = root.modules.getItemWithName("LedFX");
 	wledExist = root.modules.getItemWithName("WLED");
 	spleeterExist = root.modules.getItemWithName("Spleeter");
-	SCAnalyzerUtilExist = root.modules.getItemWithName("SCAnalyzer_util");
-	
-	if (SCAnalyzerUtilExist.name == "sCAnalyzer_util")
-	{	
-		script.log("Module sCAnalyzer_util exist");
-		
-	} else {
-			
-		root.modules.addItem("SCAnalyzer_util");
-		util.delayThreadMS(10);		
-	}	
 
 	if (SCexist.name == "soundCard")
 	{	
@@ -178,7 +168,7 @@ function init()
 	} else {
 			
 		var newSCModule = root.modules.addItem("Sound Card");
-		util.delayThreadMS(10);		
+		util.delayThreadMS(20);		
 	}
 	
 	if (osExist.name == "os")
@@ -188,7 +178,7 @@ function init()
 	} else {
 			
 		var newOSModule = root.modules.addItem("OS");
-		util.delayThreadMS(10);
+		util.delayThreadMS(20);
 			
 	}
 	
@@ -235,18 +225,19 @@ function init()
 	} else {
 
 		var newSequence = root.sequences.addItem();
-		util.delayThreadMS(10);
+		util.delayThreadMS(20);
 		var newTSequence = newSequence.layers.addItem("Trigger");
-		util.delayThreadMS(10);
+		util.delayThreadMS(20);
 		var newASequence = newSequence.layers.addItem("Audio");
-		util.delayThreadMS(10);		
+		util.delayThreadMS(20);		
 	}
 	
 	//
 	script.setUpdateRate(1);
 }
 
-// Triggered once by second (rate = 1), sequence start from index 0, when one sequence reach end time, we switch to index +1
+// Triggered once by second (rate = 1)
+// for playback, sequence start from index 0, when one sequence reach end time, we switch to index +1
 function update ()
 {	
 
@@ -274,8 +265,19 @@ function update ()
 			local.parameters.sonicParams.sonicAnnotatorLocation.set(homeDIR + "/Chataigne/xtra/vamp-plugins/x64/sonic-annotator-1.5-win64/" + "sonic-annotator.exe");
 		}		
 
-		isInit = false;
+		SCAnalyzerUtilExist = root.modules.getItemWithName("SCAnalyzer_util");
 		
+		if (SCAnalyzerUtilExist.name == "sCAnalyzer_util")
+		{	
+			script.log("Module sCAnalyzer_util exist");
+			
+		} else {
+				
+			root.modules.addItem("SCAnalyzer_util");
+			util.delayThreadMS(100);		
+		}	
+
+		isInit = false;		
 	}
 	
 	// start long pocess on it's own thread to run in blocking mode but not block the main UI
@@ -339,9 +341,8 @@ function update ()
 					script.log("Sequence to play : " +playseq.name);				
 				}
 				
-			} else if (playseq.isPlaying.get() == 0)
-
-			{
+			} else if (playseq.isPlaying.get() == 0) {
+				
 				playseq.play.trigger();
 				script.log("Play  sequence : " +playseq.name);
 			}
@@ -361,6 +362,7 @@ function update ()
 	}
 }
 
+/*
 // execution depend on the user response
 function messageBoxCallback (id, result)
 {
@@ -368,9 +370,9 @@ function messageBoxCallback (id, result)
 	
 	if (id == "msgDefaultEffects")
 	{
-		//script.log('defaultEffects Call back');
+		script.log('defaultEffects Call back');
 
-		if (result == "1")
+		if (result == 1)
 		{
 			script.log('Delete all effects and loading default one');
 			analyzerLoaddefault();			
@@ -378,10 +380,7 @@ function messageBoxCallback (id, result)
 	}	
 }
 
-function scriptParameterChanged (param)
-{
-	script.log("Script Param changed : "+param.name);	
-}
+*/
 
 function moduleParameterChanged (param)
 {
@@ -446,7 +445,10 @@ function moduleParameterChanged (param)
 			
 		} else if (param.name == "loadDefault")	{
 			
-			util.showYesNoCancelBox("msgDefaultEffects", "Confirm ?", "Do you really want to load default effects ?", "question", "Yes", "No", "Cancel...");
+			//util.showYesNoCancelBox("msgDefaultEffects", "Confirm ?", "Do you really want to load default effects ?", "warning", "Yes", "No", "Cancel...");
+			script.log('Delete all effects and loading default one');
+			analyzerLoaddefault();	
+			util.showMessageBox("SCAnalyzer", "Loading default effects ....", "warning", "Ok");			
 			
 		} else if (param.name.contains("scGroup")){
 			
@@ -461,6 +463,17 @@ function moduleParameterChanged (param)
 			deActivateColors();
 			
 		} else if (param.name == "loopColors") {
+			
+			if (param.get() == 1)
+			{
+				if (local.parameters.groupParams.linkToGroupNumber.get() == "0")
+				{
+					util.showMessageBox("SCAnalyzer","Link to an existing group need to be set","warning", "Ok");
+				}				
+			}
+			
+		} else if (param.name == "allIP") {
+			
 			if (param.get() == 1)
 			{
 				if (local.parameters.groupParams.linkToGroupNumber.get() == "0")
@@ -510,10 +523,6 @@ function moduleParameterChanged (param)
 	}
 }
 
-function moduleValueChanged (value) 
-{	
-	script.log("Module value changed : "+value);	
-}
 
 // check to see if something to do
 function segAnalyzer (insequence, intargetFile, infeatureType, innSegmentTypes, inneighbourhoodLimit)
@@ -531,8 +540,7 @@ function segAnalyzer (insequence, intargetFile, infeatureType, innSegmentTypes, 
 		nSegmentTypes = innSegmentTypes;
 		neighbourhoodLimit = inneighbourhoodLimit;
 		
-		util.showMessageBox("Sonic Analyzer ! QM-SEGMENTER ", "This could take a while ...." + moreInfo, "info", "Got it");
-		// runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neighbourhoodLimit) ;
+		// util.showMessageBox("Sonic Analyzer ! QM-SEGMENTER ", "This could take a while ...." + moreInfo, "info", "Got it");
 		shouldProcessSeg = true;
 	}
 }
@@ -556,7 +564,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 			var sequenceName = splitseq[2];
 			var audioName = splitseq[4];
 			// set newSequence to existing one
-			var newSequence =  root.sequences.getItemWithName(sequenceName);
+			var newSequence =  root.sequences.getItemWithName(sequenceName);			
 			// set newAudio to existing one 
 			newAudio =  newSequence.layers.getItemWithName(audioName);
 			// targetFile
@@ -568,11 +576,11 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 			script.log('Create new sequence from filename :'+targetFile);
 			// create new sequence / audio clip 
 			var newSequence =  root.sequences.addItem('Sequence');	
-			util.delayThreadMS(10);
+			util.delayThreadMS(20);
 			newAudio =  newSequence.layers.addItem('Audio');
-			util.delayThreadMS(10);
+			util.delayThreadMS(20);
 			var newAudioClip =  newAudio.clips.addItem('audioClip');
-			util.delayThreadMS(10);			
+			util.delayThreadMS(20);			
 			newAudioClip.filePath.set(targetFile);
 			
 		} else {
@@ -657,12 +665,12 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 		if (targetFile.contains(".mp3")){
 			newSequence.setName(SCAJSONContent.file_metadata.artist);
 		}
-		
+	
 		newAudio.setName(SCAJSONContent.file_metadata.identifiers.filename);
 		
 		// create Triggers from the json result file 
 		var newLayersTrigger =  newSequence.layers.addItem('Trigger');
-		util.delayThreadMS(10);
+		util.delayThreadMS(50);
 		var prefix = "QM";
 
 		// retreive groupName if necessary	
@@ -740,7 +748,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					if (cueExist == "")
 					{
 						var newCue = newSequence.cues.addItem();
-						util.delayThreadMS(10);
+						util.delayThreadMS(20);
 						newCue.time.set(SCAJSONContent.annotations[i].data[j].time);
 						newCue.setName(j);	
 						
@@ -749,7 +757,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 						if (cueExist.time.get() != SCAJSONContent.annotations[i].data[j].time)
 						{
 							var newCue = newSequence.cues.addItem();
-							util.delayThreadMS(10);
+							util.delayThreadMS(20);
 							newCue.time.set(SCAJSONContent.annotations[i].data[j].time);
 							newCue.setName(j);								
 						}
@@ -758,7 +766,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 				
 				// create new Trigger
 				var newTrigger = newLayersTrigger.triggers.addItem();
-				util.delayThreadMS(10);
+				util.delayThreadMS(50);
 				
 				// set main Trigger values
 				newTrigger.time.set(SCAJSONContent.annotations[i].data[j].time);			
@@ -1121,7 +1129,7 @@ function rhythmAnalyzer (insequence, intargetFile, inSubBands, inThreshold, inMo
 	}
 }
 
-// Run Sonic: wait and read received data from Rhythm Difference / create Mapping for WLED
+// Run Sonic: wait and read received data from Rhythm Difference / create Mapping for WLED etc...
 function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvgWindowLength, OnsetPeackWindowLength, MinBPM, MaxBPM)
 {
 	rhythmAnalyzerIsRunning = true;
@@ -1151,11 +1159,11 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 			script.log('Create new sequence from filename :'+targetFile);
 			// create new sequence / audio clip 
 			var newSequence =  root.sequences.addItem('Sequence');
-			util.delayThreadMS(10);			
+			util.delayThreadMS(20);			
 			newAudio =  newSequence.layers.addItem('Audio');
-			util.delayThreadMS(10);
+			util.delayThreadMS(20);
 			var newAudioClip =  newAudio.clips.addItem('audioClip');
-			util.delayThreadMS(10);			
+			util.delayThreadMS(20);			
 			newAudioClip.filePath.set(targetFile);
 			
 		} else {
@@ -1202,7 +1210,7 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 			script.log("Sonic Analyzer return code : "+launchresult);
 			if (launchresult == "")
 			{
-				util.showMessageBox("Sonic Analyzer !", "Something wrong....", "warning", "OK");
+				util.showMessageBox("Sonic Analyzer !", "Something wrong when try to run ....", "warning", "OK");
 				return;
 			}				
 		}
@@ -1221,17 +1229,24 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 		newContainer.addStringParameter("artist","",SCAJSONContent.file_metadata.artist);
 		newContainer.addStringParameter("title","",SCAJSONContent.file_metadata.title);
 
-		// only if mp3 file 
+		// only if mp3 file
 		if (targetFile.contains(".mp3")){
 			newSequence.setName(SCAJSONContent.file_metadata.artist);
 		}
-		newAudio.setName(SCAJSONContent.file_metadata.identifiers.filename);
+		// only if not vocals.wav
+		if (SCAJSONContent.file_metadata.identifiers.filename != "vocals.wav")
+		{
+			newAudio.setName(SCAJSONContent.file_metadata.identifiers.filename);
+		}
 		
 		// create Mapping from the json result file 
 		var newLayersMapping =  newSequence.layers.addItem('Mapping');
-		util.delayThreadMS(10);
+		util.delayThreadMS(50);
 		newLayersMapping.automation.range.set(0,7);
 		newLayersMapping.setName("BBC");
+		newLayersMapping.sendOnPlay.set(0);
+		newLayersMapping.sendOnStop.set(0);
+		newLayersMapping.enabled.set(0);
 		
 		// set flag for wled auto actions creation
 		var wledExist = root.modules.getItemWithName("WLED");			
@@ -1263,20 +1278,7 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 		}
 		
 		groupName = groupName.replace(" ","").toLowerCase();
-		
-		// add delay to filters
-		var testdelay = local.parameters.audioParams.globalDelay.get()/1000;
-		if (testdelay != 0) 
-		{
-			var timeDelay = newLayersMapping.mapping.filters.getItemWithName("Delay");
-			if (timeDelay.name == "undefined"){
-				// create Delay
-				var mapoutdelay = newLayersMapping.mapping.filters.addItem("Delay");
-				util.delayThreadMS(10);
-				mapoutdelay.filterParams.delay.set(testdelay);
-			}		
-		}		
-		
+				
 		for (var i = 0; i < SCAJSONContent.annotations.length; i += 1)
 		{
 			
@@ -1303,23 +1305,23 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 						
 			// Create mapping output (action)
 			//
+			
 			// For Colors Loop
 			if (local.parameters.defaultColors.loopColors.get() == 1)
 			{
 				// root.modules.sCAnalyzer.parameters.groupParams.linkToGroupNumber
 				newLayersMapping.setName(newLayersMapping.name +"_COLOR");
 				// group need to exist
-				if (linkToGroupNumber != 0) 
+				if (linkToGroupNumber != 0 && groupName != "notset") 
 				{
 					createColorMapping(groupscName);
 					
 				} else { 
 				
 					script.log("Group not set for  :" + groupscName);
-				
 				}
-
 			}
+			
 			// For WLED or others
 			// root.modules.sCAnalyzer.parameters.groupParams.linkToGroupNumber
 			wledExist = root.modules.getItemWithName("WLED");
@@ -1328,19 +1330,38 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 
 			if (linkToGroupNumber != 0)				
 			{				
-				createIPMappings(groupscName);
-				
-				if (local.parameters.wledParams.createWLEDActions.get() == 1 && wledExist.name != "undefined")
+				if (groupName != "notset")
 				{
-					newLayersMapping.setName(newLayersMapping.name+"_WLED");					
-					analyzerWLEDMapping(groupscName, split, sequential);
+					createIPMappings(groupscName);
+					
+				} else {
+					
+					script.log("Group not set for  :" + groupscName);
+				}
+				
+				if (local.parameters.wledParams.createWLEDActions.get() == 1)
+				{
+					if ( wledExist.name != "undefined")
+					{
+						newLayersMapping.setName(newLayersMapping.name+"_WLED");					
+						analyzerWLEDMapping(groupscName, split, sequential);
+						
+					} else {
+						
+						script.log("No WLED module" );						
+					}
 				}
 				
 			} else {
 				
-				script.log("WLED Module does not exist or Group not set for  :" + groupscName);				
+				script.log("No group link defined" );
 			}
-
+			
+			if (linkToGroupNumber == 0 && local.parameters.wledParams.createWLEDActions.get() == 1)	
+			{
+				createWLEDMapping();
+			}
+			
 			// For WLEDAudioSync
 			var audioReplayFile = local.parameters.wLEDAudioSyncParams.replayFile.get();
 			var moduleName = local.parameters.wLEDAudioSyncParams.moduleName.get();
@@ -1404,11 +1425,28 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 				}					
 			}
 			// last key to zero
-			var newKey = newLayersMapping.automation.addKey(maxtime+.1,0);
-			newLayersMapping.automation.getKeyAtPosition(maxtime+.1).easingType.set("Hold");
+			var newKey = newLayersMapping.automation.addKey(maxtime+.5,0);
+			newLayersMapping.automation.getKeyAtPosition(maxtime+.5).easingType.set("Hold");
 		}
 		
 		script.log("Total number of points created : " + pointsnumber);
+		newLayersMapping.enabled.set(1);
+		
+		// check to see if need to execute spleeter for vocal part
+		spleeterExist = root.modules.getItemWithName("Spleeter");
+		var seqaddr = newAudio.getControlAddress();
+		
+		if (spleeterExist.name != "undefined" && local.parameters.spleeterParams.createVocal.get() == 1)
+		{
+			script.log("Create vocals for : " + seqaddr);
+			local.parameters.spleeterParams.createVocal.set(0);
+			var cmd = spleeterExist.commandTester.setCommand("Spleeter","Spleeter","Separate");		
+			cmd.sequence.set(seqaddr+"/clips/audioClip/filePath");
+			spleeterExist.commandTester.trigger.trigger();
+
+			spleeterIsRunning = true;			
+		}			
+		
 
 	} else {
 		
@@ -1440,7 +1478,7 @@ function calcColorEffect (insequence, inmapGroup, infeatureType, innSegmentTypes
 }
 
 // For one specific GroupName , this will create the corresponding action (consequence) for triggers
-// depending on the segment name & based on segmentation
+// depend on the segment name & based on segmentation
 // values effect and color stored to CV group : can be used by Mapping/states etc ...
 function analyzerCreConseq (segmentName, groupName)
 {
@@ -1450,7 +1488,7 @@ function analyzerCreConseq (segmentName, groupName)
 	{
 		// COLOR
 		var conseq = newTrigger.consequences.addItem("Consequence");
-		util.delayThreadMS(10);			
+		util.delayThreadMS(50);			
 		newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);
 		conseq.setCommand("generic","","Set Parameter Value");
 		conseq.setName("CVColor");
@@ -1469,7 +1507,7 @@ function analyzerCreConseq (segmentName, groupName)
 	{
 		// EFFECT
 		var conseq = newTrigger.consequences.addItem("Consequence");
-		util.delayThreadMS(10);			
+		util.delayThreadMS(50);			
 		newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);
 		conseq.setCommand("generic","","Set Parameter Value");
 		conseq.setName("CVEffect");
@@ -1496,7 +1534,7 @@ function analyzerCreConseq (segmentName, groupName)
 function analyzerLedFXConseq (segmentName)
 {
 	var conseq = newTrigger.consequences.addItem("Consequence");
-	util.delayThreadMS(10);
+	util.delayThreadMS(50);
 	newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);	
 
 	if (useScenes)
@@ -1522,11 +1560,11 @@ function analyzerLedFXConseq (segmentName)
 }
 
 // this will create the corresponding action (consequence) for WLED : initial when ledfxAuto is true.
-// if ledFX is true we assume that WLED need to be set to Live.
+// if ledFX is true we assume than WLED need to be set to Live.
 function analyzerWLEDInitConseq ()
 {
 	var conseq = newTrigger.consequences.addItem("Consequence");
-	util.delayThreadMS(10);
+	util.delayThreadMS(50);
 	conseq.setCommand("WLED","WLED","WLED On-Off");
 
 	var parcmd = conseq.getChild("command");
@@ -1543,7 +1581,7 @@ function analyzerWLEDConseq (newColor,newEffect,newPalette)
 	if (newColor[3] == 1)
 	{
 		var conseqColor = newTrigger.consequences.addItem("Consequence");
-		util.delayThreadMS(10);
+		util.delayThreadMS(50);
 		conseqColor.setCommand("WLED","WLED","WLED Color");
 		newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);
 		
@@ -1561,12 +1599,17 @@ function analyzerWLEDConseq (newColor,newEffect,newPalette)
 	if (newEffect != -1)
 	{
 		var conseqe = newTrigger.consequences.addItem("Consequence");
-		util.delayThreadMS(10);		
+		util.delayThreadMS(50);		
 		conseqe.setCommand("WLED","WLED","WLED Effect");
 		newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);
 		
 		var parcmde = conseqe.getChild("command");
-		parcmde.wledeffect.set(newEffect);	
+		parcmde.wledeffect.set(newEffect);
+		if (groupName != "notset")
+		{
+			parcmde.fxspeed.set(WLEDdefValue("fxspeed"));
+			parcmde.fxintensity.set(WLEDdefValue("fxintensity"));
+		}
 		numberofactions += 1;
 		
 		if (local.parameters.wledParams.allIP.get() == 1 && local.parameters.groupParams.linkToGroupNumber.get() != 0)
@@ -1579,7 +1622,7 @@ function analyzerWLEDConseq (newColor,newEffect,newPalette)
 	if (newPalette != -1)
 	{
 		var conseqp = newTrigger.consequences.addItem("Consequence");
-		util.delayThreadMS(10);		
+		util.delayThreadMS(50);		
 		conseqp.setCommand("WLED","WLED","WLED Palette");
 		newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);		
 
@@ -1630,7 +1673,7 @@ function analyzerWLEDallIPLoop (groupName, action)
 			
 					if (additionalIP[v].name.contains("ip"))
 					{				
-						ipname = additionalIP[v].name;
+						var ipname = additionalIP[v].name;
 						
 						var newIP = additionalIP[v].getChild(ipname);				
 						var addIP = newIP.get();
@@ -1642,7 +1685,7 @@ function analyzerWLEDallIPLoop (groupName, action)
 							if (action == "c")
 							{
 								var conseqColors = newTrigger.consequences.addItem("Consequence");
-								util.delayThreadMS(10);
+								util.delayThreadMS(50);
 								conseqColors.setCommand("WLED","WLED","WLED Color");
 								newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);
 								
@@ -1654,19 +1697,24 @@ function analyzerWLEDallIPLoop (groupName, action)
 							} else if (action == "e") {
 							
 								var conseqEffect = newTrigger.consequences.addItem("Consequence");
-								util.delayThreadMS(10);		
+								util.delayThreadMS(50);		
 								conseqEffect.setCommand("WLED","WLED","WLED Effect");
 								newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);
 								
 								var parcmdEffect = conseqEffect.getChild("command");
 								parcmdEffect.wledeffect.set(newEffect);
-								parcmdEffect.wledIP.set(addIP);								
+								parcmdEffect.wledIP.set(addIP);
+								if (groupName != "notset")
+								{
+									parcmdEffect.fxspeed.set(WLEDdefValue("fxspeed"));
+									parcmdEffect.fxintensity.set(WLEDdefValue("fxintensity"));
+								}								
 								numberofactions += 1;							
 							
 							} else if (action == "p") {
 								
 								var conseqPallete = newTrigger.consequences.addItem("Consequence");
-								util.delayThreadMS(10);		
+								util.delayThreadMS(50);		
 								conseqPallete.setCommand("WLED","WLED","WLED Palette");
 								newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);		
 
@@ -1709,7 +1757,7 @@ function analyzerWLEDMapping (groupscName, split, sequential)
 	var scGroup = local.parameters.getChild("groupParams/"+ groupscName);		
 	var cvGroup = root.customVariables.getItemWithName(scGroup.get());
 	var testWS = local.parameters.wledParams.useWebSocket.get();
-
+	
 	script.log("Group name for Mapping : " + cvGroup.name);
 
 	if (cvGroup.name != "undefined")
@@ -1725,78 +1773,78 @@ function analyzerWLEDMapping (groupscName, split, sequential)
 			// create WLED main cmd with calculated IP 
 			if (split == 1 || sequential == 1 || local.parameters.wledParams.allIP.get() == 0)
 			{
+				addIP = "0.0.0.0";
+				// create output
 				createWLEDMapping();
 				
 			} else {
+				
+				addIP = "0.0.0.0";
+				// create output
+				createWLEDMapping();				
 				
 				// create WLED main cmd for each IP in custom variables group
 				for ( var k = 0; k < additionalIP.length; k++) 
 				{
 					if (additionalIP[k].name.contains("ip"))
 					{				
-						ipname = additionalIP[k].name;
+						var ipname = additionalIP[k].name;
 						
 						var newIP = additionalIP[k].getChild(ipname);				
 						var addIP = newIP.get();
 						
 						if (addIP != "0.0.0.0" && addIP != "")
 						{
+							// create ws 
+							if (testWS == 1)
+							{							
+								createWS(addIP);
+							}
+							// create output
 							createWLEDMapping();
 							
 						} else {
 						
-							script.log("We bypass this one: "+additionalIP[k].name);
+							script.log("We bypass this one (value): "+additionalIP[k].name);
 						}
 						
 					} else {
 						
-						script.log("We bypass this one: "+additionalIP[k].name);
+						script.log("We bypass this one (name): "+additionalIP[k].name);
 						
 					}
 				}
 			}
+			
+		} else {
+			
+			script.log("No IP defined for this group : " + cvGroup.name );
 		}
 	}
 }
 
+// WLED exist, we create the WLED Main command for mapping.
+// Use only UDP or WS due to the required speed.
 function createWLEDMapping()
 {	
-	// create ws 
-	if (testWS == 1)
-	{
-		for (var n = 0; n < additionalIP.length; n++) 
-		{ 
-			if (additionalIP[n].name.contains("ip"))
-			{				
-				var wsipname = additionalIP[n].name;
-				
-				var wsnewIP = additionalIP[n].getChild(wsipname);
-				var wsaddIP = wsnewIP.get();
-				
-				if (wsaddIP != "0.0.0.0" && wsaddIP != "")
-				{
-					createWS(wsaddIP);
-				}				
-			}
-		}
-	}
 
 	// add math / multiply to filters
 	var mathTest = newLayersMapping.mapping.filters.getItemWithName("Math");
 	if (mathTest == undefined){
 		// create Math
 		var mapoutmath = newLayersMapping.mapping.filters.addItem("Math");
-		util.delayThreadMS(10);
+		util.delayThreadMS(20);
 		mapoutmath.filterParams.operation.set("Multiply");
-		mapoutmath.filterParams.value.set(1);		
+		mapoutmath.filterParams.value.set(50);		
 	}
 
 	var preset = local.parameters.wledParams.preset.get();
 	
 	// create output
 	var mapoutw = newLayersMapping.mapping.outputs.addItem("mappingOutput");
-	util.delayThreadMS(10);
+	util.delayThreadMS(20);
 	mapoutw.setName(groupName);
+	mapoutw.enabled.set(0);
 	mapoutw.setCommand("WLED","WLED","WLED Main");
 
 	var parcmdw = mapoutw.getChild("command");
@@ -1821,6 +1869,8 @@ function createWLEDMapping()
 	//
 	parcmdw.live.set(false);
 	parcmdw.on.set(true);
+	
+	// protocol to use
 	if (testWS == 1)
 	{
 		parcmdw.udp.set(false);
@@ -1837,6 +1887,15 @@ function createWLEDMapping()
 		var toValue = cvGroup.calculatedParams.mapcolor.getControlAddress();
 		createParamReferenceTo(refParam,toValue);
 	}
+	
+	// Create Param Ref for Effect
+	if (local.parameters.mappingParams.mapEffects.get() == 1)		
+	{
+		var refParam = parcmdw.wledeffect.getControlAddress();
+		var toValue = cvGroup.calculatedParams.effectNumber.getControlAddress();
+		createParamReferenceTo(refParam,toValue);
+	}
+	
 	// if default values in group exist we take them
 	if (cvGroup.defaultWLEDParams)
 	{
@@ -1868,7 +1927,6 @@ function createWLEDMapping()
 			}
 		}	
 	});
-	//	
 }
 
 // Mappings output for IPs: modulo or sequential linked to scGroupxx
@@ -1882,7 +1940,7 @@ function createIPMappings (groupscName)
 		newLayersMapping.setName(newLayersMapping.name+"_IP");
 		// create output
 		var mapout = newLayersMapping.mapping.outputs.addItem();
-		util.delayThreadMS(10);
+		util.delayThreadMS(20);
 		mapout.setCommand("SCAnalyzer_util","SCAnalyzer_util","Script callback");
 		mapout.setName("CVIPModulo");
 		var parcmd = mapout.getChild("command");
@@ -1892,7 +1950,7 @@ function createIPMappings (groupscName)
 		// create arguments 
 		var argmapout = parcmd.getChild("Arguments");
 		var varargmapout = argmapout.addItem("String");
-		util.delayThreadMS(10);
+		util.delayThreadMS(20);
 
 		// by default, linkType is active for argument, this will remove it --> linkType : 0 , change the name to 'GroupName' and set value to group name
 		varargmapout.loadJSONData({
@@ -1922,7 +1980,7 @@ function createIPMappings (groupscName)
 
 		// create output
 		var mapout = newLayersMapping.mapping.outputs.addItem();
-		util.delayThreadMS(10);
+		util.delayThreadMS(20);
 		mapout.setCommand("SCAnalyzer_util","SCAnalyzer_util","Script callback");
 		mapout.setName("CVIPSequential");
 		var parcmd = mapout.getChild("command");
@@ -1932,7 +1990,7 @@ function createIPMappings (groupscName)
 		// create arguments 
 		var argmapout = parcmd.getChild("Arguments");
 		var varargmapout = argmapout.addItem("String");
-		util.delayThreadMS(10);
+		util.delayThreadMS(20);
 
 		// by default, linkType is active for argument, this will remove it --> linkType : 0 , change the name to 'GroupName' and set value to group name
 		varargmapout.loadJSONData({
@@ -1955,7 +2013,7 @@ function createIPMappings (groupscName)
 	}
 }
 
-// create mapping output for color : can be used to change WLED color or something else
+// create mapping output for color : can be used to change WLED color or others
 // store value in CV Group
 function createColorMapping(groupscName)
 {
@@ -1965,7 +2023,7 @@ function createColorMapping(groupscName)
 
 	// create output
 	var mapout = newLayersMapping.mapping.outputs.addItem();
-	util.delayThreadMS(10);
+	util.delayThreadMS(20);
 	mapout.setCommand("SCAnalyzer_util","SCAnalyzer_util","Script callback");
 	mapout.setName("CVColors");
 	var parcmd = mapout.getChild("command");
@@ -1975,7 +2033,7 @@ function createColorMapping(groupscName)
 	// create arguments 
 	var argmapout = parcmd.getChild("Arguments");
 	var varargmapout = argmapout.addItem("String");
-	util.delayThreadMS(10);
+	util.delayThreadMS(20);
 	
 	// by default, linkType is active for argument, this will remove it --> linkType : 0 , change the name to 'GroupName' and set value to group name
 	varargmapout.loadJSONData({
@@ -2001,8 +2059,7 @@ function createColorMapping(groupscName)
 // Mapping for WLEDAudioSync
 function createWLEDAudioSyncMapping()
 {
-	// loop true all WLEDAudioSync modules if requested
-	
+	// loop true all WLEDAudioSync modules if requested	
 	if (allModules == 1) 
 	{
 		var moduleNumbers = root.modules.getItems();
@@ -2017,7 +2074,7 @@ function createWLEDAudioSyncMapping()
 				{
 					// create output
 					var mapoutwas = newLayersMapping.mapping.outputs.addItem("mappingOutput");
-					util.delayThreadMS(10);
+					util.delayThreadMS(20);
 					mapoutwas.setName(WLEDAudioExist.name);
 					mapoutwas.setCommand(WLEDAudioExist.niceName,"Replay","Snapshot");
 
@@ -2042,7 +2099,7 @@ function createWLEDAudioSyncMapping()
 		{
 			// create output
 			var mapoutwas = newLayersMapping.mapping.outputs.addItem("mappingOutput");
-			util.delayThreadMS(10);
+			util.delayThreadMS(20);
 			mapoutwas.setName(moduleName);
 			mapoutwas.setCommand(WLEDAudioExist.niceName,"Replay","Snapshot");
 
@@ -2083,12 +2140,12 @@ function createCustomVariables(scGroup)
 		{
 			// create variable group
 			var newGroup = root.customVariables.addItem(groupName);
-			util.delayThreadMS(10);
+			util.delayThreadMS(20);
 			newGroup.setName(groupName);
 
 			// add Wled Variables
 			var newIP = newGroup.variables.addItem("String Parameter");
-			util.delayThreadMS(10);
+			util.delayThreadMS(20);
 			var newIPV = newIP.getChild(newIP.name);
 			newIPV.set("0.0.0.0");
 			newIP.setName("IP");		
@@ -2172,7 +2229,7 @@ function createWS (wsip)
 		} else {
 			
 			var newWSModule = root.modules.addItem("WebSocket Client");
-			util.delayThreadMS(10);
+			util.delayThreadMS(20);
 			newWSModule.parameters.protocol.set("JSON");
 			newWSModule.parameters.autoAdd.set(false);
 			newWSModule.parameters.serverPath.set(wsip+"/ws");
@@ -2481,6 +2538,7 @@ function createShow (targetFile)
 	// First, execute segmenter with default values
 	moreInfo = "Step 1";	
 	keepJson = false;
+	showCreation = true;
 	
 	segAnalyzer("", targetFile, 1, 10, 4);	
 	createShowStep2 = true;	
@@ -2652,14 +2710,25 @@ function checkSpleeter()
 		script.log('Max occurrence reached for spleeter testing');
 		
 	} else {
+		
+		vocalExist.enabled.set(0);
 		// retreive vocals part from the sequence and create mapping
 		var seqVocals = newAudio.getParent().getControlAddress() + "/vocals";		
-		rhythmAnalyzer (seqVocals, "", 7, 1, 200, 6, 12, 300);		
+		rhythmAnalyzer (seqVocals, "", 7, 1, 200, 6, 12, 300);
+		var accompanimentExist = newSequence.getChild('accompaniment');
+		if (accompanimentExist.name != "undefined")
+		{
+			accompanimentExist.enabled.set(0);
+		}
+		
 	}
 	
 	spleeterOccurrence = 0;
 	spleeterIsRunning = false;
-	createShowLast = true;
+	if (showCreation === true)
+	{
+		createShowLast = true;
+	}
 }
 
 // check if analyzer for spleeter is finished
@@ -2681,6 +2750,7 @@ function showLast()
 	// Last, reset test
 	moreInfo = "";
 	keepJson = false;
+	showCreation = false;	
 	util.showMessageBox("Sonic Analyzer ! Show Maker ", "Finished", "info", "OK");	
 }
 
@@ -2721,9 +2791,7 @@ function createParamReferenceTo(refParam,toValue)
 function generateIPList(group)
 {
 	// script.log("Generate enum param for Custom variables Group : " + group);
-	var testip = true;
-	return;
-	
+
 	var loopip = root.customVariables.getItemWithName(group);
 	
 	if (loopip.name != "undefined")
@@ -2760,19 +2828,24 @@ function generateIPList(group)
 			}
 		}
 		
+		if ( j == 0 )
+		{
+			loopip.calculatedParams.ipList.addOption(0,"0.0.0.0");
+		}
+		
 	} else {
 		
 		script.logError("Group does not exist");
 	}
 }
 
-// Populate enum param
+// Populate enum param : module names list
 function generateAudioSyncList()
 {
 	script.log('Generate WLEDAudioSync modules list');
 	
 	local.parameters.wLEDAudioSyncParams.moduleName.removeOptions();
-	util.delayThreadMS(100);
+	util.delayThreadMS(20);
 	
 	var moduleNumbers = root.modules.getItems();
 
@@ -2794,9 +2867,28 @@ function getFilename(songname)
 return filename		
 }
 
-// used for value/expression testing .......
-function testScript(from)
+// retreive default WLED value from a custom variable group default parameter
+function WLEDdefValue(param)
 {
-	linkToGroupNumber = local.parameters.groupParams.linkToGroupNumber.get();
-	script.log(linkToGroupNumber);
+	var defValue = root.customVariables.getChild(groupName + "/defaultWLEDParams/" + param);
+	if (defValue)
+	{
+		return defValue.get();		
+	}
+	
+return null;
+}
+
+// used for value/expression testing .......
+function testScript()
+{
+	// root.customVariables.all.defaultWLEDParams.fxspeed
+	var test = root.customVariables.getChild("all/defaultWLEDParams/fxspeed");
+	if (test)
+	{
+		script.log('fxspeed exist');
+	} else {
+		script.log('fxspeed does not exist');
+	}
+	script.log(test);
 }
