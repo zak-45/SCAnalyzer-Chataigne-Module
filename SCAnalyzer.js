@@ -112,7 +112,7 @@ var spleeterExist = null;
 var SCAnalyzerUtilExist = null;
 
 // Create a show
-var keepJson = false;
+var keepJson = 0;
 var newAudio = "";
 var moreInfo = "";
 var showCreation = false;
@@ -526,7 +526,7 @@ function moduleParameterChanged (param)
 
 
 // check to see if something to do
-function segAnalyzer (insequence, intargetFile, infeatureType, innSegmentTypes, inneighbourhoodLimit)
+function segAnalyzer (inkeepData, insequence, intargetFile, infeatureType, innSegmentTypes, inneighbourhoodLimit)
 {	
 	if (insequence == "" && intargetFile == "" )
 	{
@@ -535,11 +535,14 @@ function segAnalyzer (insequence, intargetFile, infeatureType, innSegmentTypes, 
 		
 	} else {
 	
+		keepJson = inkeepData;
 		sequence = insequence;
 		targetFile = intargetFile;
 		featureType = infeatureType;
 		nSegmentTypes = innSegmentTypes;
 		neighbourhoodLimit = inneighbourhoodLimit;
+		
+		script.log("keep:" + keepJson);
 		
 		// util.showMessageBox("Sonic Analyzer ! QM-SEGMENTER ", "This could take a while ...." + moreInfo, "info", "Got it");
 		shouldProcessSeg = true;
@@ -617,7 +620,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 		}
 
 		// Run only if necessary
-		if (keepJson === false)
+		if (keepJson == 0)
 		{
 			//set output file to blank to avoid reading old values in case sonic-annotator not run as should.
 			util.writeFile(SCAoutputFile, "", true);
@@ -639,6 +642,13 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 		script.log("we read from : " + SCAoutputFile);
 		var SCAJSONContent = util.readFile(SCAoutputFile,true);
 		
+		if (SCAJSONContent.annotations[0].annotation_metadata.annotator.output_id != "segmentation")
+		{
+			script.log("Json file with no data for segmentation !!!");
+			util.showMessageBox("Sonic Analyzer !", "Json file with no data for segmentation !!!", "warning", "OK");
+			return;
+		}
+
 		// set flag for ledfx and/or wled auto actions creation
 		var ledfxExist = root.modules.getItemWithName("LedFX");
 		if (ledfxExist.name == "ledFX")
@@ -1104,7 +1114,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 }
 
 // check to see if something to do
-function rhythmAnalyzer (insequence, intargetFile, inSubBands, inThreshold, inMovingAvgWindowLength, inOnsetPeackWindowLength, inMinBPM, inMaxBPM)
+function rhythmAnalyzer (inkeepRhythmData, insequence, intargetFile, inSubBands, inThreshold, inMovingAvgWindowLength, inOnsetPeackWindowLength, inMinBPM, inMaxBPM)
 {
 	rhythmAnalyzerIsRunning = true;
 	
@@ -1114,7 +1124,8 @@ function rhythmAnalyzer (insequence, intargetFile, inSubBands, inThreshold, inMo
 		rhythmAnalyzerIsRunning = false;
 		
 	} else {
-	
+		
+		keepJson = inkeepRhythmData;
 		sequence = insequence;
 		targetFile = intargetFile;
 		SubBands = inSubBands;
@@ -1199,7 +1210,7 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 			
 		}
 		
-		if (keepJson === false)
+		if (keepJson == 0)
 		{
 			//set output file to blank to avoid reading old values in case sonic-annotator not run as should.
 			util.writeFile(SCAoutputFile, "", true);
@@ -1219,6 +1230,14 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 		// read the result 
 		script.log("we read from : " + SCAoutputFile);
 		var SCAJSONContent = util.readFile(SCAoutputFile,true);
+		
+		if (SCAJSONContent.annotations[0].annotation_metadata.annotator.output_id != "diff")
+		{
+			script.log("Json file with no data for rhythm !!!");
+			util.showMessageBox("Sonic Analyzer !", "Json file with no data for rhythm !!!", "warning", "OK");			
+			return;
+		}
+		
 		
 		// create the container for result values
 		local.values.removeContainer("Vamp plugin");
@@ -1466,18 +1485,18 @@ Segmenter
 
 // Create Colors / Effects Based on segmentation... could be used on Mappings to reference value from Groupxx
 // Called from 'command/utility/calcColorEffect'.
-function calcColorEffect (insequence, inmapGroup, increateColor, increateEffect, infeatureType, innSegmentTypes, inneighbourhoodLimit)
+function calcColorEffect (inkeep, insequence, inmapGroup, increateColor, increateEffect, infeatureType, innSegmentTypes, inneighbourhoodLimit)
 {
 	script.log("We create colors/effects based on Segmenter");
 
 	// file is null, we use only sequence Param
 	targetFile = "";
 	creColEffect = true;
-	var createColor = increateColor;
-	var createEffect = increateEffect;
+	createColor = increateColor;
+	createEffect = increateEffect;
 	linkToGroupNumber = inmapGroup;
 	
-	segAnalyzer(insequence, targetFile, infeatureType, innSegmentTypes, inneighbourhoodLimit);	
+	segAnalyzer(inkeep, insequence, targetFile, infeatureType, innSegmentTypes, inneighbourhoodLimit);	
 }
 
 // For one specific GroupName , this will create the corresponding action (consequence) for triggers
@@ -1533,7 +1552,7 @@ function analyzerCreConseq (segmentName, groupName)
 }
 
 // this will create the corresponding LedFX actions (scene / effect activation) for triggers
-// depending on the segment name
+// depend on the segment name
 function analyzerLedFXConseq (segmentName)
 {
 	var conseq = newTrigger.consequences.addItem("Consequence");
@@ -2540,10 +2559,10 @@ function createShow (targetFile)
 
 	// First, execute segmenter with default values
 	moreInfo = "Step 1";	
-	keepJson = false;
+	keepJson = 0;
 	showCreation = true;
 	
-	segAnalyzer("", targetFile, 1, 10, 4);	
+	segAnalyzer(keepJson, "", targetFile, 1, 10, 4);	
 	createShowStep2 = true;	
 }
 
@@ -2568,7 +2587,7 @@ function showStep2 ()
 	
 	// Second, create colors/effects from existing JSON output file 
 	moreInfo = "Step 2";	
-	keepJson = true;
+	keepJson = 1;
 	creColEffect = true;
 	linkToGroupNumber = local.parameters.groupParams.linkToGroupNumber.get();
 	
@@ -2577,7 +2596,7 @@ function showStep2 ()
 	if (linkToGroupNumber != 0)
 	{
 		script.log("run segmenter");
-		segAnalyzer(seqaddr, "", 1, 10, 4);	
+		segAnalyzer(keepJson, seqaddr, "", 1, 10, 4);	
 	}
 	
 	createShowStep3 = true;	
@@ -2606,11 +2625,11 @@ function showStep3 ()
 
 	// Third, execute Rhythm with default values, need to erase the output JSON file
 	moreInfo = "Step 3";	
-	keepJson = false;
+	keepJson = 0;
 	
 	script.log("Create mapping for : " + seqaddr);
 	
-	rhythmAnalyzer (seqaddr, "", 7, 1, 200, 6, 12, 300);	
+	rhythmAnalyzer (keepJson, seqaddr, "", 7, 1, 200, 6, 12, 300);	
 	createShowStep5 = true;
 }
 
@@ -2680,7 +2699,7 @@ function showStep5 ()
 
 	// fifth, run spleeter separate for vocal
 	moreInfo = "Step 5";
-	keepJson = false;
+	keepJson = 0;
 	
 	if (spleeterExist.name != "undefined" && local.parameters.spleeterParams.createVocal.get() == 1)
 	{
@@ -2717,7 +2736,7 @@ function checkSpleeter()
 		vocalExist.enabled.set(0);
 		// retreive vocals part from the sequence and create mapping
 		var seqVocals = newAudio.getParent().getControlAddress() + "/vocals";		
-		rhythmAnalyzer (seqVocals, "", 7, 1, 200, 6, 12, 300);
+		rhythmAnalyzer (false, seqVocals, "", 7, 1, 200, 6, 12, 300);
 		var accompanimentExist = newSequence.getChild('accompaniment');
 		if (accompanimentExist.name != "undefined")
 		{
@@ -2752,7 +2771,7 @@ function showLast()
 {
 	// Last, reset test
 	moreInfo = "";
-	keepJson = false;
+	keepJson = 0;
 	showCreation = false;	
 	util.showMessageBox("Sonic Analyzer ! Show Maker ", "Finished", "info", "OK");	
 }

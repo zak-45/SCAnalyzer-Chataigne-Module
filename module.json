@@ -589,6 +589,11 @@ If file name is set, this will create output/action for mapping",
 			"menu":"Analyzer",
 			"callback":"segAnalyzer",
 			"parameters":{
+				"Keep Data":{
+					"type":"Boolean",
+					"description": "Checked will keep previous json generated datas and create triggers from them",
+					"default": false
+				},				
 				"sequence":{
 					"type":"Target",
 					"description": "Select filePath from the Sequence / AudioClip  to analyse.
@@ -637,6 +642,11 @@ Result will create new sequence."
 			"menu":"Analyzer",
 			"callback":"rhythmAnalyzer",
 			"parameters":{
+				"Keep Rhythm Data":{
+					"type":"Boolean",
+					"description": "Checked will keep previous json generated datas and create mapping/output from them",
+					"default": false
+				},					
 				"sequence":{
 					"type":"Target",
 					"description": "Select filePath from the AudioClip / sequence to analyse.
@@ -697,6 +707,11 @@ Result will create new sequence."
 			"menu":"Utility",
 			"callback":"calcColorEffect",
 			"parameters":{
+				"Keep SeqData":{
+					"type":"Boolean",
+					"description": "Checked will keep previous json generated datas and create consequences from them",
+					"default": false
+				},				
 				"sequence":{
 					"type":"Target",
 					"description": "Select filePath from the AudioClip / sequence to analyse.
