@@ -542,8 +542,6 @@ function segAnalyzer (inkeepData, insequence, intargetFile, infeatureType, innSe
 		nSegmentTypes = innSegmentTypes;
 		neighbourhoodLimit = inneighbourhoodLimit;
 		
-		script.log("keep:" + keepJson);
-		
 		// util.showMessageBox("Sonic Analyzer ! QM-SEGMENTER ", "This could take a while ...." + moreInfo, "info", "Got it");
 		shouldProcessSeg = true;
 	}
@@ -671,13 +669,6 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 		newContainer.addStringParameter("duration","",SCAJSONContent.file_metadata.duration);
 		newContainer.addStringParameter("artist","",SCAJSONContent.file_metadata.artist);
 		newContainer.addStringParameter("title","",SCAJSONContent.file_metadata.title);
-
-		// only mp3 file
-		if (targetFile.contains(".mp3")){
-			newSequence.setName(SCAJSONContent.file_metadata.artist);
-		}
-	
-		newAudio.setName(SCAJSONContent.file_metadata.identifiers.filename);
 		
 		// create Triggers from the json result file 
 		var newLayersTrigger =  newSequence.layers.addItem('Trigger');
@@ -714,7 +705,6 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 			prefix = "CALC" + linkToGroupNumber;
 		}
 
-		newLayersTrigger.setName(prefix + SCAJSONContent.annotations[0].annotation_metadata.annotator.output_id);
 		newLayersTrigger.triggerWhenSeeking.set(false);
 		
 		for (var i = 0; i < SCAJSONContent.annotations.length; i += 1)
@@ -756,10 +746,10 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					// set Cue time /name if cue not already exist for this time
 					var cueExist = newSequence.cues.getItemWithName(j);
 					
-					if (cueExist == "")
+					if (cueExist.name == "undefined")
 					{
 						var newCue = newSequence.cues.addItem();
-						util.delayThreadMS(20);
+						util.delayThreadMS(50);
 						newCue.time.set(SCAJSONContent.annotations[i].data[j].time);
 						newCue.setName(j);	
 						
@@ -768,7 +758,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 						if (cueExist.time.get() != SCAJSONContent.annotations[i].data[j].time)
 						{
 							var newCue = newSequence.cues.addItem();
-							util.delayThreadMS(20);
+							util.delayThreadMS(50);
 							newCue.time.set(SCAJSONContent.annotations[i].data[j].time);
 							newCue.setName(j);								
 						}
@@ -830,7 +820,6 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 						analyzerCreConseq("B", groupName);
 						
 					} else {
-
 
 						// Create consequences priority to WLED 
 						if (wledAuto)
@@ -1101,6 +1090,19 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 				}
 			}
 		}
+
+		// Modify names for new sequence
+		if (!sequence.contains("/"))
+		{
+			newLayersTrigger.setName(prefix + SCAJSONContent.annotations[0].annotation_metadata.annotator.output_id);
+			newAudio.setName(SCAJSONContent.file_metadata.identifiers.filename);
+
+			// only mp3 file
+			if (targetFile.contains(".mp3"))
+			{
+				newSequence.setName(SCAJSONContent.file_metadata.artist);
+			}			
+		}
 		
 	} else {
 		
@@ -1108,7 +1110,6 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 		util.showMessageBox("Sonic Analyzer !", "sonic-annotator not found", "warning", "OK");
 	
 	}
-	
 	segAnalyzerIsRunning = false;
 	creColEffect = false;
 }
@@ -1248,16 +1249,6 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 		newContainer.addStringParameter("duration","",SCAJSONContent.file_metadata.duration);
 		newContainer.addStringParameter("artist","",SCAJSONContent.file_metadata.artist);
 		newContainer.addStringParameter("title","",SCAJSONContent.file_metadata.title);
-
-		// only if mp3 file
-		if (targetFile.contains(".mp3")){
-			newSequence.setName(SCAJSONContent.file_metadata.artist);
-		}
-		// only if not vocals.wav
-		if (SCAJSONContent.file_metadata.identifiers.filename != "vocals.wav")
-		{
-			newAudio.setName(SCAJSONContent.file_metadata.identifiers.filename);
-		}
 		
 		// create Mapping from the json result file 
 		var newLayersMapping =  newSequence.layers.addItem('Mapping');
@@ -1467,6 +1458,20 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 			spleeterIsRunning = true;			
 		}			
 		
+		// modify names for new sequence
+		if (!sequence.contains("/"))
+		{
+			// only if mp3 file
+			if (targetFile.contains(".mp3"))
+			{
+				newSequence.setName(SCAJSONContent.file_metadata.artist);
+			}
+			// only if not vocals.wav
+			if (SCAJSONContent.file_metadata.identifiers.filename != "vocals.wav")
+			{
+				newAudio.setName(SCAJSONContent.file_metadata.identifiers.filename);
+			}			
+		}
 
 	} else {
 		
@@ -2736,7 +2741,7 @@ function checkSpleeter()
 		vocalExist.enabled.set(0);
 		// retreive vocals part from the sequence and create mapping
 		var seqVocals = newAudio.getParent().getControlAddress() + "/vocals";		
-		rhythmAnalyzer (false, seqVocals, "", 7, 1, 200, 6, 12, 300);
+		rhythmAnalyzer (0, seqVocals, "", 7, 1, 200, 6, 12, 300);
 		var accompanimentExist = newSequence.getChild('accompaniment');
 		if (accompanimentExist.name != "undefined")
 		{
