@@ -1096,9 +1096,8 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 		{
 			newLayersTrigger.setName(prefix + SCAJSONContent.annotations[0].annotation_metadata.annotator.output_id);
 			newAudio.setName(SCAJSONContent.file_metadata.identifiers.filename);
-
-			// only mp3 file
-			if (targetFile.contains(".mp3"))
+			//
+			if (SCAJSONContent.file_metadata.artist != "")
 			{
 				newSequence.setName(SCAJSONContent.file_metadata.artist);
 			}			
@@ -1442,6 +1441,23 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 		
 		script.log("Total number of points created : " + pointsnumber);
 		newLayersMapping.enabled.set(1);
+				
+		// modify names for new sequence
+		if (!sequence.contains("/"))
+		{
+			//
+			if (SCAJSONContent.file_metadata.artist != "")
+			{
+				newSequence.setName(SCAJSONContent.file_metadata.artist);
+			}
+			// only if not vocals.wav : means spleeter had run
+			if (SCAJSONContent.file_metadata.identifiers.filename != "vocals.wav")
+			{
+				newAudio.setName(SCAJSONContent.file_metadata.identifiers.filename);
+			}			
+		}
+		
+		util.delayThreadMS(50);
 		
 		// check to see if need to execute spleeter for vocal part
 		spleeterExist = root.modules.getItemWithName("Spleeter");
@@ -1457,21 +1473,6 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 
 			spleeterIsRunning = true;			
 		}			
-		
-		// modify names for new sequence
-		if (!sequence.contains("/"))
-		{
-			// only if mp3 file
-			if (targetFile.contains(".mp3"))
-			{
-				newSequence.setName(SCAJSONContent.file_metadata.artist);
-			}
-			// only if not vocals.wav
-			if (SCAJSONContent.file_metadata.identifiers.filename != "vocals.wav")
-			{
-				newAudio.setName(SCAJSONContent.file_metadata.identifiers.filename);
-			}			
-		}
 
 	} else {
 		
