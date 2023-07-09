@@ -240,7 +240,6 @@ function init()
 // for playback, sequence start from index 0, when one sequence reach end time, we switch to index +1
 function update ()
 {	
-
 	// Initialize once some Param
 	if (isInit === true)
 	{
@@ -519,11 +518,14 @@ function moduleParameterChanged (param)
 			
 		} else if (param.name == "duration") {
 			
-			generateAudioSyncList();			
+			generateAudioSyncList();
+			
+		} else if (param.name == "defaultEffectIndex") {
+			
+			defaultIndexEffects();			
 		}
 	}
 }
-
 
 // check to see if something to do
 function segAnalyzer (inkeepData, insequence, intargetFile, infeatureType, innSegmentTypes, inneighbourhoodLimit)
@@ -672,7 +674,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 		
 		// create Triggers from the json result file 
 		var newLayersTrigger =  newSequence.layers.addItem('Trigger');
-		util.delayThreadMS(50);
+		util.delayThreadMS(20);
 		var prefix = "QM";
 
 		// retreive groupName if necessary	
@@ -749,7 +751,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 					if (cueExist.name == "undefined")
 					{
 						var newCue = newSequence.cues.addItem();
-						util.delayThreadMS(50);
+						util.delayThreadMS(20);
 						newCue.time.set(SCAJSONContent.annotations[i].data[j].time);
 						newCue.setName(j);	
 						
@@ -758,7 +760,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 						if (cueExist.time.get() != SCAJSONContent.annotations[i].data[j].time)
 						{
 							var newCue = newSequence.cues.addItem();
-							util.delayThreadMS(50);
+							util.delayThreadMS(20);
 							newCue.time.set(SCAJSONContent.annotations[i].data[j].time);
 							newCue.setName(j);								
 						}
@@ -767,7 +769,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 				
 				// create new Trigger
 				var newTrigger = newLayersTrigger.triggers.addItem();
-				util.delayThreadMS(50);
+				util.delayThreadMS(20);
 				
 				// set main Trigger values
 				newTrigger.time.set(SCAJSONContent.annotations[i].data[j].time);			
@@ -1251,7 +1253,7 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 		
 		// create Mapping from the json result file 
 		var newLayersMapping =  newSequence.layers.addItem('Mapping');
-		util.delayThreadMS(50);
+		util.delayThreadMS(20);
 		newLayersMapping.automation.range.set(0,7);
 		newLayersMapping.setName("BBC");
 		newLayersMapping.sendOnPlay.set(0);
@@ -1387,7 +1389,7 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 			//
 			// main mapping points loop creation (keys)
 			//
-			var pointsnumber = 0;			
+			var pointsNumber = 0;			
 			for (var j = 0; j < SCAJSONContent.annotations[i].data.length; j += 1)
 			{
 				// create new point
@@ -1396,7 +1398,7 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 				{
 					var newKey = newLayersMapping.automation.addKey(0,0);
 					newLayersMapping.automation.getKeyAtPosition(0).easingType.set("Hold");					
-					pointsnumber += 1;						
+					pointsNumber += 1;						
 				}
 				// select only value not egal to zero
 				else if (SCAJSONContent.annotations[i].data[j].value != 0)
@@ -1410,7 +1412,7 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 						{
 							var newKey = newLayersMapping.automation.addKey(SCAJSONContent.annotations[i].data[j-1].time,0);
 							newLayersMapping.automation.getKeyAtPosition(SCAJSONContent.annotations[i].data[j-1].time).easingType.set("Hold");
-							pointsnumber += 1;								
+							pointsNumber += 1;								
 						}
 					}					
 					// retreive max value from rhythm difference
@@ -1424,12 +1426,12 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 					{
 						var newKey = newLayersMapping.automation.addKey(maxtime,maxvalue);
 						newLayersMapping.automation.getKeyAtPosition(maxtime).easingType.set("Hold");
-						pointsnumber += 1;
+						pointsNumber += 1;
 						if (createmin == 1)
 						{
 							var newKey = newLayersMapping.automation.addKey(SCAJSONContent.annotations[i].data[j+1].time,0);
 							newLayersMapping.automation.getKeyAtPosition(SCAJSONContent.annotations[i].data[j+1].time).easingType.set("Hold");
-							pointsnumber += 1;								
+							pointsNumber += 1;								
 						}
 					}						
 				}					
@@ -1439,7 +1441,7 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 			newLayersMapping.automation.getKeyAtPosition(maxtime+.5).easingType.set("Hold");
 		}
 		
-		script.log("Total number of points created : " + pointsnumber);
+		script.log("Total number of points created : " + pointsNumber);
 		newLayersMapping.enabled.set(1);
 				
 		// modify names for new sequence
@@ -1457,7 +1459,7 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 			}			
 		}
 		
-		util.delayThreadMS(50);
+		util.delayThreadMS(20);
 		
 		// check to see if need to execute spleeter for vocal part
 		spleeterExist = root.modules.getItemWithName("Spleeter");
@@ -1516,7 +1518,7 @@ function analyzerCreConseq (segmentName, groupName)
 	{
 		// COLOR
 		var conseq = newTrigger.consequences.addItem("Consequence");
-		util.delayThreadMS(50);			
+		util.delayThreadMS(20);			
 		newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);
 		conseq.setCommand("generic","","Set Parameter Value");
 		conseq.setName("CVColor");
@@ -1535,7 +1537,7 @@ function analyzerCreConseq (segmentName, groupName)
 	{
 		// EFFECT
 		var conseq = newTrigger.consequences.addItem("Consequence");
-		util.delayThreadMS(50);			
+		util.delayThreadMS(20);			
 		newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);
 		conseq.setCommand("generic","","Set Parameter Value");
 		conseq.setName("CVEffect");
@@ -1562,7 +1564,7 @@ function analyzerCreConseq (segmentName, groupName)
 function analyzerLedFXConseq (segmentName)
 {
 	var conseq = newTrigger.consequences.addItem("Consequence");
-	util.delayThreadMS(50);
+	util.delayThreadMS(20);
 	newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);	
 
 	if (useScenes)
@@ -1588,11 +1590,11 @@ function analyzerLedFXConseq (segmentName)
 }
 
 // this will create the corresponding action (consequence) for WLED : initial when ledfxAuto is true.
-// if ledFX is true we assume than WLED need to be set to Live.
+// if ledFX is true we assume that WLED need to be set to Live.
 function analyzerWLEDInitConseq ()
 {
 	var conseq = newTrigger.consequences.addItem("Consequence");
-	util.delayThreadMS(50);
+	util.delayThreadMS(20);
 	conseq.setCommand("WLED","WLED","WLED On-Off");
 
 	var parcmd = conseq.getChild("command");
@@ -1609,7 +1611,7 @@ function analyzerWLEDConseq (newColor,newEffect,newPalette)
 	if (newColor[3] == 1)
 	{
 		var conseqColor = newTrigger.consequences.addItem("Consequence");
-		util.delayThreadMS(50);
+		util.delayThreadMS(20);
 		conseqColor.setCommand("WLED","WLED","WLED Color");
 		newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);
 		
@@ -1627,7 +1629,7 @@ function analyzerWLEDConseq (newColor,newEffect,newPalette)
 	if (newEffect != -1)
 	{
 		var conseqe = newTrigger.consequences.addItem("Consequence");
-		util.delayThreadMS(50);		
+		util.delayThreadMS(20);		
 		conseqe.setCommand("WLED","WLED","WLED Effect");
 		newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);
 		
@@ -1650,7 +1652,7 @@ function analyzerWLEDConseq (newColor,newEffect,newPalette)
 	if (newPalette != -1)
 	{
 		var conseqp = newTrigger.consequences.addItem("Consequence");
-		util.delayThreadMS(50);		
+		util.delayThreadMS(20);		
 		conseqp.setCommand("WLED","WLED","WLED Palette");
 		newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);		
 
@@ -1713,7 +1715,7 @@ function analyzerWLEDallIPLoop (groupName, action)
 							if (action == "c")
 							{
 								var conseqColors = newTrigger.consequences.addItem("Consequence");
-								util.delayThreadMS(50);
+								util.delayThreadMS(20);
 								conseqColors.setCommand("WLED","WLED","WLED Color");
 								newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);
 								
@@ -1725,7 +1727,7 @@ function analyzerWLEDallIPLoop (groupName, action)
 							} else if (action == "e") {
 							
 								var conseqEffect = newTrigger.consequences.addItem("Consequence");
-								util.delayThreadMS(50);		
+								util.delayThreadMS(20);		
 								conseqEffect.setCommand("WLED","WLED","WLED Effect");
 								newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);
 								
@@ -1742,7 +1744,7 @@ function analyzerWLEDallIPLoop (groupName, action)
 							} else if (action == "p") {
 								
 								var conseqPallete = newTrigger.consequences.addItem("Consequence");
-								util.delayThreadMS(50);		
+								util.delayThreadMS(20);		
 								conseqPallete.setCommand("WLED","WLED","WLED Palette");
 								newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);		
 
@@ -1917,7 +1919,7 @@ function createWLEDMapping()
 	}
 	
 	// Create Param Ref for Effect
-	if (local.parameters.mappingParams.mapEffects.get() == 1)		
+	if (local.parameters.wledParams.mapEffects.get() == 1)		
 	{
 		var refParam = parcmdw.wledeffect.getControlAddress();
 		var toValue = cvGroup.calculatedParams.effectNumber.getControlAddress();
@@ -2458,6 +2460,21 @@ function deActivateColors ()
 }
 
 // Default Effects
+function defaultIndexEffects ()
+{
+	local.parameters.defaultEffects.effectA.set(3);
+	local.parameters.defaultEffects.effectB.set(6);
+	local.parameters.defaultEffects.effectC.set(23);
+	local.parameters.defaultEffects.effectD.set(66);
+	local.parameters.defaultEffects.effectE.set(99);
+	local.parameters.defaultEffects.effectF.set(12);
+	local.parameters.defaultEffects.effectG.set(15);
+	local.parameters.defaultEffects.effectH.set(19);
+	local.parameters.defaultEffects.effectI.set(31);
+	local.parameters.defaultEffects.effectJ.set(10);
+	local.parameters.defaultEffects.effectK.set(13);
+	local.parameters.defaultEffects.effectL.set(7);
+}
 function resetEffects ()
 {
 	local.parameters.defaultEffects.effectA.set(-1);

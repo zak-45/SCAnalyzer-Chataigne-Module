@@ -165,13 +165,7 @@ CAUTION: this will increase mapping time creation x3",
 				"type": "Boolean",
 				"description": "Checked, actions will be split thru all IPs - sequential - (IPs from associated group and only for Mappings)",
 				"default": false
-			},
-			"Map Effects": {
-				"type": "Boolean",
-				"description": "Checked, this will create a link to change WLED effect from the Segmenter calcColorEffect procedure.
-	WLED device must exist.",
-				"default": false
-			}			
+			}
 		},		
 		"WLED Params":{
 			"type": "Container",
@@ -190,6 +184,12 @@ CAUTION: this will increase mapping time creation x3",
 			"AllIP": {
 				"type": "Boolean",
 				"description": "Checked, actions will be created for all WLED IPs (IP from associated group)",
+				"default": false
+			},
+			"Map Effects": {
+				"type": "Boolean",
+				"description": "Checked, this will create a link to change WLED effect from the Segmenter calcColorEffect procedure.
+	WLED device must exist.",
 				"default": false
 			},			
 			"Preset": {
@@ -397,7 +397,11 @@ If file name is set, this will create output/action for mapping",
 			"Reset Effects": {
 				"type": "Trigger",
 				"description": "Put all effects to -1 (bypass)"
-			},				
+			},
+			"Default Effect Index": {
+				"type": "Trigger",
+				"description": "Put default effect value"
+			},			
 			"effect A": {
 				"type": "Integer",
 				"description": "Effect index for segment A",
