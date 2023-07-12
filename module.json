@@ -41,9 +41,10 @@
 				"description": "Select the Sonic annotator application used",
 				"default":"sonic-annotator.exe"
 			},
-			"Output File": { 
+			"Output Folder": { 
 				"type": "File", 
-				"description": "Sonic annotator output Json file name. 
+				"directoryMode": true,
+				"description": "Sonic annotator output folder for Json file name. 
 	This one will store the analyzer output and will be read to create corresponding Triggers/outputs.
 	If left blank, will be created with same name as audio file name under tmp location."
 			},
@@ -186,6 +187,12 @@ CAUTION: this will increase mapping time creation x3",
 				"description": "Checked, actions will be created for all WLED IPs (IP from associated group)",
 				"default": false
 			},
+			"Map Colors": {
+				"type": "Boolean",
+				"description": "Checked, this will create a link to change WLED color from the Segmenter calcColorEffect procedure.
+	WLED device must exist.",
+				"default": false
+			},			
 			"Map Effects": {
 				"type": "Boolean",
 				"description": "Checked, this will create a link to change WLED effect from the Segmenter calcColorEffect procedure.
@@ -215,12 +222,32 @@ And Mapping outputs by using Groups for RhythmAnalyzer(udp/ws).",
 				"description": "Enter default device name used for trigger consequences.
 Virtual device must be defined with ledFX App",
 				"default": "ledfxvirtualdevice"
+			},			
+			"Devices List": {
+				"type": "Enum",
+				"description": "Virtual Devices List, retreived from LedFX",
+				"readOnly": false,
+				"options": {
+					"none":"none"
+				}
 			},
 			"Default scene name": {
 				"type": "String",
 				"description": "Enter default scene name used for trigger consequences.
 Scene must be defined with ledFX App",
 				"default": "ledfxscene"
+			},			
+			"Scenes List": {
+				"type": "Enum",
+				"description": "Scenes List, retreived from LedFX",
+				"readOnly": false,
+				"options": {
+					"none":"none"
+				}
+			},			
+			"Update Lists": {
+				"type": "Trigger",
+				"description": "Load devices/scenes from LedFX "
 			},			
 			"Associated scenes": {
 				"type": "Enum",
@@ -258,6 +285,11 @@ Scene must be defined with ledFX App",
 			"Use scenes": {
 				"type": "Boolean",
 				"description": "Checked, will create consequences using associated scenes instead effects ",
+				"default": false
+			},
+			"All Devices": {
+				"type": "Boolean",
+				"description": "Checked, will create consequences for all virtual devices from the Devices List",
 				"default": false
 			},			
 			"Create actions": {
