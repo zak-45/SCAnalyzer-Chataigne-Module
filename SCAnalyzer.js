@@ -71,6 +71,8 @@ var tempDIR = "";
 //%USERPROFILE% for WIN and $HOME for others
 var homeDIR = "";
 var winHOME = "";
+//
+var moduleDIR = "/Chataigne/Modules/SCAnalyzer/";
 
 // Transform file
 var origTransform = "";
@@ -84,8 +86,8 @@ var writeLedFXFileScenes = true;
 //
 var writeLedFXFileEffects = true;
 // Enum list update
-rungenerateLedFXDevicesList = false;
-rungenerateLedFXScenesList = false;
+runrefreshLedFXDevicesList = false;
+runrefreshLedFXScenesList = false;
 
 // WLED test
 var wledAuto = false;
@@ -249,8 +251,8 @@ function update ()
 		{
 			script.log("Module LedFX present");
 			local.parameters.ledFXParams.setCollapsed(false);
-			rungenerateLedFXScenesList = true;
-			rungenerateLedFXDevicesList = true;			
+			generateLedFXScenesList();
+			generateLedFXDevicesList();			
 					
 		} else {
 			
@@ -259,11 +261,11 @@ function update ()
 		// set folder for nc3 files
 		if (local.parameters.sonicParams.transformFile.get() == "qmsegmenter.nc3")
 		{
-			local.parameters.sonicParams.transformFile.set(homeDIR + "/Chataigne/Modules/SCAnalyzer/"+ "qmsegmenter.nc3");
+			local.parameters.sonicParams.transformFile.set(homeDIR + moduleDIR+ "qmsegmenter.nc3");
 		}
 		if (local.parameters.sonicParams.rhythmTransformFile.get() == "bbcrhythm.nc3")
 		{
-			local.parameters.sonicParams.rhythmTransformFile.set(homeDIR + "/Chataigne/Modules/SCAnalyzer/"+ "bbcrhythm.nc3");
+			local.parameters.sonicParams.rhythmTransformFile.set(homeDIR + moduleDIR+ "bbcrhythm.nc3");
 		}
 		// set sonic annotator folder
 		if (local.parameters.sonicParams.sonicAnnotatorLocation.get() == "sonic-annotator.exe")
@@ -328,14 +330,16 @@ function update ()
 	}	
 
 	// Enum ledFx list update
-	if (rungenerateLedFXDevicesList === true)
+	if (runrefreshLedFXDevicesList === true)
 	{
 		script.log("Update LedFX devices list");
+		refreshDevices();
 		generateLedFXDevicesList();
 		
-	} else if (rungenerateLedFXScenesList === true) {
+	} else if (runrefreshLedFXScenesList === true) {
 		
 		script.log("Update LedFX scenes list");
+		refreshScenes();
 		generateLedFXScenesList();
 	}
 	
@@ -452,14 +456,14 @@ function moduleParameterChanged (param)
 			
 			if (writeLedFXFileEffects == true)
 			{
-				util.writeFile(homeDIR + "/Chataigne/Modules/SCAnalyzer/"+enumFile,local.parameters.ledFXParams.associatedEffects.getAllOptions(),true);					
+				util.writeFile(homeDIR + moduleDIR+enumFile,local.parameters.ledFXParams.associatedEffects.getAllOptions(),true);					
 			}
 			
 		} else if (param.name == "associatedScenes") {
 			
 			if (writeLedFXFileScenes == true)
 			{
-				util.writeFile(homeDIR + "/Chataigne/Modules/SCAnalyzer/"+enumScenesFile,local.parameters.ledFXParams.associatedScenes.getAllOptions(),true);					
+				util.writeFile(homeDIR + moduleDIR+enumScenesFile,local.parameters.ledFXParams.associatedScenes.getAllOptions(),true);					
 			}
 			
 		} else if (param.name == "loadDefault")	{
@@ -545,10 +549,14 @@ function moduleParameterChanged (param)
 			
 		} else if (param.name == "updateLists") {
 			
-			rungenerateLedFXScenesList = true;
-			rungenerateLedFXDevicesList = true;		
+			runrefreshLedFXScenesList = true;
+			runrefreshLedFXDevicesList = true;
+			
+		} else if (param.name == "defaultARIndex") {
+			
+			defaultAREffects();
+			
 		}
-
 	}
 }
 
@@ -616,6 +624,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 			
 		} else {
 			
+			segAnalyzerIsRunning = false;
 			script.logError("Something wrong with segAnalyzer....");
 			return;
 		}
@@ -664,6 +673,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 			script.log("Sonic Analyzer return code : "+launchresult);
 			if (launchresult == "")
 			{
+				segAnalyzerIsRunning = false;
 				util.showMessageBox("Sonic Analyzer !", "Something wrong....", "warning", "OK");
 				return;
 			}				
@@ -675,6 +685,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 		
 		if (SCAJSONContent.annotations[0].annotation_metadata.annotator.output_id != "segmentation")
 		{
+			segAnalyzerIsRunning = false;
 			script.log("Json file with no data for segmentation !!!");
 			util.showMessageBox("Sonic Analyzer !", "Json file with no data for segmentation !!!", "warning", "OK");
 			return;
@@ -685,7 +696,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 		if (ledfxExist.name == "ledFX")
 		{
 			ledfxAuto = local.parameters.ledFXParams.createActions.get();		
-			useScenes = local.parameters.ledFXParams.useScenes.get();		
+			useScenes = local.parameters.ledFXParams.useScenes.get();
 		}
 		var wledExist = root.modules.getItemWithName("WLED");			
 		if (wledExist.name == "wled")
@@ -1154,7 +1165,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 	}
 	
 	segAnalyzerIsRunning = false;
-	creColEffect = false;
+	creColEffect = false;	
 }
 
 // check to see if something to do
@@ -1224,6 +1235,7 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 			
 		} else {
 			
+			rhythmAnalyzerIsRunning = false;
 			script.logError("Something wrong with rhythmAnalyzer....");
 			return;
 		}
@@ -1270,6 +1282,7 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 			script.log("Sonic Analyzer return code : "+launchresult);
 			if (launchresult == "")
 			{
+				rhythmAnalyzerIsRunning = false;
 				util.showMessageBox("Sonic Analyzer !", "Something wrong when try to run ....", "warning", "OK");
 				return;
 			}				
@@ -1281,6 +1294,7 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 		
 		if (SCAJSONContent.annotations[0].annotation_metadata.annotator.output_id != "diff")
 		{
+			rhythmAnalyzerIsRunning = false;
 			script.log("Json file with no data for rhythm !!!");
 			util.showMessageBox("Sonic Analyzer !", "Json file with no data for rhythm !!!", "warning", "OK");			
 			return;
@@ -1420,7 +1434,7 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 			}
 			
 			// For WLEDAudioSync
-			var audioReplayFile = local.parameters.wLEDAudioSyncParams.replayFile.get();
+			var audioReplayFile = local.parameters.wLEDAudioSyncParams.replayFile.getAbsolutePath();
 			var moduleName = local.parameters.wLEDAudioSyncParams.moduleName.get();
 			var duration = local.parameters.wLEDAudioSyncParams.duration.get();
 			var allModules = local.parameters.wLEDAudioSyncParams.allModules.get();
@@ -1609,18 +1623,20 @@ function analyzerCreConseq (segmentName, groupName)
 // depend on the segment name
 function analyzerLedFXConseq (segmentName)
 {
+	//
 	var conseq = newTrigger.consequences.addItem("Consequence");
 	util.delayThreadMS(20);
 	newTrigger.consequences.delay.set(local.parameters.audioParams.globalDelay.get()/1000);	
 
 	if (useScenes)
 	{
-		conseq.setCommand("ledFX","LedFX-Scene","DeActivate");
+		conseq.setCommand("ledFX","LedFX-Scene","De_Activate");
 		
 	} else {
 		
 		conseq.setCommand("ledFX","LedFX-Virtual","Apply Effect");
 	}
+
 	var parcmd = conseq.getChild("command");
 	
 	if (useScenes)
@@ -1658,7 +1674,12 @@ function analyzerLedFXConseq (segmentName)
 		} else {
 			
 			// set info for default virtual device
-			parcmd.devicename.set(local.parameters.ledFXParams.defaultVirtualDeviceName.get());
+			var myfirstdevice = local.parameters.ledFXParams.devicesList.get();			
+			if ( myfirstdevice == "none" )
+			{
+				myfirstdevice = local.parameters.ledFXParams.defaultVirtualDeviceName.get();
+			}			
+			parcmd.devicename.set(myfirstdevice);
 			local.parameters.ledFXParams.associatedEffects.set(segmentName);
 			parcmd.effect.set(local.parameters.ledFXParams.associatedEffects.get());
 			
@@ -1667,7 +1688,7 @@ function analyzerLedFXConseq (segmentName)
 			for ( var i = 0; i < allLedFXDevices.length; i++ )
 			{
 				var mydevice = allLedFXDevices[i].key;
-				if (mydevice != "none")
+				if (mydevice != "none" && mydevice != myfirstdevice)
 				{
 					if ( mydevice != local.parameters.ledFXParams.defaultVirtualDeviceName.get() )
 					{
@@ -2011,8 +2032,14 @@ function createWLEDMapping()
 	if (local.parameters.wledParams.mapColors.get() == 1 && groupName != "notset")		
 	{
 		var refParam = parcmdw.wledcolor.getControlAddress();
-		var toValue = cvGroup.calculatedParams.mapcolor.getControlAddress();
+		var toValue = cvGroup.calculatedParams.segcolor.getControlAddress();
 		createParamReferenceTo(refParam,toValue);
+		
+	} else if (local.parameters.defaultColors.loopColors.get() == 1 && groupName != "notset" ) {
+
+		var refParam = parcmdw.wledcolor.getControlAddress();
+		var toValue = cvGroup.calculatedParams.mapcolor.getControlAddress();
+		createParamReferenceTo(refParam,toValue);		
 	}
 	
 	// Create Param Ref for Effect
@@ -2443,7 +2470,7 @@ function analyzerLoadenum ()
 	writeLedFXFileEffects = false;
 	local.parameters.ledFXParams.associatedEffects.removeOptions();
 	
-	var datafile = util.readFile(homeDIR + "/Chataigne/Modules/SCAnalyzer/"+enumFile,true);
+	var datafile = util.readFile(homeDIR + moduleDIR+enumFile,true);
 	for (var i = 0; i < datafile.length; i +=1 )
 	{
 		local.parameters.ledFXParams.associatedEffects.addOption(datafile[i].key,datafile[i].value);		
@@ -2458,7 +2485,7 @@ function analyzerLoadenumScenes ()
 	writeLedFXFileScenes = false;
 	local.parameters.ledFXParams.associatedScenes.removeOptions();
 	
-	var datafile = util.readFile(homeDIR + "/Chataigne/Modules/SCAnalyzer/"+enumScenesFile,true);
+	var datafile = util.readFile(homeDIR + moduleDIR+enumScenesFile,true);
 	for (var i = 0; i < datafile.length; i +=1 )
 	{
 		local.parameters.ledFXParams.associatedScenes.addOption(datafile[i].key,datafile[i].value);		
@@ -2572,6 +2599,24 @@ function defaultIndexEffects ()
 	local.parameters.defaultEffects.effectK.set(13);
 	local.parameters.defaultEffects.effectL.set(7);
 }
+
+// Default Audio Reactive Index Effects
+function defaultAREffects ()
+{
+	local.parameters.defaultEffects.effectA.set(135);
+	local.parameters.defaultEffects.effectB.set(136);
+	local.parameters.defaultEffects.effectC.set(137);
+	local.parameters.defaultEffects.effectD.set(138);
+	local.parameters.defaultEffects.effectE.set(99);
+	local.parameters.defaultEffects.effectF.set(12);
+	local.parameters.defaultEffects.effectG.set(15);
+	local.parameters.defaultEffects.effectH.set(19);
+	local.parameters.defaultEffects.effectI.set(31);
+	local.parameters.defaultEffects.effectJ.set(10);
+	local.parameters.defaultEffects.effectK.set(13);
+	local.parameters.defaultEffects.effectL.set(7);
+}
+
 function resetEffects ()
 {
 	local.parameters.defaultEffects.effectA.set(-1);
@@ -2983,7 +3028,7 @@ function generateIPList(group)
 	}
 }
 
-// Populate enum param : module names list
+// Populate enum param : module names list for WLEDAudioSync 
 function generateAudioSyncList()
 {
 	script.log('Generate WLEDAudioSync modules list');
@@ -2995,7 +3040,7 @@ function generateAudioSyncList()
 
 	for ( var i = 0; i < moduleNumbers.length ; i++)		
 	{	
-		if ( moduleNumbers[i].getType().contains("WLEDAudioSync"))
+		if (moduleNumbers[i].getType().contains("WLEDAudioSync"))
 		{
 			local.parameters.wLEDAudioSyncParams.moduleName.addOption(moduleNumbers[i].name,moduleNumbers[i].name);
 		}
@@ -3012,9 +3057,6 @@ function generateLedFXDevicesList()
 	{
 		local.parameters.ledFXParams.devicesList.removeOptions();
 		
-		var cmd = ledfxExist.commandTester.setCommand("ledFX","LedFX-Virtual","List All");
-		ledfxExist.commandTester.trigger.trigger();
-		
 		var virtualDevicesList = util.getObjectProperties(root.modules.ledFX.values.virtuals, true, false);
 		local.parameters.ledFXParams.devicesList.addOption("none","none");
 
@@ -3027,8 +3069,6 @@ function generateLedFXDevicesList()
 		
 		script.log("No LedFX module");
 	}
-	
-	rungenerateLedFXDevicesList = false;
 }
 
 // Populate enum param : scenes list from LedFX
@@ -3040,9 +3080,6 @@ function generateLedFXScenesList()
 	if (ledfxExist.name == "ledFX")
 	{
 		local.parameters.ledFXParams.scenesList.removeOptions();
-		
-		var cmd = ledfxExist.commandTester.setCommand("ledFX","LedFX-Scene","List All Scene");
-		ledfxExist.commandTester.trigger.trigger();
 		
 		var scenesList = util.getObjectProperties(root.modules.ledFX.values.scenes, true, false);
 		local.parameters.ledFXParams.scenesList.addOption("none","none");
@@ -3056,8 +3093,40 @@ function generateLedFXScenesList()
 		
 		script.log("No LedFX module");
 	}
-	
-	rungenerateLedFXScenesList = false;
+}
+
+function refreshDevices()
+{
+	script.log('refresh LedfX devices list');
+	ledfxExist = root.modules.getItemWithName("LedFX");
+	if (ledfxExist.name == "ledFX")
+	{
+		var cmd = ledfxExist.commandTester.setCommand("ledFX","LedFX-Virtual","List All");
+		ledfxExist.commandTester.trigger.trigger();	
+		
+	} else {
+		
+		script.log("No LedFX module");
+	}
+
+	runrefreshLedFXDevicesList = false;	
+}
+
+function refreshScenes()
+{
+	script.log('refresh LedfX scenes list');
+	ledfxExist = root.modules.getItemWithName("LedFX");
+	if (ledfxExist.name == "ledFX")
+	{		
+		var cmd = ledfxExist.commandTester.setCommand("ledFX","LedFX-Scene","List All Scene");
+		ledfxExist.commandTester.trigger.trigger();	
+		
+	} else {
+		
+		script.log("No LedFX module");
+	}
+
+	runrefreshLedFXScenesList = false;	
 }
 
 // retreive file name from absolute path
@@ -3084,13 +3153,5 @@ return null;
 // used for value/expression testing .......
 function testScript()
 {
-	// root.customVariables.all.defaultWLEDParams.fxspeed
-	var test = root.customVariables.getChild("all/defaultWLEDParams/fxspeed");
-	if (test)
-	{
-		script.log('fxspeed exist');
-	} else {
-		script.log('fxspeed does not exist');
-	}
-	script.log(test);
+
 }
