@@ -330,17 +330,20 @@ function update ()
 	}	
 
 	// Enum ledFx list update
-	if (runrefreshLedFXDevicesList === true)
+	if (runrefreshLedFXScenesList === true) {
+		
+		runrefreshLedFXScenesList = false;
+		script.log("Update LedFX scenes list");
+		refreshScenes();
+		generateLedFXScenesList();
+		
+	} else if (runrefreshLedFXDevicesList === true)
 	{
+		runrefreshLedFXDevicesList = false;
 		script.log("Update LedFX devices list");
 		refreshDevices();
 		generateLedFXDevicesList();
 		
-	} else if (runrefreshLedFXScenesList === true) {
-		
-		script.log("Update LedFX scenes list");
-		refreshScenes();
-		generateLedFXScenesList();
 	}
 	
 	// Sequence mngt
@@ -549,8 +552,8 @@ function moduleParameterChanged (param)
 			
 		} else if (param.name == "updateLists") {
 			
-			runrefreshLedFXScenesList = true;
 			runrefreshLedFXDevicesList = true;
+			runrefreshLedFXScenesList = true;
 			
 		} else if (param.name == "defaultARIndex") {
 			
