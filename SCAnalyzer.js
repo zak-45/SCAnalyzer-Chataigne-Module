@@ -288,14 +288,14 @@ function update ()
 		isInit = false;		
 	}
 	
-	// start long pocess on it's own thread to run in blocking mode but not block the main UI
+	// start long process on it's own thread to run in blocking mode but not block the main UI
 	if (shouldProcessSeg === true)
 	{
 		shouldProcessSeg = false;
 		runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neighbourhoodLimit);
 	}
 
-	// start long pocess on it's own thread to run in blocking mode but not block the main UI
+	// start long process on it's own thread to run in blocking mode but not block the main UI
 	if (shouldProcessRhythm === true)
 	{
 		shouldProcessRhythm = false;
@@ -348,7 +348,7 @@ function update ()
 	
 	// Sequence mngt
 	// Play all enabled sequences
-	if (lastsequence < numberToPlay) 
+	if (lastsequence < numberToPlay && isInit === false) 
 	{
 		if (playseq.enabled.get() == 1) 
 		{
@@ -1550,7 +1550,7 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 
 /*
 
-Segmenter
+Segmenter, triggers creation
 
 */
 
@@ -1657,7 +1657,7 @@ function analyzerLedFXConseq (segmentName)
 				myscene = local.parameters.ledFXParams.defaultSceneName.get();						
 			}				
 		}
-		parcmd.scenename.set(myscene);
+		parcmd.sceneName.set(myscene);
 		
 	} else {
 		
@@ -1670,7 +1670,7 @@ function analyzerLedFXConseq (segmentName)
 				mydevice = local.parameters.ledFXParams.defaultVirtualDeviceName.get();
 			}
 			
-			parcmd.devicename.set(mydevice);
+			parcmd.deviceName.set(mydevice);
 			local.parameters.ledFXParams.associatedEffects.set(segmentName);
 			parcmd.effect.set(local.parameters.ledFXParams.associatedEffects.get());
 			
@@ -1682,7 +1682,7 @@ function analyzerLedFXConseq (segmentName)
 			{
 				myfirstdevice = local.parameters.ledFXParams.defaultVirtualDeviceName.get();
 			}			
-			parcmd.devicename.set(myfirstdevice);
+			parcmd.deviceName.set(myfirstdevice);
 			local.parameters.ledFXParams.associatedEffects.set(segmentName);
 			parcmd.effect.set(local.parameters.ledFXParams.associatedEffects.get());
 			
@@ -1699,7 +1699,7 @@ function analyzerLedFXConseq (segmentName)
 						util.delayThreadMS(10);
 						conseq.setCommand("ledFX","LedFX-Virtual","Apply Effect");
 						var parcmd = conseq.getChild("command");
-						parcmd.devicename.set(mydevice);
+						parcmd.deviceName.set(mydevice);
 						local.parameters.ledFXParams.associatedEffects.set(segmentName);
 						parcmd.effect.set(local.parameters.ledFXParams.associatedEffects.get());						
 					}
@@ -1898,6 +1898,7 @@ function analyzerWLEDallIPLoop (groupName, action)
 /*
 
 Mapping
+We need speed here, so UDP or WS or internal process, nothing for LedFX (only HTTP)
 
 */
  
@@ -1961,8 +1962,7 @@ function analyzerWLEDMapping (groupscName, split, sequential)
 						
 					} else {
 						
-						script.log("We bypass this one (name): "+additionalIP[k].name);
-						
+						script.log("We bypass this one (name): "+additionalIP[k].name);						
 					}
 				}
 			}
@@ -3036,9 +3036,7 @@ function generateAudioSyncList()
 {
 	script.log('Generate WLEDAudioSync modules list');
 	
-	local.parameters.wLEDAudioSyncParams.moduleName.removeOptions();
-	util.delayThreadMS(20);
-	
+	local.parameters.wLEDAudioSyncParams.moduleName.removeOptions();	
 	var moduleNumbers = root.modules.getItems();
 
 	for ( var i = 0; i < moduleNumbers.length ; i++)		
@@ -3054,8 +3052,8 @@ function generateAudioSyncList()
 function generateLedFXDevicesList()
 {
 	script.log('Generate LedfX virtual devices list');
+	
 	ledfxExist = root.modules.getItemWithName("LedFX");
-
 	if (ledfxExist.name == "ledFX")
 	{
 		local.parameters.ledFXParams.devicesList.removeOptions();
@@ -3078,8 +3076,8 @@ function generateLedFXDevicesList()
 function generateLedFXScenesList()
 {
 	script.log('Generate LedfX scenes list');
+	
 	ledfxExist = root.modules.getItemWithName("LedFX");
-
 	if (ledfxExist.name == "ledFX")
 	{
 		local.parameters.ledFXParams.scenesList.removeOptions();
@@ -3101,6 +3099,7 @@ function generateLedFXScenesList()
 function refreshDevices()
 {
 	script.log('refresh LedfX devices list');
+	
 	ledfxExist = root.modules.getItemWithName("LedFX");
 	if (ledfxExist.name == "ledFX")
 	{
@@ -3118,6 +3117,7 @@ function refreshDevices()
 function refreshScenes()
 {
 	script.log('refresh LedfX scenes list');
+	
 	ledfxExist = root.modules.getItemWithName("LedFX");
 	if (ledfxExist.name == "ledFX")
 	{		
