@@ -5,14 +5,22 @@
 
 Song analyzer, timecoded sequence creation. Actions/ Triggers execution based on segmenter/rhythm difference. 
 
-This is on early stage. Not to be used as it is whithout any Chataigne's script knowledge.
+Main goal is to create automatic sequence with actions/triggers execution : could be any protocol/software already integrated into Chataigne, even external by using HTTP module for example.
 
-Main goal is to help to create sequence with actions/triggers execution based on these two Vamp plugins: QM Segmenter and BBC Rhythm Difference.
-The Sonic Annotator extraction tool is necessary. 
-This module is deeply integrated with WLED and Ledfx, so if you use the corresponding modules, it will automaticaly create actions for them.
-Websocket , UDP and HTTP protocols are used, depend of the necessity
+It's based on these two Vamp plugins: 
+```
+QM Segmenter and BBC Rhythm Difference.
+```
 
-It will also take care of the Spleeter module, and if required, actions/ triggers for only vocal part of the song will be generated.
+The Sonic Annotator extraction tool is necessary and is the main process that will be run. SCAnalyzer take json datas from it, interpret them and create requested triggers/mapping.
+
+
+This module is deeply integrated with WLED and LedFX, so if you use the corresponding modules, it will automaticaly create actions for them.
+Websocket , UDP and HTTP protocols are used, depend of the necessity and required response time.
+
+
+It will also take care of the Spleeter module to generate mapping for only vocal part of the song.
+
 
 'Create Show' command will generate all actions/triggers/mapping with few clicks.
 
