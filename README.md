@@ -29,7 +29,7 @@ Websocket , UDP and HTTP protocols are used, depend of the necessity and require
 
 It will also take care of the Spleeter module to generate mapping for only vocal part of the song.
 
-WLEDAudioSync replay file feature is part of the process. You can even use more than one module if you need to send to ESP8266 and ESP32 on same time.
+WLEDAudioSync replay file feature is part of the process. You can even use more than one WLEDAudioSync module if you need to send to ESP8266 and ESP32 on same time.
 
 
 'Create Show' command will generate all actions/triggers/mapping with few clicks.
