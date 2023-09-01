@@ -9,7 +9,8 @@ Segmenter : divides a single channel of music up into structurally consistent se
             It returns a numeric value (the segment type) for each moment at which a new segment starts.
 
 Rhythm difference : Calculates rhythmic features of a signal, including onsets and tempo.
-                     * Difference: The difference between the onset curve and its moving average. Used as the input for peak-picking.
+                     * Difference: The difference between the onset curve and its moving average.
+                        Used as the input for peak-picking.
 ```
 
 Main goal is to create automatic sequence with actions/triggers execution : could be any protocol/software already integrated into Chataigne, even external by using HTTP module for example.
