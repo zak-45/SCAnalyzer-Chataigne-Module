@@ -348,6 +348,11 @@ If file name is set, this will create output/action for mapping",
 			"type": "Container",
 			"description":"Color parameters",
 			"collapsed": true,
+			"Loop Colors": {
+				"type": "Boolean",
+				"description": "Checked, will create Mapping for colors loop (Link to group need to be set).",
+				"default": false
+			},			
 			"Activate Colors": {
 				"type": "Trigger",
 				"description": "All colors activated. Colors consequences will be created. Will set Alpha to 255."
@@ -356,11 +361,6 @@ If file name is set, this will create output/action for mapping",
 				"type": "Trigger",
 				"description": "All colors bypassed. Will set Alpha to 191 (need to be <> of 255). "
 			},
-			"Loop Colors": {
-				"type": "Boolean",
-				"description": "Checked, will create Mapping for colors loop (Link to group need to be set).",
-				"default": false
-			},			
 			"segment A": {
 				"type": "Color",
 				"description": "Color for segment A",
@@ -433,6 +433,10 @@ If file name is set, this will create output/action for mapping",
 			"Default Effect Index": {
 				"type": "Trigger",
 				"description": "Put default effect value"
+			},
+			"Default AR Index": {
+				"type": "Trigger",
+				"description": "Put default Audio Reactive effect value"
 			},			
 			"effect A": {
 				"type": "Integer",

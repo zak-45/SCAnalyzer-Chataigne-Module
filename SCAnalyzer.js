@@ -4,7 +4,7 @@ author:	zak45
 date:	03/11/2022
 version:1.0.0
 
-Chataigne Module for  Sound Analysis using Vamp plugin .
+Chataigne Module for  Song Analysis using Vamp plugin .
 
 This work mainly for mp3 file.
 Manage the segmenter plugin from QM.
@@ -285,105 +285,107 @@ function update ()
 			util.delayThreadMS(100);		
 		}	
 
-		isInit = false;		
-	}
+		isInit = false;
+		
+	} else {
 	
-	// start long process on it's own thread to run in blocking mode but not block the main UI
-	if (shouldProcessSeg === true)
-	{
-		shouldProcessSeg = false;
-		runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neighbourhoodLimit);
-	}
-
-	// start long process on it's own thread to run in blocking mode but not block the main UI
-	if (shouldProcessRhythm === true)
-	{
-		shouldProcessRhythm = false;
-		runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvgWindowLength, OnsetPeackWindowLength, MinBPM, MaxBPM);
-	}
-
-	// check some process finished
-	if (spleeterIsRunning) 
-	{
-		checkSpleeter();
-	}
-	
-	if (createShowStep2 === true) 
-	{
-		checkStep1();
-		
-	} else if (createShowStep3 === true) {
-		
-		checkStep2();
-/*		
-	} else if (createShowStep4 === true) {
-		
-		checkStep3();
-*/		
-	} else if (createShowStep5 === true) {
-		
-		checkStep3();
-		
-	} else if (createShowLast === true)  {
-		
-		checkLast();
-	}	
-
-	// Enum ledFx list update
-	if (runrefreshLedFXScenesList === true) {
-		
-		runrefreshLedFXScenesList = false;
-		script.log("Update LedFX scenes list");
-		refreshScenes();
-		generateLedFXScenesList();
-		
-	} else if (runrefreshLedFXDevicesList === true)
-	{
-		runrefreshLedFXDevicesList = false;
-		script.log("Update LedFX devices list");
-		refreshDevices();
-		generateLedFXDevicesList();
-		
-	}
-	
-	// Sequence mngt
-	// Play all enabled sequences
-	if (lastsequence < numberToPlay && isInit === false) 
-	{
-		if (playseq.enabled.get() == 1) 
+		// start long process on it's own thread to run in blocking mode but not block the main UI
+		if (shouldProcessSeg === true)
 		{
-			if (playseq.currentTime.get() == playseq.totalTime.get())
+			shouldProcessSeg = false;
+			runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neighbourhoodLimit);
+		}
+
+		// start long process on it's own thread to run in blocking mode but not block the main UI
+		if (shouldProcessRhythm === true)
+		{
+			shouldProcessRhythm = false;
+			runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvgWindowLength, OnsetPeackWindowLength, MinBPM, MaxBPM);
+		}
+
+		// check some process finished
+		if (spleeterIsRunning) 
+		{
+			checkSpleeter();
+		}
+		
+		if (createShowStep2 === true) 
+		{
+			checkStep1();
+			
+		} else if (createShowStep3 === true) {
+			
+			checkStep2();
+	/*		
+		} else if (createShowStep4 === true) {
+			
+			checkStep3();
+	*/		
+		} else if (createShowStep5 === true) {
+			
+			checkStep3();
+			
+		} else if (createShowLast === true)  {
+			
+			checkLast();
+		}	
+
+		// Enum ledFx list update
+		if (runrefreshLedFXScenesList === true) {
+			
+			runrefreshLedFXScenesList = false;
+			script.log("Update LedFX scenes list");
+			refreshScenes();
+			generateLedFXScenesList();
+			
+		} else if (runrefreshLedFXDevicesList === true)
+		{
+			runrefreshLedFXDevicesList = false;
+			script.log("Update LedFX devices list");
+			refreshDevices();
+			generateLedFXDevicesList();
+			
+		}
+		
+		// Sequence mngt
+		// Play all enabled sequences
+		if (lastsequence < numberToPlay) 
+		{
+			if (playseq.enabled.get() == 1) 
 			{
-				script.log("Reach end of time");
+				if (playseq.currentTime.get() == playseq.totalTime.get())
+				{
+					script.log("Reach end of time");
+					lastsequence += 1;
+					if (lastsequence  == numberToPlay)
+					{
+						numberToPlay = 0;
+						script.log("End Sequences");				
+						
+					} else {
+						
+						playseq = root.sequences.getItemAt(lastsequence);
+						script.log("Sequence to play : " +playseq.name);				
+					}
+					
+				} else if (playseq.isPlaying.get() == 0) {
+					
+					playseq.play.trigger();
+					script.log("Play  sequence : " +playseq.name);
+				}
+				
+			} else {
+
+				script.log("Sequence to bypass : " +playseq.name);							
 				lastsequence += 1;
+				playseq = root.sequences.getItemAt(lastsequence);
 				if (lastsequence  == numberToPlay)
 				{
 					numberToPlay = 0;
 					script.log("End Sequences");				
 					
-				} else {
-					
-					playseq = root.sequences.getItemAt(lastsequence);
-					script.log("Sequence to play : " +playseq.name);				
-				}
-				
-			} else if (playseq.isPlaying.get() == 0) {
-				
-				playseq.play.trigger();
-				script.log("Play  sequence : " +playseq.name);
+				}				
 			}
-			
-		} else {
-
-			script.log("Sequence to bypass : " +playseq.name);							
-			lastsequence += 1;
-			playseq = root.sequences.getItemAt(lastsequence);
-			if (lastsequence  == numberToPlay)
-			{
-				numberToPlay = 0;
-				script.log("End Sequences");				
-				
-			}				
 		}
 	}
 }
@@ -539,7 +541,11 @@ function moduleParameterChanged (param)
 			//execute Sonic Visualiser
 			if (util.fileExists(sonicVisu))
 			{
-				var launchresult = root.modules.os.launchProcess(sonicVisu, false);				
+				var launchresult = root.modules.os.launchProcess(sonicVisu, false);
+				
+			} else {
+				
+				script.log('No Sonic app found');
 			}
 			
 		} else if (param.name == "duration") {
@@ -559,6 +565,13 @@ function moduleParameterChanged (param)
 			
 			defaultAREffects();
 			
+		} else if (param.name == "defaultVirtualDeviceName") {
+			
+			generateLedFXDevicesList();
+			
+		} else if (param.name == "defaultSceneName") {
+			
+			generateLedFXScenesList();		
 		}
 	}
 }
@@ -1318,7 +1331,7 @@ function runrhythmAnalyzer (sequence, targetFile, SubBands, Threshold, MovingAvg
 		var newLayersMapping =  newSequence.layers.addItem('Mapping');
 		util.delayThreadMS(20);
 		newLayersMapping.automation.range.set(0,7);
-		newLayersMapping.setName("BBC");
+		newLayersMapping.setName("BBCRhythm");
 		newLayersMapping.sendOnPlay.set(0);
 		newLayersMapping.sendOnStop.set(0);
 		newLayersMapping.enabled.set(0);
@@ -1575,7 +1588,7 @@ function calcColorEffect (inkeep, insequence, inmapGroup, increateColor, increat
 // values effect and color stored to CV group : can be used by Mapping/states etc ...
 function analyzerCreConseq (segmentName, groupName)
 {
-	var numberofactions = 0;
+	var numberOfActions = 0;
 
 	if (newColor[3] == 1 && createColor)
 	{
@@ -1592,7 +1605,7 @@ function analyzerCreConseq (segmentName, groupName)
 		var parcmdvalue = parcmd.getChild("value");
 		parcmdvalue.set(newColor);
 		
-		numberofactions += 1;
+		numberOfActions += 1;
 		
 	}
 
@@ -1611,9 +1624,9 @@ function analyzerCreConseq (segmentName, groupName)
 		var parcmdvalue = parcmd.getChild("value");
 		parcmdvalue.set(newEffect);
 
-		numberofactions += 1;
+		numberOfActions += 1;
 
-		if (numberofactions > 1)
+		if (numberOfActions > 1)
 		{
 			// put delay between actions							
 			newTrigger.consequences.stagger.set(.100);		
@@ -1726,7 +1739,7 @@ function analyzerWLEDInitConseq ()
 // this will create the corresponding action (consequence) for WLED 
 function analyzerWLEDConseq (newColor,newEffect,newPalette)
 {
-	var numberofactions = 0;
+	var numberOfActions = 0;
 	
 	// this will create the corresponding action (consequence) for WLED : color
 	if (newColor[3] == 1)
@@ -1738,7 +1751,7 @@ function analyzerWLEDConseq (newColor,newEffect,newPalette)
 		
 		var parcmdColor = conseqColor.getChild("command");
 		parcmdColor.wledcolor.set(newColor);
-		numberofactions += 1;
+		numberOfActions += 1;
 		
 		if (local.parameters.wledParams.allIP.get() == 1 && local.parameters.groupParams.linkToGroupNumber.get() != 0)
 		{
@@ -1761,7 +1774,7 @@ function analyzerWLEDConseq (newColor,newEffect,newPalette)
 			parcmde.fxspeed.set(WLEDdefValue(groupName, "fxspeed"));
 			parcmde.fxintensity.set(WLEDdefValue(groupName, "fxintensity"));
 		}
-		numberofactions += 1;
+		numberOfActions += 1;
 		
 		if (local.parameters.wledParams.allIP.get() == 1 && local.parameters.groupParams.linkToGroupNumber.get() != 0)
 		{
@@ -1779,7 +1792,7 @@ function analyzerWLEDConseq (newColor,newEffect,newPalette)
 
 		var parcmdp = conseqp.getChild("command");
 		parcmdp.palette.set(newPalette);	
-		numberofactions += 1;
+		numberOfActions += 1;
 		
 		if (local.parameters.wledParams.allIP.get() == 1 && local.parameters.groupParams.linkToGroupNumber.get() != 0)
 		{
@@ -1787,7 +1800,7 @@ function analyzerWLEDConseq (newColor,newEffect,newPalette)
 		}		
 	}
 
-	if (numberofactions > 1)
+	if (numberOfActions > 1)
 	{
 		// put delay between actions							
 		newTrigger.consequences.stagger.set(.100);		
@@ -1843,7 +1856,7 @@ function analyzerWLEDallIPLoop (groupName, action)
 								var parcmdColors = conseqColors.getChild("command");
 								parcmdColors.wledcolor.set(newColor);
 								parcmdColors.wledIP.set(addIP);
-								numberofactions += 1;
+								numberOfActions += 1;
 								
 							} else if (action == "e") {
 							
@@ -1860,7 +1873,7 @@ function analyzerWLEDallIPLoop (groupName, action)
 									parcmdEffect.fxspeed.set(WLEDdefValue(groupName, "fxspeed"));
 									parcmdEffect.fxintensity.set(WLEDdefValue(groupName, "fxintensity"));
 								}								
-								numberofactions += 1;							
+								numberOfActions += 1;							
 							
 							} else if (action == "p") {
 								
@@ -1872,7 +1885,7 @@ function analyzerWLEDallIPLoop (groupName, action)
 								var parcmdPalette = conseqPallete.getChild("command");
 								parcmdPalette.palette.set(newPalette);	
 								parcmdPalette.wledIP.set(addIP);
-								numberofactions += 1;										
+								numberOfActions += 1;										
 							
 							} else {
 								
@@ -2243,7 +2256,7 @@ function createWLEDAudioSyncMapping()
 					
 				} else {
 				
-					script.log('Module WLEDAudioSync removed ..: ' + WLEDAudioExist.name);
+					script.log('Module WLEDAudioSync removed ..: ' + moduleNumbers[i].name);
 				}
 			}
 		}
@@ -2337,7 +2350,7 @@ function createCustomVariables(scGroup)
 
 			} 
 
-			// create Container for calcul of IP/color/effect/index/mapcolor: used by script or link
+			// create Container for calculation of IP/color/effect/index/mapcolor: used by script or link
 			var newtmpwledContainer = newGroup.addContainer("Calculated Params");
 
 			newGroupIP = newtmpwledContainer.addStringParameter("IP","IP to use for Effect. calculated by script","0.0.0.0");
@@ -2886,6 +2899,7 @@ function showStep5 ()
 	}
 }
 
+// check if spleeter is still running or take too much time
 function checkSpleeter()
 {
 	var newSequence = newAudio.getParent();
@@ -2904,13 +2918,15 @@ function checkSpleeter()
 	} else {
 		
 		vocalExist.enabled.set(0);
+		vocalExist.miniMode.set(1);
 		// retreive vocals part from the sequence and create mapping
 		var seqVocals = newAudio.getParent().getControlAddress() + "/vocals";		
-		rhythmAnalyzer (0, seqVocals, "", 7, 1, 200, 6, 12, 300);
+		rhythmAnalyzer (0, seqVocals, "", 7, .5, 200, 6, 12, 300);
 		var accompanimentExist = newSequence.getChild('accompaniment');
 		if (accompanimentExist.name != "undefined")
 		{
 			accompanimentExist.enabled.set(0);
+			accompanimentExist.miniMode.set(1);
 		}
 		
 	}
@@ -2923,12 +2939,15 @@ function checkSpleeter()
 	}
 }
 
-// check if analyzer for spleeter is finished
+// check if no analyzer running
 function checkLast()
 {
 	if (rhythmAnalyzerIsRunning === true)
 	{
 		script.log('RhythmAnalyzer is running');
+		moreInfo = "";
+		keepJson = 0;
+		showCreation = false;
 		
 	} else {
 
@@ -3061,9 +3080,17 @@ function generateLedFXDevicesList()
 		var virtualDevicesList = util.getObjectProperties(root.modules.ledFX.values.virtuals, true, false);
 		local.parameters.ledFXParams.devicesList.addOption("none","none");
 
-		for ( var i = 0; i < virtualDevicesList.length ; i++)		
-		{	
-			local.parameters.ledFXParams.devicesList.addOption(virtualDevicesList[i],virtualDevicesList[i]);
+		if (virtualDevicesList.length == 0)
+		{
+			var defVirtual = local.parameters.ledFXParams.defaultVirtualDeviceName.get();
+			local.parameters.ledFXParams.devicesList.addOption(defVirtual,defVirtual);
+			
+		} else {
+
+			for ( var i = 0; i < virtualDevicesList.length ; i++)		
+			{	
+				local.parameters.ledFXParams.devicesList.addOption(virtualDevicesList[i],virtualDevicesList[i]);
+			}
 		}
 		
 	} else {
@@ -3085,9 +3112,17 @@ function generateLedFXScenesList()
 		var scenesList = util.getObjectProperties(root.modules.ledFX.values.scenes, true, false);
 		local.parameters.ledFXParams.scenesList.addOption("none","none");
 
-		for ( var i = 0; i < scenesList.length ; i++)		
-		{	
-			local.parameters.ledFXParams.scenesList.addOption(scenesList[i],scenesList[i]);
+		if (scenesList.length == 0)
+		{
+			var defScene = local.parameters.ledFXParams.defaultSceneName.get();
+			local.parameters.ledFXParams.scenesList.addOption(defScene,defScene);
+			
+		} else {
+
+			for ( var i = 0; i < scenesList.length ; i++)		
+			{	
+				local.parameters.ledFXParams.scenesList.addOption(scenesList[i],scenesList[i]);
+			}
 		}
 		
 	} else {
@@ -3096,6 +3131,7 @@ function generateLedFXScenesList()
 	}
 }
 
+// request virtuals device list from LedFX and refresh enum param
 function refreshDevices()
 {
 	script.log('refresh LedfX devices list');
@@ -3114,6 +3150,7 @@ function refreshDevices()
 	runrefreshLedFXDevicesList = false;	
 }
 
+// request scenes list from LedFX and refresh enum param
 function refreshScenes()
 {
 	script.log('refresh LedfX scenes list');
