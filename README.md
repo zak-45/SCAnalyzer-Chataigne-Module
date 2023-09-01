@@ -23,7 +23,7 @@ QM Segmenter and BBC Rhythm Difference.
 The Sonic Annotator extraction tool is necessary and is the main process that will be run. SCAnalyzer take json datas from it, interpret them and create requested triggers/mapping.
 
 
-This module is deeply integrated with WLED and LedFX, so if you use the corresponding modules, it will automaticaly create actions for them.
+This module is deeply integrated with WLED and LedFX, so if you use the corresponding modules, it can automaticaly create actions for them.
 Websocket , UDP and HTTP protocols are used, depend of the necessity and required response time.
 
 
