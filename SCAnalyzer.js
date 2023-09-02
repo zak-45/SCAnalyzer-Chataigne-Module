@@ -17,6 +17,8 @@ Create mapping for vocal part of a song.
 Send WLED audio sync from mapping.
 Easing set to Hold for the created keys.
 
+root.globalSettings.interface.useOpenGLRenderer  need to be set to 0 (false)
+
 */
 
 // Sonic Visualiser : to be adapted by OS

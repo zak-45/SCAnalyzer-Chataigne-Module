@@ -2,8 +2,17 @@
 @prefix vamp:     <http://purl.org/ontology/vamp/> .
 @prefix :         <#> .
 
+:transform_plugin a vamp:Plugin ;
+    vamp:identifier "qm-segmenter" .
+
+:transform_library a vamp:PluginLibrary ;
+    vamp:identifier "qm-vamp-plugins" ;
+    vamp:available_plugin :transform_plugin .
+
 :transform a vamp:Transform ;
-    vamp:plugin <http://vamp-plugins.org/rdf/plugins/qm-vamp-plugins#qm-segmenter> ;
+    vamp:plugin :transform_plugin ;
+    vamp:step_size "8820"^^xsd:int ; 
+    vamp:block_size "26460"^^xsd:int ; 
     vamp:plugin_version """3""" ; 
     vamp:parameter_binding [
         vamp:parameter [ vamp:identifier "featureType" ] ;
@@ -17,4 +26,4 @@
         vamp:parameter [ vamp:identifier "neighbourhoodLimit" ] ;
         vamp:value "neighbourhoodLimit"^^xsd:float ;
     ] ;
-    vamp:output <http://vamp-plugins.org/rdf/plugins/qm-vamp-plugins#qm-segmenter_output_segmentation> .
+    vamp:output [ vamp:identifier "segmentation" ] .
