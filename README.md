@@ -44,3 +44,24 @@ Vamp Plugins : https://vamp-plugins.org/index.html  ---> Pack : https://vamp-plu
 Sonic Annotator : https://vamp-plugins.org/sonic-annotator/ --> binaries : https://code.soundsoftware.ac.uk/projects/sonic-annotator/files
 
 
+## Installation :
+
+Manual :
+
+Install Chataigne (v 1.9.16 min.) & copy this repository into :
+```
+<Chataigne>/modules/SCAnalyzer
+```
+Install Sonic Annotator and the corresponding vamp plugins (see related links and documentation).
+
+For Win users :
+
+use the SCAnalyzer.exe 
+
+(https://github.com/zak-45/SCAnalyzer-Chataigne-Module/releases/download/1.0.0/SCAnalyzer.exe)
+```
+you can install : Chataigne , SCAnalyzer module, vamp plugins and Sonic annotator in easy way
+```
+
+
+
