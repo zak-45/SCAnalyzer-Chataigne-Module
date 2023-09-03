@@ -128,8 +128,8 @@ Mapping Params
 
             Reset mapping Max value : check to create during mapping a zero point before and after the max value.
                                       Caution, extra time needed and to use for test only.
-            Split : actions will be split (in modulo of index) to all IP address set in the selected group.
-            Sequential : actions will be split (in sequential order & loop) to all IP address set in the selected group.
+            Split : actions will be split (in modulo of index) thru all IP address set in the selected group.
+            Sequential : actions will be split (in sequential order & loop) thru all IP address set in the selected group.
 ```
 ![image](https://github.com/zak-45/SCAnalyzer-Chataigne-Module/assets/121941293/82223b13-148e-40e1-bed9-17b5de18fea6)
 
@@ -143,6 +143,32 @@ default (without Reset mapping Max value) :
 Reset mapping Max value checked :
 ```
 ![image](https://github.com/zak-45/SCAnalyzer-Chataigne-Module/assets/121941293/73c46275-21c6-4f7e-8c5e-f992ce7133ad)
+
+```
+            -------- Example for Split & Sequential -------
+
+            During sequence playback, index value will be incremented each time during mapping output
+            (from 1 ... n)
+            Suppose we have 3 IP addresses in the group :
+                        IP : 192.168.1.1
+                        IP1: 192.168.1.2
+                        IP2: 192.168.1.3
+
+            Split case :for index value 1 the mapping output will be set to IP
+                        for index value 2 the mapping output will be set to IP1
+                        for index value 3 the mapping output will be set to IP2
+                        for index value 4 the mapping output will be set to IP1
+                        for index value 5 the mapping output will be set to IP
+                        for index value 6 the mapping output will be set to IP2
+                        for index value 7 the mapping output will be set to IP
+                        for index value 8 the mapping output will be set to IP1
+                        for index value 9 the mapping output will be set to IP2
+                        for index value 10 the mapping output will be set to IP1
+                        ....
+
+            Sequential case : more simple
+                         this will go from IP, IP1, IP2, IP, IP1, IP2 ....
+```
 
 
 
