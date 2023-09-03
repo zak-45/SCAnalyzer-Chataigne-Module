@@ -99,7 +99,50 @@ Sonic Params
 
 ```
 ![image](https://github.com/zak-45/SCAnalyzer-Chataigne-Module/assets/121941293/1eb977bb-b290-4664-abe0-7b19f91b427b)
-    
+```
+
+Group Params
+
+            Link to group number : select group number to choose during automatic mapping creation.
+                                    the one selected need to exist in custom variables.
+            Scgroup xx (1 .. 12) : enter a group name to create an entry in custom variables.
+```
+![image](https://github.com/zak-45/SCAnalyzer-Chataigne-Module/assets/121941293/da1e8a06-a542-4378-8b4b-574c2ee13800)
+```
+     ----- Info on group feature ---------
+
+            each group will have :
+                        Variables container with one to many IP address.
+                        Calculated params container with variables used/calculated by script and read only.
+
+                        in case of WLED module presence, a Default WLED params container with default values that can be set.
+                        These values will be used during automatic WLED actions creations.
+```
+![image](https://github.com/zak-45/SCAnalyzer-Chataigne-Module/assets/121941293/9cfd309f-6269-429e-806a-f2ac01d19103)
+
+![image](https://github.com/zak-45/SCAnalyzer-Chataigne-Module/assets/121941293/a76feb2f-9d8a-450a-82cb-53462a8d2017)
+
+```
+
+Mapping Params
+
+            Reset mapping Max value : check to create during mapping a zero point before and after the max value.
+                                      Caution, extra time needed and to use for test only.
+            Split : actions will be split (in modulo of index) to all IP address set in the selected group.
+            Sequential : actions will be split (in sequential order & loop) to all IP address set in the selected group.
+```
+![image](https://github.com/zak-45/SCAnalyzer-Chataigne-Module/assets/121941293/82223b13-148e-40e1-bed9-17b5de18fea6)
+
+```
+            ----- Visual representation for Reset mapping Max value ------
+
+default (without Reset mapping Max value) :
+```
+![image](https://github.com/zak-45/SCAnalyzer-Chataigne-Module/assets/121941293/9f71a770-e6a0-45dd-8476-b1bb609dedd0)
+```
+Reset mapping Max value checked :
+```
+![image](https://github.com/zak-45/SCAnalyzer-Chataigne-Module/assets/121941293/73c46275-21c6-4f7e-8c5e-f992ce7133ad)
 
 
 
