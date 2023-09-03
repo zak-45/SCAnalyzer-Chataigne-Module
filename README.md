@@ -63,5 +63,45 @@ use the SCAnalyzer.exe
 you can install : Chataigne , SCAnalyzer module, vamp plugins and Sonic annotator in easy way
 ```
 
+## Use it : 
+
+Go to Modules, right click, custom / SCAnalyzer
+
+![image](https://github.com/zak-45/SCAnalyzer-Chataigne-Module/assets/121941293/7304946e-20fe-40cd-b1d8-e7ccf3233b5c)
+
+
+You should see these modules loaded and on Inspector, all related params.
+
+![image](https://github.com/zak-45/SCAnalyzer-Chataigne-Module/assets/121941293/c801a3fc-74d7-4910-a2e5-1b0fde85da0b)
+
+``` 
+On Inspector / Parameters
+
+Audio Params 
+
+            Global Delay : delay in ms to execute all triggers/consequences & mapping/outputs.
+                           mainly used to sync lights with audio in case of delay during playback(e.g use of BT  wireless speaker).
+```
+![image](https://github.com/zak-45/SCAnalyzer-Chataigne-Module/assets/121941293/050a4bdb-78f8-4054-856d-942d18500b5e)
+```
+
+Sonic Params 
+
+            Run Sonic Visualizer : click to execute Sonic Visualizer app (optional)
+                        // Sonic Visualiser : to be adapted by OS
+                        sonicVisu = "C:/Program Files/Sonic Visualiser/Sonic Visualiser.exe";
+
+            Sonic Annotator info : click to go web documentation
+            Sonic Annotator location : choose where sonic annotator app can be found (mandatory)
+            output folder : folder to store the json datas
+            transform file : file to use when want custom params for segmenter vamp plugin 
+            Rhythm transform file : file to use when want custom params for rhythm vamp plugin
+
+```
+![image](https://github.com/zak-45/SCAnalyzer-Chataigne-Module/assets/121941293/1eb977bb-b290-4664-abe0-7b19f91b427b)
+    
+
+
+
 
 
