@@ -49,6 +49,7 @@ Vamp Plugins : https://vamp-plugins.org/index.html  ---> Pack : https://vamp-plu
 
 Sonic Annotator : https://vamp-plugins.org/sonic-annotator/ --> binaries : https://code.soundsoftware.ac.uk/projects/sonic-annotator/files
 
+Youtube Chanel : https://youtube.com/@NGEvents?feature=shared
 
 ## Installation :
 
