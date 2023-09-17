@@ -17,8 +17,14 @@ Main goal is to create automatic sequence with actions/triggers execution : coul
 
 It's based on these two Vamp plugins: 
 ```
-QM Segmenter and BBC Rhythm Difference.
+QM Segmenter.
 ```
+https://youtu.be/vkKx9QjBUSk
+
+```
+BBC Rhythm Difference.
+```
+https://youtu.be/6Crcvwpx4_0
 
 The Sonic Annotator extraction tool is necessary and is the main process that will be run. SCAnalyzer take json datas from it, interpret them and create requested triggers/mapping.
 
