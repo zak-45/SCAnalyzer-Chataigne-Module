@@ -123,11 +123,14 @@ Group Params
                         Variables container with one to many IP address.
                         Calculated params container with variables used/calculated by script and read only.
 
+```
+![image](https://github.com/zak-45/SCAnalyzer-Chataigne-Module/assets/121941293/9cfd309f-6269-429e-806a-f2ac01d19103)
+
+```
                         in case of WLED module presence,
                         a Default WLED params container with default values that can be set.
                         These values will be used during automatic WLED actions creations.
 ```
-![image](https://github.com/zak-45/SCAnalyzer-Chataigne-Module/assets/121941293/9cfd309f-6269-429e-806a-f2ac01d19103)
 
 ![image](https://github.com/zak-45/SCAnalyzer-Chataigne-Module/assets/121941293/a76feb2f-9d8a-450a-82cb-53462a8d2017)
 
