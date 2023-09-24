@@ -36,6 +36,7 @@ Websocket , UDP and HTTP protocols are used, depend of the necessity and require
 It will also take care of the Spleeter module to generate mapping for only vocal part of the song. See: https://youtu.be/TxMugj49Dz4
 
 WLEDAudioSync replay file feature is part of the process. You can even use more than one WLEDAudioSync module if you need to send on same time to WLED fw based on ESP8266 and WLED fw based on ESP32.
+See : https://youtu.be/Fy8NGl8-Jyc
 
 
 'Create Show' command will generate all actions/triggers/mapping with few clicks.
