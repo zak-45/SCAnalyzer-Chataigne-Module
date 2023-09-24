@@ -33,7 +33,7 @@ This module is deeply integrated with WLED and LedFX, so if you use the correspo
 Websocket , UDP and HTTP protocols are used, depend of the necessity and required response time.
 
 
-It will also take care of the Spleeter module to generate mapping for only vocal part of the song.
+It will also take care of the Spleeter module to generate mapping for only vocal part of the song. See: https://youtu.be/TxMugj49Dz4
 
 WLEDAudioSync replay file feature is part of the process. You can even use more than one WLEDAudioSync module if you need to send on same time to WLED fw based on ESP8266 and WLED fw based on ESP32.
 
