@@ -3,7 +3,7 @@
 ![image](https://user-images.githubusercontent.com/121941293/229838656-b568b3cc-4eba-4d5a-80d6-d6c85fdb1974.png)
 
 
-Song analyzer, timecoded sequence creation. Actions/ Triggers execution based on segmenter/rhythm difference. 
+Song analyzer, timecoded sequence creation. Actions/ Triggers execution based on segmenter/rhythm difference. This work mainly for mp3 audio file.
 ```
 Segmenter : divides a single channel of music up into structurally consistent segments.
             It returns a numeric value (the segment type) for each moment at which a new segment starts.
