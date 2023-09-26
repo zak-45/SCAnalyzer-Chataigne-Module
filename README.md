@@ -149,6 +149,7 @@ Mapping Params
                          set in the selected group.
 ```
 ![image](https://github.com/zak-45/SCAnalyzer-Chataigne-Module/assets/121941293/82223b13-148e-40e1-bed9-17b5de18fea6)
+see : https://youtu.be/tL3g7ofz_Ts
 
 ```
             ----- Visual representation for Reset mapping Max value ------
