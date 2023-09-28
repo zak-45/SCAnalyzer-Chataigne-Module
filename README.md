@@ -121,7 +121,7 @@ Group Params
      ----- Info on group feature ---------
 
             each group will have :
-                        Variables container with one to many IP address.
+                        Variables container with one to many IP address (others should work, name need to be IPxxx).
                         Calculated params container with variables used/calculated by script and read only.
 
 ```
@@ -130,7 +130,7 @@ Group Params
 ```
                         in case of WLED module presence,
                         a Default WLED params container with default values that can be set.
-                        These values will be used during automatic WLED actions creations.
+                        These values will be used during automatic WLED actions generation.
 ```
 
 ![image](https://github.com/zak-45/SCAnalyzer-Chataigne-Module/assets/121941293/a76feb2f-9d8a-450a-82cb-53462a8d2017)
