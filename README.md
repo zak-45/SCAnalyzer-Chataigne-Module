@@ -142,10 +142,10 @@ Mapping Params
             Reset mapping Max value : check to create during mapping a zero point before and after the max value.
                                       Caution, extra time needed and to use for test only.
 
-            Split : actions will be split (in modulo of index) thru all IP address
+            Split : actions will be split (in modulo of index) through all IP address
                     set in the selected group.
 
-            Sequential : actions will be split (in sequential order & loop) thru all IP address
+            Sequential : actions will be split (in sequential order & loop) through all IP address
                          set in the selected group.
 ```
 ![image](https://github.com/zak-45/SCAnalyzer-Chataigne-Module/assets/121941293/82223b13-148e-40e1-bed9-17b5de18fea6)
