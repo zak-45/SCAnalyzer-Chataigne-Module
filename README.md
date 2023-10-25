@@ -70,9 +70,9 @@ Install Sonic Annotator and the corresponding vamp plugins (see related links an
 
 For Win users :
 
-use the SCAnalyzer.exe 
+use the SCAnalyzer.exe from releases
 
-(https://github.com/zak-45/SCAnalyzer-Chataigne-Module/releases/download/1.0.0/SCAnalyzer.exe)
+(https://github.com/zak-45/SCAnalyzer-Chataigne-Module/releases/)
 ```
 you can install : Chataigne , SCAnalyzer module, vamp plugins and Sonic annotator in easy way
 ```
