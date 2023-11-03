@@ -33,7 +33,7 @@ This module is deeply integrated with WLED and LedFX, so if you use the correspo
 Websocket , UDP and HTTP protocols are used, depend of the necessity and required response time.
 
 
-It will also take care of the Spleeter module to generate mapping for only vocal part of the song. 
+It will also take care of the [Spleeter module](https://github.com/zak-45/SpleeterGUI-Chataigne-Module) to generate mapping for only vocal part of the song. 
 
 See: https://youtu.be/TxMugj49Dz4
 
