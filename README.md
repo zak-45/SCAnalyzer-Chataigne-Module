@@ -26,7 +26,7 @@ BBC Rhythm Difference.
 ```
 see demo : https://youtu.be/6Crcvwpx4_0
 
-The [Sonic Annotator](https://vamp-plugins.org/sonic-annotator) extraction tool is necessary and is the main process that will be run. SCAnalyzer take json datas from it, interpret them and create requested triggers/mapping.
+The [Sonic Annotator](https://vamp-plugins.org/sonic-annotator/)) extraction tool is necessary and is the main process that will be run. SCAnalyzer take json datas from it, interpret them and create requested triggers/mapping.
 
 
 This module is deeply integrated with WLED and LedFX, so if you use the corresponding modules, it can automaticaly create actions for them.
