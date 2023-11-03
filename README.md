@@ -15,7 +15,7 @@ Rhythm difference : Calculates rhythmic features of a signal, including onsets a
 
 Main goal is to create automatic sequence with actions/triggers execution : could be any protocol/software already integrated into Chataigne, even external by using HTTP module for example.
 
-It's based on these two Vamp plugins: 
+It's based on these two [Vamp plugins](https://vamp-plugins.org/index.html): 
 ```
 QM Segmenter.
 ```
@@ -26,7 +26,7 @@ BBC Rhythm Difference.
 ```
 see demo : https://youtu.be/6Crcvwpx4_0
 
-The Sonic Annotator extraction tool is necessary and is the main process that will be run. SCAnalyzer take json datas from it, interpret them and create requested triggers/mapping.
+The [Sonic Annotator](https://vamp-plugins.org/sonic-annotator) extraction tool is necessary and is the main process that will be run. SCAnalyzer take json datas from it, interpret them and create requested triggers/mapping.
 
 
 This module is deeply integrated with WLED and LedFX, so if you use the corresponding modules, it can automaticaly create actions for them.
@@ -37,7 +37,7 @@ It will also take care of the [Spleeter module](https://github.com/zak-45/Spleet
 
 See: https://youtu.be/TxMugj49Dz4
 
-WLEDAudioSync replay file feature is part of the process. You can even use more than one WLEDAudioSync module if you need to send on same time to WLED fw based on ESP8266 and WLED fw based on ESP32.
+[WLEDAudioSync](https://github.com/zak-45/WLEDAudioSync-Chataigne-Module) replay file feature is part of the process. You can even use more than one WLEDAudioSync module if you need to send on same time to WLED fw based on ESP8266 and WLED fw based on ESP32.
 
 
 See : https://youtu.be/Fy8NGl8-Jyc
