@@ -29,7 +29,7 @@ see demo : https://youtu.be/6Crcvwpx4_0
 The [Sonic Annotator](https://vamp-plugins.org/sonic-annotator/) extraction tool is necessary and is the main process that will be run. SCAnalyzer take json datas from it, interpret them and create requested triggers/mapping.
 
 
-This module is deeply integrated with WLED and LedFX, so if you use the corresponding modules, it can automaticaly create actions for them.
+This module is deeply integrated with [WLED](https://github.com/zak-45/WLED-Chataigne-Module) and [LedFX](https://github.com/zak-45/LedFX-Chataigne-Module), so if you use the corresponding modules, it can automaticaly create actions for them.
 Websocket , UDP and HTTP protocols are used, depend of the necessity and required response time.
 
 
