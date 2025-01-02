@@ -74,7 +74,7 @@ var tempDIR = "";
 var homeDIR = "";
 var winHOME = "";
 //
-var moduleDIR = "/Chataigne/Modules/SCAnalyzer/";
+var moduleDIR = "/Chataigne/Modules/SCAnalyzer-Chataigne-Module-main/";
 
 // Transform file
 var origTransform = "";
