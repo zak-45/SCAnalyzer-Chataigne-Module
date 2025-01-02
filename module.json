@@ -3,10 +3,10 @@
 	"type": "Empty",
 	"path": "Custom",
 	
-	"version": "1.0.0",
+	"version": "2.0.0",
 	"description": "Analysis Command for sequence/audio clip, based on Vamp plugin",
-	"url":"",
-	"downloadURL": "",
+	"url":"https://github.com/zak-45/SCAnalyzer-Chataigne-Module",
+	"downloadURL": "https://github.com/zak-45/SCAnalyzer-Chataigne-Module/archive/refs/heads/main.zip",
 	"hasInput": true,
 	"hasOutput": true, 
 	"hideDefaultCommands": false,

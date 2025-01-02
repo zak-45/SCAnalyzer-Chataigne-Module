@@ -2,7 +2,7 @@
 
 author:	zak45
 date:	03/11/2022
-version:1.0.0
+version:2.0.0
 
 Chataigne Module for  Song Analysis using Vamp plugin .
 
@@ -767,7 +767,7 @@ function runsegAnalyzer (sequence, targetFile, featureType, nSegmentTypes, neigh
 			prefix = "CALC" + linkToGroupNumber;
 		}
 
-		newLayersTrigger.triggerWhenSeeking.set(false);
+		// newLayersTrigger.triggerWhenSeeking.set(false);
 		
 		for (var i = 0; i < SCAJSONContent.annotations.length; i += 1)
 		{
