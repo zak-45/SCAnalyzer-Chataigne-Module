@@ -74,7 +74,7 @@ var tempDIR = "";
 var homeDIR = "";
 
 //
-var moduleDIR = "/Chataigne/Modules/SCAnalyzer-Chataigne-Module-main/";
+var moduleDIR = "";
 
 // Transform file
 var origTransform = "";
@@ -143,6 +143,7 @@ function init()
 	script.log("We run under : "+infos.name);
 
     homeDIR = util.getDocumentsDirectory();
+    moduleDIR = util.getParentDirectory("SCAnalyzer.js");
 
 	// we check required TMP folder
 	analyzerTMP();
@@ -250,11 +251,11 @@ function update ()
 		// set folder for nc3 files
 		if (local.parameters.sonicParams.transformFile.get() == "qmsegmenter.nc3")
 		{
-			local.parameters.sonicParams.transformFile.set(homeDIR + moduleDIR+ "qmsegmenter.nc3");
+			local.parameters.sonicParams.transformFile.set( moduleDIR+ "/qmsegmenter.nc3");
 		}
 		if (local.parameters.sonicParams.rhythmTransformFile.get() == "bbcrhythm.nc3")
 		{
-			local.parameters.sonicParams.rhythmTransformFile.set(homeDIR + moduleDIR+ "bbcrhythm.nc3");
+			local.parameters.sonicParams.rhythmTransformFile.set(moduleDIR+ "/bbcrhythm.nc3");
 		}
 		// set sonic annotator folder
 		if (local.parameters.sonicParams.sonicAnnotatorLocation.get() == "sonic-annotator.exe")
@@ -449,14 +450,14 @@ function moduleParameterChanged (param)
 			
 			if (writeLedFXFileEffects == true)
 			{
-				util.writeFile(homeDIR + moduleDIR+enumFile,local.parameters.ledFXParams.associatedEffects.getAllOptions(),true);					
+				util.writeFile(moduleDIR+"/"+enumFile,local.parameters.ledFXParams.associatedEffects.getAllOptions(),true);
 			}
 			
 		} else if (param.name == "associatedScenes") {
 			
 			if (writeLedFXFileScenes == true)
 			{
-				util.writeFile(homeDIR + moduleDIR+enumScenesFile,local.parameters.ledFXParams.associatedScenes.getAllOptions(),true);					
+				util.writeFile(moduleDIR+"/"+enumScenesFile,local.parameters.ledFXParams.associatedScenes.getAllOptions(),true);
 			}
 			
 		} else if (param.name == "loadDefault")	{
@@ -2435,7 +2436,7 @@ function analyzerLoadenum ()
 	writeLedFXFileEffects = false;
 	local.parameters.ledFXParams.associatedEffects.removeOptions();
 	
-	var datafile = util.readFile(homeDIR + moduleDIR+enumFile,true);
+	var datafile = util.readFile(moduleDIR+"/"+enumFile,true);
 	for (var i = 0; i < datafile.length; i +=1 )
 	{
 		local.parameters.ledFXParams.associatedEffects.addOption(datafile[i].key,datafile[i].value);		
@@ -2450,7 +2451,7 @@ function analyzerLoadenumScenes ()
 	writeLedFXFileScenes = false;
 	local.parameters.ledFXParams.associatedScenes.removeOptions();
 	
-	var datafile = util.readFile(homeDIR + moduleDIR+enumScenesFile,true);
+	var datafile = util.readFile(moduleDIR+"/"+enumScenesFile,true);
 	for (var i = 0; i < datafile.length; i +=1 )
 	{
 		local.parameters.ledFXParams.associatedScenes.addOption(datafile[i].key,datafile[i].value);		
@@ -2639,7 +2640,7 @@ function analyzerTMP ()
 		return tempDIR;	
 	}
 
-	tempDIR = homeDIR + moduleDIR + "tmp";
+	tempDIR = moduleDIR + "/tmp";
 	script.log('Warning  temp directory env not found, set to modules');
 	
 return tempDIR;
