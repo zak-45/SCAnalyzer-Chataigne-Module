@@ -62,7 +62,7 @@ Youtube Chanel : https://youtube.com/@NGEvents?feature=shared
 
 Manual (any OS) :
 
-Install Chataigne (v 1.9.16 min.) & copy this repository into :
+Install Chataigne (v 1.9.25b2 min.) & copy this repository into :
 ```
 <Chataigne>/modules/SCAnalyzer-Chataigne-Module-main
 ```
