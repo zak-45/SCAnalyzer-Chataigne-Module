@@ -2639,7 +2639,7 @@ function analyzerTMP ()
 		return tempDIR;	
 	}
 
-	tempDIR = homeDIR + moduleDIR + "tmp"
+	tempDIR = homeDIR + moduleDIR + "tmp";
 	script.log('Warning  temp directory env not found, set to modules');
 	
 return tempDIR;
