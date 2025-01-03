@@ -3150,6 +3150,6 @@ script.log('current dir: ' + util.getCurrentFileDirectory());
 script.log('current path: ' + util.getCurrentFilePath());
 script.log('app ver: ' + util.getAppVersion());
 
-script.log(getParentDirectory("SCAnalyzer.js"));
+script.log(util.getParentDirectory("SCAnalyzer.js"));
 
 }
