@@ -72,7 +72,7 @@ var tempDIR = "";
 //HOME Location
 //%USERPROFILE% for WIN and $HOME for others
 var homeDIR = "";
-var winHOME = "";
+
 //
 var moduleDIR = "/Chataigne/Modules/SCAnalyzer-Chataigne-Module-main/";
 
@@ -142,15 +142,7 @@ function init()
 	script.log("Hello "+infos.username);	
 	script.log("We run under : "+infos.name);
 
-	if ( infos.name.contains("Win") )
-	{
-		homeDIR = util.getEnvironmentVariable("USERPROFILE") + "/Documents";
-		winHOME = util.getEnvironmentVariable("USERPROFILE");
-		
-	} else {
-		
-		homeDIR = util.getEnvironmentVariable("$HOME");
-	}	
+    homeDIR = util.getDocumentsDirectory();
 
 	// we check required TMP folder
 	analyzerTMP();
@@ -2646,8 +2638,9 @@ function analyzerTMP ()
 		tempDIR = pathTEMP;
 		return tempDIR;	
 	}
-	
-	script.log('ERROR temp directory not found');
+
+	tempDIR = homeDIR + moduleDIR + "tmp"
+	script.log('Warning  temp directory env not found, set to modules');
 	
 return tempDIR;
 }
