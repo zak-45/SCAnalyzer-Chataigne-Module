@@ -71,17 +71,14 @@ You need also this utility module to have full features: https://github.com/zak-
  copy to <Chataigne>/modules/SCAnalyzer_util
 
 ```
+you can also install it using the custom module manager :
+
+![img.png](img.png)
+
+
 
 Install Sonic Annotator and the corresponding vamp plugins (see related links and documentation).
 
-For Win users :
-
-use the SCAnalyzer.exe from releases
-
-(https://github.com/zak-45/SCAnalyzer-Chataigne-Module/releases/)
-```
-you can install : Chataigne , SCAnalyzer module, vamp plugins and Sonic annotator in easy way
-```
 
 ## Use it : 
 
