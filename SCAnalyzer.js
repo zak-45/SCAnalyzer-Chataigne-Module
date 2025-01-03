@@ -3151,4 +3151,10 @@ return null;
 function testScript()
 {
 
+script.log(util.getDocumentsDirectory());
+script.log(util.getDesktopDirectory());
+script.log(util.getCurrentFileDirectory());
+script.log(util.getCurrentFilePath());
+script.log(util.getAppVersion());
+
 }
