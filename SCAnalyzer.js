@@ -3151,10 +3151,10 @@ return null;
 function testScript()
 {
 
-script.log(util.getDocumentsDirectory());
-script.log(util.getDesktopDirectory());
-script.log(util.getCurrentFileDirectory());
-script.log(util.getCurrentFilePath());
-script.log(util.getAppVersion());
+script.log('documents: ' + util.getDocumentsDirectory());
+script.log('desktop: ' + util.getDesktopDirectory());
+script.log('current dir: ' + util.getCurrentFileDirectory());
+script.log('current path: ' + util.getCurrentFilePath());
+script.log('app ver: ' + util.getAppVersion());
 
 }
