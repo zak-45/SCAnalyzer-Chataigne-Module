@@ -80,7 +80,7 @@ you can also install it using the custom module manager :
 Install Sonic Annotator and the corresponding vamp plugins (see related links and documentation).
 
 
-https://vamp-plugins.org/download.html
+https://vamp-plugins.org/pack.html
 
 https://code.soundsoftware.ac.uk/projects/sonic-annotator/files
 
