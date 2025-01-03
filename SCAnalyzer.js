@@ -21,7 +21,7 @@ root.globalSettings.interface.useOpenGLRenderer  need to be set to 0 (false)
 
 */
 
-// Sonic Visualiser : to be adapted by OS
+// Sonic Visualiser : to be adapted by OS if want to use it (optional)
 var sonicVisu = "C:/Program Files/Sonic Visualiser/Sonic Visualiser.exe";
 
 // Main module parameters 
