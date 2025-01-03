@@ -66,15 +66,17 @@ Install Chataigne (v 1.9.25b2 min.) & copy this repository into :
 ```
 <Chataigne>/modules/SCAnalyzer-Chataigne-Module-main
 ```
+you can also install it using the custom module manager :
+
+![img.png](img.png)
+
+
+
 You need also this utility module to have full features: https://github.com/zak-45/SCAnalyzer_util
 ```
  copy to <Chataigne>/modules/SCAnalyzer_util
 
 ```
-you can also install it using the custom module manager :
-
-![img.png](img.png)
-
 
 
 Install Sonic Annotator and the corresponding vamp plugins (see related links and documentation).
