@@ -117,10 +117,12 @@ Sonic Params
                         sonicVisu = "C:/Program Files/Sonic Visualiser/Sonic Visualiser.exe";
 
             Sonic Annotator info : click to go web documentation
-            Sonic Annotator location : choose where sonic annotator app can be found (mandatory)
+            *Sonic Annotator location : choose where sonic annotator app can be found (mandatory)
             output folder : folder to store the json datas
-            transform file : file to use when want custom params for segmenter vamp plugin 
-            Rhythm transform file : file to use when want custom params for rhythm vamp plugin
+            *transform file : file to use when want custom params for segmenter vamp plugin 
+            *Rhythm transform file : file to use when want custom params for rhythm vamp plugin
+            
+            * Be sure to set right folder, you can click on right icon to see if Chataigne found them                        
 
 ```
 ![image](https://github.com/zak-45/SCAnalyzer-Chataigne-Module/assets/121941293/1eb977bb-b290-4664-abe0-7b19f91b427b)

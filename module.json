@@ -44,7 +44,7 @@
 			"Output Folder": { 
 				"type": "File", 
 				"directoryMode": true,
-				"description": "Sonic annotator output folder for Json file name. 
+				"description": "Sonic annotator output folder for Json file name.
 	This one will store the analyzer output and will be read to create corresponding Triggers/outputs.
 	If left blank, will be created with same name as audio file name under tmp location."
 			},
@@ -233,8 +233,7 @@ Virtual device must be defined with ledFX App",
 			},
 			"Default scene name": {
 				"type": "String",
-				"description": "Enter default scene name used for trigger consequences.
-Scene must be defined with ledFX App",
+				"description": "Enter default scene name used for trigger consequences.\n Scene must be defined with ledFX App",
 				"default": "ledfxscene"
 			},			
 			"Scenes List": {
